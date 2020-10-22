@@ -31,7 +31,7 @@ pub enum Permission {
 }
 
 /// Changes the permission of a user
-pub fn set_permission(username: String, permission: Permission) -> Result<()> {
+pub fn set_permission(conn: &UserDataBase, username: String, permission: Permission) -> Result<()> {
     // Query database
     // Set permission
     todo![]
