@@ -1,0 +1,9 @@
+//! A cli interface for the database
+
+extern crate backend;
+extern crate diesel;
+
+fn establish_connection() -> 
+
+fn main() {
+}

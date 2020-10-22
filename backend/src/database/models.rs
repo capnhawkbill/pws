@@ -1,5 +1,5 @@
 use super::schema::*;
-use crate::login::permission::Permission;
+
 
 #[derive(Debug, Queryable)]
 pub struct User {

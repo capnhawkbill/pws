@@ -9,7 +9,7 @@ pub mod permission;
 pub type ApiKey = String;
 
 /// Uses login credentials to get apikey
-pub fn login(conn: &UserDataBase, username: String, password: String) -> Result<ApiKey> {
+pub fn login(_conn: &UserDataBase, _username: String, _password: String) -> Result<ApiKey> {
     // Query database
     // Check shit
     // Send Apikey
@@ -17,7 +17,7 @@ pub fn login(conn: &UserDataBase, username: String, password: String) -> Result<
 }
 
 /// Signs the username up with the password
-pub fn signup(conn: &UserDataBase, username: String, password: String) -> Result<ApiKey> {
+pub fn signup(_conn: &UserDataBase, _username: String, _password: String) -> Result<ApiKey> {
     // Query database
     // Check duplicates
     // Check if allowed teacher

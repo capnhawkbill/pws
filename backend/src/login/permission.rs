@@ -1,8 +1,8 @@
 //! All the permission stuff
 
 use anyhow::Result;
-use std::str::FromStr;
-use std::string::ToString;
+
+
 use strum_macros::{Display, EnumString};
 
 /// The different permissions a user can have
@@ -15,7 +15,7 @@ pub enum Permission {
 }
 
 /// Changes the permission of a user
-pub fn set_permission(username: String, permission: Permission) -> Result<()> {
+pub fn set_permission(_username: String, _permission: Permission) -> Result<()> {
     // Query database
     // Set permission
     todo![]
