@@ -3,6 +3,7 @@ extern crate backend;
 extern crate rocket;
 
 use backend::config::AppState;
+use backend::database::UserDataBase;
 use backend::routes::*;
 
 fn main() {

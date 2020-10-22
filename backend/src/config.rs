@@ -1,4 +1,5 @@
 //! The global app state currently only contains the secret key
+use jsonwebtoken::EncodingKey;
 use rocket::fairing::AdHoc;
 use std::env;
 

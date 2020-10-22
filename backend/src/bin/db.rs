@@ -6,7 +6,7 @@ extern crate dotenv;
 extern crate structopt;
 
 use backend::database;
-use backend::login::permission::Permission;
+use backend::permission::Permission;
 use diesel::{Connection, SqliteConnection};
 use dotenv::dotenv;
 use std::env;

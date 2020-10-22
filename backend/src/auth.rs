@@ -8,18 +8,20 @@ use jsonwebtoken as jwt;
 
 use crate::config;
 
+/// A request guard for JWT authentication
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {
     /// timestamp
     pub exp: i64,
     /// user id
     pub id: i32,
+    /// username
     pub username: String,
 }
 
 impl Auth {
-    pub fn token(&self, secret: &[u8]) -> String {
-        jwt::encode(&jwt::Header::default(), self, secret).expect("jwt")
+    pub fn token(&self, secret: &jwt::EncodingKey) -> String {
+        jwt::encode(&jwt::Header::default(), self, &secret).expect("jwt")
     }
 }
 
@@ -41,16 +43,17 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 }
 
 fn extract_auth_from_request(request: &Request, secret: &[u8]) -> Option<Auth> {
+    let decodekey = jwt::DecodingKey::from_secret(secret);
     request
         .headers()
         .get_one("authorization")
         .and_then(extract_token_from_header)
-        .and_then(|token| decode_token(token, secret))
+        .and_then(|token| decode_token(token, &decodekey))
 }
 
 fn extract_token_from_header(header: &str) -> Option<&str> {
-    if header.starts_with(config::TOKEN_PREFIX) {
-        Some(&header[config::TOKEN_PREFIX.len()..])
+    if header.starts_with("token ") {
+        Some(&header["token ".len()..])
     } else {
         None
     }
@@ -58,10 +61,10 @@ fn extract_token_from_header(header: &str) -> Option<&str> {
 
 /// Decode token into `Auth` struct. If any error is encountered, log it
 /// an return None.
-fn decode_token(token: &str, secret: &[u8]) -> Option<Auth> {
+fn decode_token(token: &str, secret: &jwt::DecodingKey) -> Option<Auth> {
     use jwt::{Algorithm, Validation};
 
-    jwt::decode(token, secret, &Validation::new(Algorithm::HS256))
+    jwt::decode(token, &secret, &Validation::new(Algorithm::HS256))
         .map_err(|err| {
             eprintln!("Auth decode error: {:?}", err);
         })

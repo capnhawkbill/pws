@@ -17,4 +17,5 @@ pub mod database;
 //pub mod login;
 pub mod auth;
 pub mod config;
+pub mod permission;
 pub mod routes;
