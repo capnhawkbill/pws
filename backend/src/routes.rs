@@ -4,6 +4,7 @@ use anyhow::Result;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
+use crate::database::UserDataBase;
 use crate::login;
 
 #[derive(Deserialize)]
@@ -19,8 +20,9 @@ pub struct ApiKey {
 
 /// Just sends everything to the login function
 #[post("/login", format = "json", data = "<credentials>")]
-pub fn login(credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
+pub fn login(conn: UserDataBase, credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
     let apikey = match login::login(
+        &conn,
         (*credentials.username).to_string(),
         (*credentials.password).to_string(),
     ) {
@@ -35,8 +37,9 @@ pub fn login(credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
 
 /// Just sends everything to the signup function
 #[post("/signup", format = "json", data = "<credentials>")]
-pub fn signup(credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
+pub fn signup(conn: UserDataBase, credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
     let apikey = match login::signup(
+        &conn,
         (*credentials.username).to_string(),
         (*credentials.password).to_string(),
     ) {
