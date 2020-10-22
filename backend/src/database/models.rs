@@ -1,11 +1,20 @@
-use diesel::{Insertable, Queryable};
+use super::schema::*;
+use crate::login::permission::Permission;
 
-use crate::login::Permission;
-
-#[derive(QueryAble)]
+#[derive(Debug, Queryable)]
 pub struct User {
-    username: String,
-    password: String,
-    apikey: String,
-    permission: Permission,
+    pub id: i32,
+    pub username: String,
+    pub password: String,
+    pub apikey: String,
+    pub permission: String,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "users"]
+pub struct NewUser<'a> {
+    pub username: &'a str,
+    pub password: &'a str,
+    pub apikey: &'a str,
+    pub permission: String,
 }

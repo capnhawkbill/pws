@@ -7,12 +7,14 @@ use serde::{Deserialize, Serialize};
 use crate::database::UserDataBase;
 use crate::login;
 
+/// The credentials that are received as json
 #[derive(Deserialize)]
 pub struct Credentials {
     username: String,
     password: String,
 }
 
+/// The apikey that is returned as json
 #[derive(Serialize)]
 pub struct ApiKey {
     apikey: String,
