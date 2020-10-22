@@ -8,8 +8,11 @@ use strum_macros::{Display, EnumString};
 /// Convertable to and from strings
 #[derive(Display, Debug, Clone, Copy, EnumString)]
 pub enum Permission {
+    /// A student permission
     Student,
+    /// A teacher permission
     Teacher,
+    /// A admin permission
     Admin,
 }
 

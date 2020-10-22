@@ -3,7 +3,6 @@
 extern crate backend;
 extern crate diesel;
 extern crate dotenv;
-#[macro_use]
 extern crate structopt;
 
 use backend::database;
@@ -86,15 +85,21 @@ fn main() {
 fn view(conn: &SqliteConnection) {
     for user in database::get_users(&conn).unwrap() {
         println!(
-            "name: {}\npassword: {}\napikey: {}\npermission: {}",
+            "name: {}\npassword: {}\napikey: {}\npermission: {}\n",
             user.username, user.password, user.apikey, user.permission
         );
     }
 }
 
-fn update(conn: &SqliteConnection, username: String, field: String, value: String) {}
+fn update(conn: &SqliteConnection, username: String, field: String, value: String) {
+    database::update_user(&conn, &username, &field, &value).unwrap();
+    println!("Updated field {} to {}", field, value);
+}
 
-fn delete(conn: &SqliteConnection, username: String) {}
+fn delete(conn: &SqliteConnection, username: String) {
+    database::delete_user(&conn, &username).unwrap();
+    println!("Deleted {}", username);
+}
 
 fn insert(
     conn: &SqliteConnection,

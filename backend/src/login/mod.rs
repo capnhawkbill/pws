@@ -3,6 +3,7 @@
 use crate::database::UserDataBase;
 use anyhow::Result;
 
+pub mod guard;
 pub mod permission;
 
 /// Representation of the apikey

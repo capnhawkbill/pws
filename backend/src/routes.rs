@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::UserDataBase;
 use crate::login;
+use crate::login::guard::Student;
 
 /// The credentials that are received as json
 #[derive(Deserialize)]
@@ -52,4 +53,9 @@ pub fn signup(conn: UserDataBase, credentials: Json<Credentials>) -> Result<Json
         },
     };
     Ok(Json(ApiKey { apikey: apikey }))
+}
+
+#[get("/student")]
+pub fn student(student: Student) -> String {
+    format!("Hello {}", student.0.username)
 }
