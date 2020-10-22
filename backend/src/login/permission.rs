@@ -2,7 +2,6 @@
 
 use anyhow::Result;
 
-
 use strum_macros::{Display, EnumString};
 
 /// The different permissions a user can have

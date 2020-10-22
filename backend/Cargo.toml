@@ -13,6 +13,8 @@ serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0.33"
 strum = "0.19"
 strum_macros = "0.19"
+dotenv = "0.15.0"
+structopt = "0.3.20"
 
 [dependencies.rocket_contrib]
 version = "0.4.5"

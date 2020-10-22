@@ -37,3 +37,9 @@ pub fn get_user(conn: &diesel::SqliteConnection, name: &str) -> Result<Vec<model
     let results = users.filter(username.eq(name)).load::<models::User>(conn)?;
     Ok(results)
 }
+
+pub fn get_users(conn: &diesel::SqliteConnection) -> Result<Vec<models::User>> {
+    use schema::users::dsl::*;
+    let results = users.load::<models::User>(conn)?;
+    Ok(results)
+}

@@ -13,6 +13,6 @@ extern crate serde;
 extern crate strum;
 extern crate strum_macros;
 
-mod database;
-mod login;
+pub mod database;
+pub mod login;
 pub mod routes;

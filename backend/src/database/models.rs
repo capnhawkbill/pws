@@ -1,6 +1,5 @@
 use super::schema::*;
 
-
 #[derive(Debug, Queryable)]
 pub struct User {
     pub id: i32,
