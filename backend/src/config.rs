@@ -6,6 +6,7 @@ use std::env;
 /// Debug only secret for JWT encoding & decoding.
 const SECRET: &'static str = "8Xui8SN4mI+7egV/9dlfYYLGQJeEx4+DwmSQLwDVXJg=";
 
+/// Global app state
 pub struct AppState {
     pub secret: Vec<u8>,
 }
@@ -24,6 +25,7 @@ impl AppState {
 
             Ok(rocket.manage(AppState {
                 secret: secret.into_bytes(),
+                logins: Vec::new(),
             }))
         })
     }
