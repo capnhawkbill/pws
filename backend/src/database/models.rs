@@ -1,4 +1,6 @@
 use super::schema::*;
+use super::auth;
+use super::config::EXP;
 
 #[derive(Debug, Queryable)]
 pub struct User {
@@ -16,4 +18,10 @@ pub struct NewUser<'a> {
     pub password: &'a str,
     pub apikey: &'a str,
     pub permission: String,
+}
+
+impl User {
+    fn to_auth(&self) {
+
+    }
 }

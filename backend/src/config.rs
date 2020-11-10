@@ -25,7 +25,6 @@ impl AppState {
 
             Ok(rocket.manage(AppState {
                 secret: secret.into_bytes(),
-                logins: Vec::new(),
             }))
         })
     }
