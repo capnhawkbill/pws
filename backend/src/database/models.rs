@@ -1,4 +1,6 @@
 use super::schema::*;
+use super::auth;
+use super::config::EXP;
 
 #[derive(Debug, Queryable)]
 pub struct User {
@@ -18,6 +20,7 @@ pub struct NewUser<'a> {
     pub permission: String,
 }
 
+<<<<<<< HEAD
 #[derive(Debug, Queryable)]
 pub struct Badge {
     pub id: i32,
@@ -101,4 +104,10 @@ pub struct Assignment {
 pub enum Condition {
     /// If n amount of assignments is done
     AssignmentsDone(i32),
+=======
+impl User {
+    fn to_auth(&self) {
+
+    }
+>>>>>>> 3f190f961927985159b262e44c1ad6ed0b25df13
 }

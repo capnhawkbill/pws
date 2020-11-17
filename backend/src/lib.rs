@@ -15,9 +15,13 @@ extern crate strum_macros;
 extern crate derive_builder;
 
 pub mod database;
-//pub mod login;
+// pub mod login;
 pub mod auth;
 pub mod config;
 pub mod permission;
+<<<<<<< HEAD
 pub mod routes;
 pub mod models;
+=======
+pub mod routes;
+>>>>>>> 3f190f961927985159b262e44c1ad6ed0b25df13
