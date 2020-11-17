@@ -55,3 +55,8 @@ pub fn signup(conn: UserDataBase, credentials: Json<Credentials>) -> Result<Json
     //    };
     //    Ok(Json(ApiKey { apikey: apikey }))
 }
+
+//#[get("/user/info")]
+//pub fn info(auth: Auth) -> Result<Json<UserInfo>> {
+//    todo![]
+//}

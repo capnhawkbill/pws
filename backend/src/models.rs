@@ -1,38 +1,39 @@
+#![allow(missing_docs)]
 use derive_builder::Builder;
 
 /// The class
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
 pub struct Class {
     teachers: Vec<Teacher>,
-    students: Vec<Student>,
     homework: Vec<Assignment>,
     badges: Vec<Badge>,
 }
 
 /// The teacher
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
 pub struct Teacher {
     name: String,
     id: i64,
 }
 
 /// The student
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
 pub struct Student {
     name: String,
+    classes: Vec<Class>,
     id: i64,
     progress: Progress,
 }
 
 /// The progress a student made
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
 pub struct Progress {
     badges: Vec<Badge>,
     assignments: Vec<Assignment>
 }
 
 /// An assignment for in a class
-#[derive(Builder)]
+#[derive(Builder, Clone, Debug)]
 pub struct Assignment {
     name: String,
     id: i64,
@@ -40,6 +41,7 @@ pub struct Assignment {
 }
 
 /// A badge that a student can earn
+#[derive(Builder, Clone, Debug)]
 pub struct Badge {
     /// Name of the badge
     name: String,
@@ -54,6 +56,7 @@ pub struct Badge {
 }
 
 /// Conditions for badges
+#[derive(Clone, Debug)]
 pub enum Condition {
     /// If n amount of assignments is done
     AssignmentsDone(i32),
@@ -63,7 +66,7 @@ impl Condition {
     /// Check if a Student has the condition
     fn check(&self, student: Student) -> bool {
         match self {
-            AssignmentsDone(n) => student.progress.assignments.len() <= n,
+            Condition::AssignmentsDone(n) => student.progress.assignments.len() <= n.clone() as usize,
         }
     }
 }

@@ -12,6 +12,7 @@ extern crate anyhow;
 extern crate serde;
 extern crate strum;
 extern crate strum_macros;
+extern crate derive_builder;
 
 pub mod database;
 //pub mod login;
@@ -19,3 +20,4 @@ pub mod auth;
 pub mod config;
 pub mod permission;
 pub mod routes;
+pub mod models;
