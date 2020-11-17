@@ -6,8 +6,6 @@ use serde::{Deserialize, Serialize};
 
 use jsonwebtoken as jwt;
 
-use crate::config;
-
 /// A request guard for JWT authentication
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {
@@ -20,6 +18,7 @@ pub struct Auth {
 }
 
 impl Auth {
+    /// Generate a token for the Auth
     pub fn token(&self, secret: &jwt::EncodingKey) -> String {
         jwt::encode(&jwt::Header::default(), self, &secret).expect("jwt")
     }
