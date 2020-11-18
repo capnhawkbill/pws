@@ -4,6 +4,5 @@
 use crate::auth::Auth;
 
 #[get("/student/homework")]
-pub fn student_homework() -> Result<Json<Vec<Assignment>>> {
-
+pub fn student_homework(student: Student) -> Result<Json<Vec<Assignment>>> {
 }

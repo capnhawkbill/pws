@@ -73,6 +73,7 @@ pub struct NewTeacher<'a> {
 #[derive(Debug, Queryable)]
 pub struct Student {
     name: String,
+    password: String,
     classes: Vec<Class>,
     id: i64,
     progress: Progress,
@@ -82,6 +83,7 @@ pub struct Student {
 #[table_name = "students"]
 pub struct NewStudent<'a> {
     name: &'a str,
+    password: &'a str,
     classes: &'a [Class],
     id: i64,
     progress: Progress,
@@ -104,10 +106,4 @@ pub struct Assignment {
 pub enum Condition {
     /// If n amount of assignments is done
     AssignmentsDone(i32),
-=======
-impl User {
-    fn to_auth(&self) {
-
-    }
->>>>>>> 3f190f961927985159b262e44c1ad6ed0b25df13
 }

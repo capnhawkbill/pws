@@ -2,9 +2,11 @@
 use derive_builder::Builder;
 
 /// The class
+/// This contains all the students teachers assingments and badges
 #[derive(Builder, Clone, Debug)]
 pub struct Class {
     teachers: Vec<Teacher>,
+    students: Vec<Student>,
     homework: Vec<Assignment>,
     badges: Vec<Badge>,
 }
@@ -20,7 +22,6 @@ pub struct Teacher {
 #[derive(Builder, Clone, Debug)]
 pub struct Student {
     name: String,
-    classes: Vec<Class>,
     id: i64,
     progress: Progress,
 }
