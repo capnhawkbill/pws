@@ -10,6 +10,7 @@ extern crate rocket_contrib;
 extern crate diesel;
 extern crate anyhow;
 extern crate serde;
+extern crate base64;
 extern crate strum;
 extern crate strum_macros;
 extern crate derive_builder;
