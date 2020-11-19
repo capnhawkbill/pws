@@ -30,7 +30,7 @@ pub struct Student {
 #[derive(Builder, Clone, Debug)]
 pub struct Progress {
     badges: Vec<Badge>,
-    assignments: Vec<Assignment>
+    assignments: Vec<Assignment>,
 }
 
 /// An assignment for in a class
@@ -67,7 +67,9 @@ impl Condition {
     /// Check if a Student has the condition
     fn check(&self, student: Student) -> bool {
         match self {
-            Condition::AssignmentsDone(n) => student.progress.assignments.len() <= n.clone() as usize,
+            Condition::AssignmentsDone(n) => {
+                student.progress.assignments.len() <= n.clone() as usize
+            }
         }
     }
 }

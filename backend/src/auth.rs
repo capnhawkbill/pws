@@ -1,6 +1,6 @@
 use anyhow::Result;
-use rocket::request::{self, Request, FromRequest, Outcome};
 use rocket::http::Status;
+use rocket::request::{self, FromRequest, Outcome, Request};
 
 use super::models;
 
@@ -9,11 +9,13 @@ type Database = bool;
 
 /// This is a request guard for logging in as any user
 pub enum User {
+    /// A student
     Student(models::Student),
+    /// A teacher
     Teacher(models::Teacher),
+    /// A admin
     Admin(models::Admin),
 }
-
 
 /// This is a request guard for logging in as a user
 pub struct Student {}
@@ -51,18 +53,17 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         let header: Vec<_> = req.headers().get("Authorization").collect();
         // Check for the correct amount
         if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing))
+            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
         } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format))
+            return Outcome::Failure((Status::BadRequest, LoginError::Format));
         }
 
-        let user = check_value(header, db).map_err(|err|{
-            Outcome::Failure((Status::BadRequest, err))
-        })?;
+        let user =
+            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
 
         match user {
             User::Admin(a) => Outcome::Success(a),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission))
+            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
         }
     }
 }
@@ -79,18 +80,17 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
         let header: Vec<_> = req.headers().get("Authorization").collect();
         // Check for the correct amount
         if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing))
+            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
         } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format))
+            return Outcome::Failure((Status::BadRequest, LoginError::Format));
         }
 
-        let user = check_value(header, db).map_err(|err|{
-            Outcome::Failure((Status::BadRequest, err))
-        })?;
+        let user =
+            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
 
         match user {
             User::Teacher(t) => Outcome::Success(t),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission))
+            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
         }
     }
 }
@@ -107,18 +107,17 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
         let header: Vec<_> = req.headers().get("Authorization").collect();
         // Check for the correct amount
         if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing))
+            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
         } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format))
+            return Outcome::Failure((Status::BadRequest, LoginError::Format));
         }
 
-        let user = check_value(header, db).map_err(|err|{
-            Outcome::Failure((Status::BadRequest, err))
-        })?;
+        let user =
+            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
 
         match user {
             User::Student(s) => Outcome::Success(s),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission))
+            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
         }
     }
 }
@@ -135,17 +134,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
         let header: Vec<_> = req.headers().get("Authorization").collect();
         // Check for the correct amount
         if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing))
+            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
         } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format))
+            return Outcome::Failure((Status::BadRequest, LoginError::Format));
         }
 
-        let user = check_value(header, db).map_err(|err|{
-            Outcome::Failure((Status::BadRequest, err))
-        })?;
+        let user =
+            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
 
         Outcome::Success(user)
-
     }
 }
 
@@ -156,7 +153,7 @@ pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, Logi
     let value = base64::decode(value).split(|x| x == ':');
 
     if value.clone().count() != 2 {
-        return Err(LoginError::Format)
+        return Err(LoginError::Format);
     }
 
     // Unwraps should be save because of the check above
@@ -168,4 +165,21 @@ pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, Logi
     // TODO Return the correct variant
 
     todo![];
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn custom_database() -> Database {
+        // TODO Make this actually setup a mock database
+        true
+    }
+
+    #[test]
+    fn test_check_value() {
+        let db = custom_database();
+        // TODO make check_value calls to verify stuff in the database
+        check_value(&[], db).unwrap();
+    }
 }

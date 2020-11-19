@@ -1,6 +1,6 @@
-use super::schema::*;
 use super::auth;
 use super::config::EXP;
+use super::schema::*;
 
 #[derive(Debug, Queryable)]
 pub struct User {
@@ -20,7 +20,6 @@ pub struct NewUser<'a> {
     pub permission: String,
 }
 
-<<<<<<< HEAD
 #[derive(Debug, Queryable)]
 pub struct Badge {
     pub id: i32,
@@ -92,7 +91,7 @@ pub struct NewStudent<'a> {
 /// The progress a student made
 pub struct Progress {
     badges: Vec<Badge>,
-    assignments: Vec<Assignment>
+    assignments: Vec<Assignment>,
 }
 
 /// An assignment for in a class

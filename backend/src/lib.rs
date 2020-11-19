@@ -9,16 +9,16 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate diesel;
 extern crate anyhow;
-extern crate serde;
 extern crate base64;
+extern crate derive_builder;
+extern crate serde;
 extern crate strum;
 extern crate strum_macros;
-extern crate derive_builder;
 
 pub mod database;
 // pub mod login;
 pub mod auth;
 pub mod config;
+pub mod models;
 pub mod permission;
 pub mod routes;
-pub mod models;
