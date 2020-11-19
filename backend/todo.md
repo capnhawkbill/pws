@@ -11,3 +11,28 @@
 
 ## Database
 - Use rust-mysql instead of diesel
+
+### table with classes
+- Contains references to:
+  - students
+  - teachers
+  - badges
+- Has in it:
+  - assignments
+
+### table with badges
+- Has in it:
+  - Information about the badge
+
+
+### table with teachers
+- Contains references to:
+  - classes
+- Has in it
+  - Information about the teacher
+
+### table with students
+- Contains references to:
+  - classes
+- Has in it
+  - Information about the student
