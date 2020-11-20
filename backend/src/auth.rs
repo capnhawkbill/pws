@@ -48,25 +48,10 @@ pub enum LoginError {
 impl<'a, 'r> FromRequest<'a, 'r> for Admin {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Admin(a) => Outcome::Success(a),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+        match get_user(req) {
+            Ok(User::Admin(a)) => Outcome::Success(a),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+            Err(e) => OutCome::Failure((Status::BadRequest, e))
         }
     }
 }
@@ -75,25 +60,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
 impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Teacher(t) => Outcome::Success(t),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+        match get_user(req) {
+            Ok(User::Teacher(t)) => Outcome::Success(t),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+            Err(e) => OutCome::Failure((Status::BadRequest, e))
         }
     }
 }
@@ -102,25 +72,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
 impl<'a, 'r> FromRequest<'a, 'r> for Student {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Student(s) => Outcome::Success(s),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+        match get_user(req) {
+            Ok(User::Student(s)) => Outcome::Success(s),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+            Err(e) => OutCome::Failure((Status::BadRequest, e))
         }
     }
 }
@@ -129,24 +84,25 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
 impl<'a, 'r> FromRequest<'a, 'r> for User {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        Outcome::Success(user)
+        get_user(req).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?
     }
+}
+
+pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> std::result::Result<User, LoginError> {
+    // Retrieve header
+    let header: Vec<_> = req.headers().get("Authorization").collect();
+
+    // Retrieve database
+    let db = req.guard()::<State<DbConn>>()?;
+
+    // Check for the correct amount
+    if header < 1 {
+        return Outcome::Failure((Status::BadRequest, LoginError::Missing));
+    } else if header > 1 {
+        return Outcome::Failure((Status::BadRequest, LoginError::Format));
+    }
+
+    check_value(header, db)?
 }
 
 /// Verify a base64 encoded username and password pair
