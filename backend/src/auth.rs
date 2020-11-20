@@ -18,13 +18,16 @@ pub enum User {
 }
 
 /// This is a request guard for logging in as a user
-pub struct Student {}
+/// It is a wrapper for the struct from the database
+pub struct Student(database::models::student);
 
 /// This is a request guard for logging in as a teacher
-pub struct Teacher {}
+/// It is a wrapper for the struct from the database
+pub struct Teacher(database::models::teacher);
 
 /// This is a request guard for logging in as a admin
-pub struct Admin {}
+/// It is a wrapper for the struct from the database
+pub struct Admin(database::models::admin);
 
 /// The error type for logging in
 #[derive(Debug)]
