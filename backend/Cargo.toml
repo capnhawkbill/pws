@@ -11,11 +11,8 @@ rocket = "0.4.5"
 diesel = "1.4.5"
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0.33"
-strum = "0.19"
-strum_macros = "0.19"
 dotenv = "0.15.0"
 structopt = "0.3.20"
-jsonwebtoken = "7.2.0"
 derive_builder = "0.9.0"
 base64 = "0.13.0"
 
