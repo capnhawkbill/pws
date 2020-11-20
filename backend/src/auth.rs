@@ -1,11 +1,9 @@
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Outcome, Request};
+use database::DbConn;
 
 use super::models;
-
-// TODO Nonsense
-type Database = bool;
 
 /// This is a request guard for logging in as any user
 pub enum User {
@@ -108,7 +106,7 @@ pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> std::result::Result<User, Login
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
-pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, LoginError> {
+pub fn check_value(value: &[u8], db: DbConn) -> std::result::Result<User, LoginError> {
     let value = base64::decode(value).split(|x| x == ':');
 
     if value.clone().count() != 2 {
@@ -129,16 +127,17 @@ pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, Logi
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rusqlite::Connection;
 
-    fn custom_database() -> Database {
-        // TODO Make this actually setup a mock database
-        true
+    fn custom_database() -> DbConn {
+        let db = Connection::open_in_memory().unwrap();
+        // TODO put stuff in the database
+        DbConn(db)
     }
 
     #[test]
     fn test_check_value() {
         let db = custom_database();
-        // TODO make check_value calls to verify stuff in the database
         check_value(&[], db).unwrap();
     }
 }
