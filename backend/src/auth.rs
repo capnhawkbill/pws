@@ -1,6 +1,12 @@
+//! This module contains the request guards for logging in.
+//!
+//! It has four guards:
+//! + User if you don't care about permission
+//! + Student, Teacher or Admin if you do
+
 use anyhow::Result;
 use rocket::http::Status;
-use rocket::request::{self, FromRequest, Outcome, Request};
+use rocket::request::{FromRequest, Outcome, Request};
 
 use super::models;
 
