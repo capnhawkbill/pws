@@ -8,7 +8,7 @@ pub struct Student {
     /// The password of the student
     password: String,
     /// Other information that isn't strictly necessary
-    info: Option<>StudentInfo>,
+    info: Option<StudentInfo>,
     /// Id's of the classes the student is in
     classes: Vec<Id>,
 }
