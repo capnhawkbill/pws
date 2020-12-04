@@ -147,7 +147,6 @@ dependencies = [
  "mysql",
  "rocket",
  "rocket_contrib",
- "rusqlite 0.24.1",
  "serde",
  "strum",
  "strum_macros",
@@ -488,18 +487,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
-name = "fallible-iterator"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
-
-[[package]]
-name = "fallible-streaming-iterator"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
-
-[[package]]
 name = "filetime"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -632,15 +619,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
 dependencies = [
  "ahash",
-]
-
-[[package]]
-name = "hashlink"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d99cf782f0dc4372d26846bec3de7804ceb5df083c2d4462c0b8d2330e894fa8"
-dependencies = [
- "hashbrown",
 ]
 
 [[package]]
@@ -885,16 +863,6 @@ name = "libsqlite3-sys"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e9eb7b8e152b6a01be6a4a2917248381875758250dc3df5d46caf9250341dda"
-dependencies = [
- "pkg-config",
- "vcpkg",
-]
-
-[[package]]
-name = "libsqlite3-sys"
-version = "0.20.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64d31059f22935e6c31830db5249ba2b7ecd54fd73a9909286f0a67aa55c2fbd"
 dependencies = [
  "pkg-config",
  "vcpkg",
@@ -1393,7 +1361,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7353e4cee1aef402161e78c9a17367c018d47157625dd9e01f9651aafd098426"
 dependencies = [
  "r2d2",
- "rusqlite 0.14.0",
+ "rusqlite",
 ]
 
 [[package]]
@@ -1534,7 +1502,7 @@ dependencies = [
  "r2d2_sqlite",
  "rocket",
  "rocket_contrib_codegen",
- "rusqlite 0.14.0",
+ "rusqlite",
  "serde",
  "serde_json",
 ]
@@ -1575,24 +1543,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c9d9118f1ce84d8d0b67f9779936432fb42bb620cef2122409d786892cce9a3c"
 dependencies = [
  "bitflags",
- "libsqlite3-sys 0.9.1",
+ "libsqlite3-sys",
  "lru-cache",
  "time 0.1.44",
-]
-
-[[package]]
-name = "rusqlite"
-version = "0.24.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e3d4791ab5517217f51216a84a688b53c1ebf7988736469c538d02f46ddba68"
-dependencies = [
- "bitflags",
- "fallible-iterator",
- "fallible-streaming-iterator",
- "hashlink",
- "libsqlite3-sys 0.20.1",
- "memchr",
- "smallvec",
 ]
 
 [[package]]

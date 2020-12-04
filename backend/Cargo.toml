@@ -17,7 +17,7 @@ jsonwebtoken = "7.2.0"
 derive_builder = "0.9.0"
 base64 = "0.13.0"
 mysql = "20.0.1"
-rusqlite = "0.24.1"
+#rusqlite = "0.24.1"
 argh = "0.1.4"
 
 [dependencies.rocket_contrib]
