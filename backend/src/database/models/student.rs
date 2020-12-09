@@ -1,5 +1,6 @@
 use super::Id;
 use super::Badge;
+use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use rusqlite::Connection;
 use csv::{Reader, Writer};
