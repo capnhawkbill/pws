@@ -1,6 +1,6 @@
+use crate::database::DbConn;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request, State};
-use crate::database::DbConn;
 
 use super::models;
 
@@ -48,7 +48,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         match get_user(req) {
             Ok(User::Admin(a)) => Outcome::Success(a),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => Outcome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
 }
@@ -60,7 +60,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
         match get_user(req) {
             Ok(User::Teacher(t)) => Outcome::Success(t),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => Outcome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
 }
@@ -72,7 +72,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
         match get_user(req) {
             Ok(User::Student(s)) => Outcome::Success(s),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => Outcome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
 }

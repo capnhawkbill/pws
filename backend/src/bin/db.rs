@@ -1,10 +1,10 @@
-extern crate backend;
 extern crate argh;
+extern crate backend;
 extern crate rusqlite;
 
-use std::path::PathBuf;
 use argh::FromArgs;
 use rusqlite::Connection;
+use std::path::PathBuf;
 
 #[derive(FromArgs)]
 /// a tool to interact with the database
@@ -17,7 +17,7 @@ struct Args {
 #[argh(subcommand)]
 enum SubCommand {
     /// initialize the database at specified location
-    Init(PathBuf)
+    Init(PathBuf),
 }
 
 fn main() {

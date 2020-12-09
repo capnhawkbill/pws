@@ -1,8 +1,8 @@
 use super::Id;
-use anyhow::{Result, anyhow};
+use crate::params;
+use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
-use crate::params;
 
 /// A badge that cab be awarded to students
 pub struct Badge {
@@ -28,7 +28,7 @@ pub enum Condition {
 impl std::fmt::Display for Condition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = match self {
-            Condition::Test => "Test"
+            Condition::Test => "Test",
         };
         write!(f, "{}", s)
     }
@@ -92,12 +92,12 @@ mod tests {
         let conn = Connection::open_in_memory().unwrap();
         conn.execute(
             "CREATE TABEL badge (
-                    id          varchar(50)
+                    id          TEXT NOT NULL PRIMARY KEY
                     name        TEXT NOT NULL
                     description TEXT NOT NULL
                     official    TEXT NOT NULL
                     condition   TEXT NOT NULL
-            )"
+            )",
         );
         insert_badge(conn, &badge).unwrap();
         let gotten = get_badge(conn, "ID".into());

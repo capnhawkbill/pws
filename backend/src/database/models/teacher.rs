@@ -16,6 +16,5 @@ pub struct Teacher {
 
 /// Non necessary information about a student
 pub struct TeacherInfo {
-    gender: Option<String>
-    // TODO more unnecessary information
+    gender: Option<String>, // TODO more unnecessary information
 }

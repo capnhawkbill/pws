@@ -10,9 +10,9 @@ extern crate anyhow;
 extern crate base64;
 extern crate derive_builder;
 extern crate serde;
+extern crate serde_json;
 extern crate strum;
 extern crate strum_macros;
-extern crate serde_json;
 
 pub mod database;
 // pub mod login;
