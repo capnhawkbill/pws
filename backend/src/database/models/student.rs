@@ -1,4 +1,4 @@
-use super:;super::Id;
+use super::Id;
 use super::Badge;
 use serde::{Serialize, Deserialize};
 use rusqlite::Connection;
@@ -78,7 +78,8 @@ pub fn get_student(conn: Connection, student: Student) -> Result<()> {
             classes,
             badges,
         })
-    })
+    });
+    Ok(())
 }
 
 #[cfg(Test)]

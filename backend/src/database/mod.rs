@@ -1,4 +1,4 @@
-use rocket_contrib::databases::rustqlite;
+use rocket_contrib::databases::rusqlite;
 
 pub mod models;
 

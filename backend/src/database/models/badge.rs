@@ -1,4 +1,4 @@
-use super::super::Id;
+use super::Id;
 use rusqlite::Connection;
 
 /// A badge that cab be awarded to students
@@ -75,7 +75,7 @@ mod tests {
                     official    TEXT NOT NULL
                     condition   TEXT NOT NULL
             )"
-        )
+        );
         insert_badge(conn, &badge).unwrap();
         let gotten = get_badge(conn, "ID".into());
         assert_eq!(badge, gotten);

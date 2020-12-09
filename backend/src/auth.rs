@@ -1,7 +1,7 @@
 use anyhow::Result;
 use rocket::http::Status;
-use rocket::request::{self, FromRequest, Outcome, Request};
-use database::DbConn;
+use rocket::request::{self, FromRequest, Outcome, Request, State};
+use crates::database::DbConn;
 
 use super::models;
 
@@ -91,7 +91,7 @@ pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> std::result::Result<User, Login
     let header: Vec<_> = req.headers().get("Authorization").collect();
 
     // Retrieve database
-    let db = req.guard()::<State<DbConn>>()?;
+    let db = req.guard::<State<DbConn>>()?;
 
     // Check for the correct amount
     if header < 1 {
