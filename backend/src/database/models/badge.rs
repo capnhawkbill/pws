@@ -1,5 +1,8 @@
 use super::Id;
-use rusqlite::Connection;
+use anyhow::{Result, anyhow};
+use rocket_contrib::databases::rusqlite::Connection;
+use std::str::FromStr;
+use crate::params;
 
 /// A badge that cab be awarded to students
 pub struct Badge {
@@ -22,10 +25,29 @@ pub struct Badge {
 pub enum Condition {
     Test,
 }
-// TODO display condition
-impl std::fmt::Display for Condition {}
-// TODO fromstr condition
-impl FromStr for Condition {}
+impl std::fmt::Display for Condition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Condition::Test => "Test"
+        };
+        write!(f, "{}", s)
+    }
+}
+
+enum ParseConditionError {
+    DoesntExist,
+}
+
+impl FromStr for Condition {
+    type Err = ParseConditionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "Test" => Ok(Condition::Test),
+            _ => Err(ParseConditionError::DoesntExist),
+        }
+    }
+}
 
 pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
     conn.execute(
@@ -36,19 +58,20 @@ pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
 }
 
 pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
-    let stmt = conn.prepare("SELECT * FROM badge where id = ?1");
+    let stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let badges = stmt.query_map(params![id], |row| {
+        let condition = Condition::from_str(row.get::<_, String>(4).as_str())?;
         Ok(Badge {
             id: row.get(0),
             name: row.get(1),
             description: row.get(2),
             official: row.get(3),
-            condition: row.get(4),
+            condition,
         })
     })?;
 
     if let Some(badge) = badges.next() {
-        Ok(badge)
+        Ok(badge?)
     } else {
         Err(anyhow!("No badge found"))
     }

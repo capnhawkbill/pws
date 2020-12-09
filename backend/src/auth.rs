@@ -1,7 +1,6 @@
-use anyhow::Result;
 use rocket::http::Status;
-use rocket::request::{self, FromRequest, Outcome, Request, State};
-use crates::database::DbConn;
+use rocket::request::{FromRequest, Outcome, Request, State};
+use crate::database::DbConn;
 
 use super::models;
 
@@ -17,15 +16,15 @@ pub enum User {
 
 /// This is a request guard for logging in as a user
 /// It is a wrapper for the struct from the database
-pub struct Student(database::models::student);
+pub struct Student(crate::database::models::Student);
 
 /// This is a request guard for logging in as a teacher
 /// It is a wrapper for the struct from the database
-pub struct Teacher(database::models::teacher);
+pub struct Teacher(crate::database::models::Teacher);
 
 /// This is a request guard for logging in as a admin
 /// It is a wrapper for the struct from the database
-pub struct Admin(database::models::admin);
+pub struct Admin(crate::database::models::Admin);
 
 /// The error type for logging in
 #[derive(Debug)]
@@ -49,7 +48,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
         match get_user(req) {
             Ok(User::Admin(a)) => Outcome::Success(a),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => OutCome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e))
         }
     }
 }
@@ -61,7 +60,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
         match get_user(req) {
             Ok(User::Teacher(t)) => Outcome::Success(t),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => OutCome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e))
         }
     }
 }
@@ -73,7 +72,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
         match get_user(req) {
             Ok(User::Student(s)) => Outcome::Success(s),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => OutCome::Failure((Status::BadRequest, e))
+            Err(e) => Outcome::Failure((Status::BadRequest, e))
         }
     }
 }

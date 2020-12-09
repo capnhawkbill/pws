@@ -1,8 +1,8 @@
 use super::Id;
-use super::Badge;
+use crate::params;
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
-use rusqlite::Connection;
+use rocket_contrib::databases::rusqlite::Connection;
 use csv::{Reader, Writer};
 
 pub struct Student {
@@ -63,7 +63,7 @@ pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
     Ok(())
 }
 
-pub fn get_student(conn: Connection, student: Student) -> Result<()> {
+pub fn get_student(conn: Connection, id: Id) -> Result<()> {
     let stmt = conn.prepare("SELECT * FROM student where id = ?1");
     let students = stmt.query_map(params![id], |row| {
         // Parse from csv
