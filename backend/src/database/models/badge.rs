@@ -1,4 +1,4 @@
-use super::Id;
+use super::super::Id;
 use rusqlite::Connection;
 
 /// A badge that cab be awarded to students
@@ -29,15 +29,15 @@ impl FromStr for Condition {}
 
 pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
     conn.execute(
-        "INSERT INTO badge (id, name, description, official, condition)",
+        "INSERT INTO badge (id, name, description, official, condition) VALUES (?1, ?2, ?3, ?4, ?5)",
         params![badge.id, badge.name, badge.description, badge.official, badge.condition]
     )?;
     Ok(())
 }
 
 pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
-    let stmt = conn.prepare("SELECT * FROM badge where id = :id");
-    let badges = stmt.query_map(params!["id", id], |row| {
+    let stmt = conn.prepare("SELECT * FROM badge where id = ?1");
+    let badges = stmt.query_map(params![id], |row| {
         Ok(Badge {
             id: row.get(0),
             name: row.get(1),
@@ -58,7 +58,7 @@ pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
 mod tests {
     use super::*;
     #[test]
-    fn test_db() -> Connection {
+    fn test_badge_db() -> Connection {
         let badge = Badge {
             id: "ID".into(),
             name: "Elias".into(),
@@ -67,6 +67,15 @@ mod tests {
             condition: Condition::Test,
         };
         let conn = Connection::open_in_memory().unwrap();
+        conn.execute(
+            "CREATE TABEL badge (
+                    id          varchar(50)
+                    name        TEXT NOT NULL
+                    description TEXT NOT NULL
+                    official    TEXT NOT NULL
+                    condition   TEXT NOT NULL
+            )"
+        )
         insert_badge(conn, &badge).unwrap();
         let gotten = get_badge(conn, "ID".into());
         assert_eq!(badge, gotten);

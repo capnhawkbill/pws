@@ -1,6 +1,7 @@
 mod class;
 mod student;
 mod teacher;
+mod badge;
 
 pub use class::*;
 pub use student::*;
