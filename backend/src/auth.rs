@@ -2,7 +2,7 @@ use crate::database::DbConn;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request, State};
 
-use super::models;
+use crate::database::models;
 
 /// This is a request guard for logging in as any user
 pub enum User {
@@ -10,21 +10,21 @@ pub enum User {
     Student(models::Student),
     /// A teacher
     Teacher(models::Teacher),
-    /// A admin
-    Admin(models::Admin),
+    // A admin
+    //Admin(models::Admin),
 }
 
 /// This is a request guard for logging in as a user
 /// It is a wrapper for the struct from the database
-pub struct Student(crate::database::models::Student);
+pub struct Student(models::Student);
 
 /// This is a request guard for logging in as a teacher
 /// It is a wrapper for the struct from the database
-pub struct Teacher(crate::database::models::Teacher);
+pub struct Teacher(models::Teacher);
 
 /// This is a request guard for logging in as a admin
 /// It is a wrapper for the struct from the database
-pub struct Admin(crate::database::models::Admin);
+//pub struct Admin(crate::database::models::Admin);
 
 /// The error type for logging in
 #[derive(Debug)]
@@ -41,24 +41,24 @@ pub enum LoginError {
     Permission,
 }
 
-/// Verify that the user is an admin
-impl<'a, 'r> FromRequest<'a, 'r> for Admin {
-    type Error = LoginError;
-    fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        match get_user(req) {
-            Ok(User::Admin(a)) => Outcome::Success(a),
-            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-            Err(e) => Outcome::Failure((Status::BadRequest, e)),
-        }
-    }
-}
+// /// Verify that the user is an admin
+// impl<'a, 'r> FromRequest<'a, 'r> for Admin {
+//     type Error = LoginError;
+//     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+//         match get_user(req) {
+//             Ok(User::Admin(a)) => Outcome::Success(a),
+//             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+//             Err(e) => Outcome::Failure((Status::BadRequest, e)),
+//         }
+//     }
+// }
 
 /// Verify that the user is a teacher
 impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
-            Ok(User::Teacher(t)) => Outcome::Success(t),
+            Ok(User::Teacher(t)) => Outcome::Success(Teacher(t)),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
             Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
@@ -70,7 +70,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
-            Ok(User::Student(s)) => Outcome::Success(s),
+            Ok(User::Student(s)) => Outcome::Success(Student(s)),
             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
             Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
@@ -81,7 +81,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
 impl<'a, 'r> FromRequest<'a, 'r> for User {
     type Error = LoginError;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        get_user(req).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?
+        match get_user(req) {
+            Ok(r) => Outcome::Success(r),
+            Err(err) => Outcome::Failure((Status::BadRequest, err)),
+        }
     }
 }
 

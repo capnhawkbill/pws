@@ -1,5 +1,4 @@
 use super::Id;
-use crate::params;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
@@ -52,14 +51,14 @@ impl FromStr for Condition {
 pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
     conn.execute(
         "INSERT INTO badge (id, name, description, official, condition) VALUES (?1, ?2, ?3, ?4, ?5)",
-        params![badge.id, badge.name, badge.description, badge.official, badge.condition]
+        &[&badge.id, &badge.name, &badge.description, &badge.official, &badge.condition.to_string()]
     )?;
     Ok(())
 }
 
 pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
     let stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
-    let badges = stmt.query_map(params![id], |row| {
+    let badges = stmt.query_map(&[&id], |row| {
         let condition = Condition::from_str(row.get::<_, String>(4).as_str())?;
         Ok(Badge {
             id: row.get(0),
@@ -71,7 +70,7 @@ pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
     })?;
 
     if let Some(badge) = badges.next() {
-        Ok(badge?)
+        badge?
     } else {
         Err(anyhow!("No badge found"))
     }

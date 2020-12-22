@@ -1,7 +1,6 @@
 use super::Id;
-use crate::params;
+use super::super::{getcsv, mkcsv};
 use anyhow::Result;
-use csv::{Reader, Writer};
 use rocket_contrib::databases::rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 
@@ -35,48 +34,36 @@ pub struct StudentInfo {
     disorders: Option<Vec<String>>, // TODO more unnecessary information
 }
 
-/// Make a csv string
-fn mkcsv(thing: &[String]) -> Result<String> {
-    let mut wtr = Writer::from_writer(vec![]);
-    wtr.write_record(thing)?;
-    Ok(String::from_utf8(wtr.into_inner()?)?)
-}
-
-/// Parse a csv string
-fn getcsv(thing: String) -> Result<Vec<String>> {
-    let mut rdr = Reader::from_reader(thing.as_bytes());
-    rdr.records()?.collect()
-}
-
 /// Insert a student into the database
 pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
     // Convert to csv
-    let classes = mkcsv(&student.classes);
-    let badges = mkcsv(&student.badges);
+    let classes = mkcsv(&student.classes)?;
+    let badges = mkcsv(&student.badges)?;
     // Convert to json
     if let Some(info) = student.info {
         conn.execute(
                 "INSERT INTO student (id, name, password, info, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                params![student.id, student.name, student.password, serde_json::to_string(info), classes, badges]
+                &[&student.id, &student.name, &student.password, &serde_json::to_string(&info)?, &classes, &badges]
             )?;
     } else {
         conn.execute(
                 "INSERT INTO student (id, name, password, info, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                params![student.id, student.name, student.password, "None".into(), classes, badges]
+                &[&student.id, &student.name, &student.password, "None".into(), &classes, &badges]
             )?;
     }
     Ok(())
 }
 
+/// Gets a student from the database
 pub fn get_student(conn: Connection, id: Id) -> Result<()> {
     let stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
-    let students = stmt.query_map(params![id], |row| {
+    let students = stmt.query_map(&[&id], |row| {
         // Parse from csv
-        let classes = getcsv(row.get(4).to_string());
-        let badges = getcsv(row.get(5).to_string());
+        let classes = getcsv(row.get(4))?;
+        let badges = getcsv(row.get(5))?;
         // Parse from json
-        let info: Option<StudentInfo> = match row.get(3) {
-            String::new("None") => None,
+        let info: Option<StudentInfo> = match row.get::<_, String>(3).as_str() {
+            "None" => None,
             s => serde_json::from_str(s)?,
         };
         Ok(Student {
@@ -87,8 +74,7 @@ pub fn get_student(conn: Connection, id: Id) -> Result<()> {
             classes,
             badges,
         })
-    });
-    // TODO join the tables from classes and badges
+    })?;
     Ok(())
 }
 
