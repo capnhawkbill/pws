@@ -64,6 +64,39 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
     }
 }
 
+pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
+    let stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
+    let students = stmt.query_map(&[&name], |row| {
+        // Parse from csv
+        let classes = getcsv(row.get(3));
+        if let Err(e) = classes {
+            return Err(e)
+        }
+        let badges = getcsv(row.get(4));
+        if let Err(e) = badges {
+            return Err(e)
+        }
+        // Parse from json
+        Ok(Student {
+            id: row.get(0),
+            name: row.get(1),
+            password: row.get(2),
+            classes: classes.unwrap(),
+            badges: badges.unwrap(),
+        })
+    })?;
+
+    if let Some(student) = students.next() {
+        if students.next().is_some() {
+            Err(anyhow!("Multiple students found with this username: {}", name))
+        } else {
+            Ok(student??)
+        }
+    } else {
+        Err(anyhow!("No students found with this username: {}", name))
+    }
+}
+
 #[cfg(Test)]
 mod tests {
     use super::*;

@@ -54,3 +54,36 @@ pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
         Err(anyhow!("No teachers found with this id: {}", id))
     }
 }
+
+pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
+    let stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
+    let teachers = stmt.query_map(&[&name], |row| {
+        // Parse from csv
+        let classes = getcsv(row.get(3));
+        if let Err(e) = classes {
+            return Err(e)
+        }
+        let badges = getcsv(row.get(4));
+        if let Err(e) = badges {
+            return Err(e)
+        }
+        // Parse from json
+        Ok(Teacher {
+            id: row.get(0),
+            name: row.get(1),
+            password: row.get(2),
+            classes: classes.unwrap(),
+            badges: badges.unwrap(),
+        })
+    })?;
+
+    if let Some(teacher) = teachers.next() {
+        if teachers.next().is_some() {
+            Err(anyhow!("Multiple teachers found with this username: {}", name))
+        } else {
+            Ok(teacher??)
+        }
+    } else {
+        Err(anyhow!("No teachers found with this username: {}", name))
+    }
+}
