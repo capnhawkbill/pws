@@ -1,6 +1,6 @@
+use super::super::{getcsv, mkcsv};
 use super::Id;
 use anyhow::{anyhow, Result};
-use super::super::{mkcsv, getcsv};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The teacher
@@ -21,8 +21,9 @@ pub fn insert_teacher(conn: Connection, teacher: Teacher) -> Result<()> {
     let classes = mkcsv(&teacher.classes)?;
     // Convert to json
     conn.execute(
-            "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?45)",
-            &[&teacher.id, &teacher.name, &teacher.password, &classes])?;
+        "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?45)",
+        &[&teacher.id, &teacher.name, &teacher.password, &classes],
+    )?;
     Ok(())
 }
 
@@ -33,7 +34,7 @@ pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
-            return Err(e)
+            return Err(e);
         }
         // Parse from json
         Ok(Teacher {
@@ -61,7 +62,7 @@ pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
-            return Err(e)
+            return Err(e);
         }
         // Parse from json
         Ok(Teacher {
@@ -74,7 +75,10 @@ pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
 
     if let Some(teacher) = teachers.next() {
         if teachers.next().is_some() {
-            Err(anyhow!("Multiple teachers found with this username: {}", name))
+            Err(anyhow!(
+                "Multiple teachers found with this username: {}",
+                name
+            ))
         } else {
             Ok(teacher??)
         }

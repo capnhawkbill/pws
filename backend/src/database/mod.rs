@@ -1,6 +1,6 @@
-use rocket_contrib::databases::rusqlite;
 use anyhow::Result;
 use csv::{Reader, Writer};
+use rocket_contrib::databases::rusqlite;
 
 pub mod models;
 

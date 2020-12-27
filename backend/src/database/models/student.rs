@@ -1,5 +1,5 @@
-use super::Id;
 use super::super::{getcsv, mkcsv};
+use super::Id;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -25,8 +25,15 @@ pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
     let badges = mkcsv(&student.badges)?;
     // Convert to json
     conn.execute(
-            "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
-            &[&student.id, &student.name, &student.password, &classes, &badges])?;
+        "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
+        &[
+            &student.id,
+            &student.name,
+            &student.password,
+            &classes,
+            &badges,
+        ],
+    )?;
     Ok(())
 }
 
@@ -37,11 +44,11 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
-            return Err(e)
+            return Err(e);
         }
         let badges = getcsv(row.get(4));
         if let Err(e) = badges {
-            return Err(e)
+            return Err(e);
         }
         // Parse from json
         Ok(Student {
@@ -70,11 +77,11 @@ pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
-            return Err(e)
+            return Err(e);
         }
         let badges = getcsv(row.get(4));
         if let Err(e) = badges {
-            return Err(e)
+            return Err(e);
         }
         // Parse from json
         Ok(Student {
@@ -88,7 +95,10 @@ pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
 
     if let Some(student) = students.next() {
         if students.next().is_some() {
-            Err(anyhow!("Multiple students found with this username: {}", name))
+            Err(anyhow!(
+                "Multiple students found with this username: {}",
+                name
+            ))
         } else {
             Ok(student??)
         }

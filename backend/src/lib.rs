@@ -14,10 +14,9 @@ extern crate serde_json;
 extern crate strum;
 extern crate strum_macros;
 
-pub mod database;
-// pub mod login;
 pub mod auth;
 pub mod config;
+pub mod database;
 pub mod models;
 pub mod permission;
 // Temporarily disable this
