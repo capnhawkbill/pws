@@ -28,7 +28,7 @@ fn main() {
         .post("/api/student/signup")
         .body(SIGNUPBODY)
         .header(ContentType::JSON);
-    let id = signup.dispatch();
+    let _id = signup.dispatch();
 
     // Access protected path
     let auth = Header::new("Authorization", AUTHHEADER);

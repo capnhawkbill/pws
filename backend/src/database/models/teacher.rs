@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The teacher
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Teacher {
     /// The id of the teacher
     pub id: Id,
@@ -31,7 +31,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 
 /// Insert a teacher into the database
 pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
-    trace!("Inserting teacher {}", teacher.name);
+    trace!("Inserting teacher {:?}", teacher);
     // Convert to csv
     let classes = mkcsv(&teacher.classes)?;
     // Convert to json
@@ -105,11 +105,18 @@ pub fn get_teacher_by_name(conn: &Connection, name: &str) -> Result<Teacher> {
     }
 }
 
-#[cfg(Test)]
+#[cfg(test)]
 mod tests {
     use super::*;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
     #[test]
-    fn test_teacher_db() -> &Connection {
+    fn test_teacher_db() {
+        init();
+
         let teacher = Teacher {
             id: "ID".into(),
             name: "Elias".into(),
@@ -117,17 +124,10 @@ mod tests {
             classes: vec!["ClassId".into(), "Second ClassId".into()],
         };
         let conn = &Connection::open_in_memory().unwrap();
-        conn.execute(
-            "CREATE TABEL teacher (
-                    id          varchar(50)
-                    name        TEXT NOT NULL
-                    password    TEXT NOT NULL
-                    classes     TEXT
-            )",
-        )
-        .unwrap();
+        create_table(&conn).unwrap();
+
         insert_teacher(conn, &teacher).unwrap();
-        let gotten = get_teacher(conn, "ID".into());
-        assert_eq!(badge, gotten);
+        let gotten = get_teacher(conn, "ID".into()).unwrap();
+        assert_eq!(teacher, gotten);
     }
 }

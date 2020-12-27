@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The student
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Student {
     /// The id of the student
     pub id: Id,
@@ -129,11 +129,17 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
     }
 }
 
-#[cfg(Test)]
+#[cfg(test)]
 mod tests {
     use super::*;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
     #[test]
-    fn test_student_db() -> &Connection {
+    fn test_student_db() {
+        init();
         // create mock student
         let student = Student {
             id: "ID".into(),
@@ -145,20 +151,11 @@ mod tests {
 
         // create mock database
         let conn = &Connection::open_in_memory().unwrap();
-        conn.execute(
-            "CREATE TABEL student (
-                    id          varchar(50)
-                    name        TEXT NOT NULL
-                    password    TEXT NOT NULL
-                    classes     TEXT
-                    badges      TEXT
-            )",
-        )
-        .unwrap();
+        create_table(&conn).unwrap();
 
         // test if the inserted student can be retrieved
         insert_student(conn, &student).unwrap();
-        let gotten = get_student(conn, "ID".into());
+        let gotten = get_student(conn, "ID".into()).unwrap();
         assert_eq!(student, gotten);
     }
 }

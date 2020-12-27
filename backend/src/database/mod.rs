@@ -88,16 +88,40 @@ pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
 fn mkcsv(thing: &[String]) -> Result<String> {
     let mut wtr = Writer::from_writer(vec![]);
     wtr.write_record(thing)?;
+    wtr.flush()?;
     Ok(String::from_utf8(wtr.into_inner()?)?)
 }
 
 /// Parse a csv string
 fn getcsv(thing: String) -> Result<Vec<String>> {
-    let mut rdr = Reader::from_reader(thing.as_bytes());
-    let mut r = Vec::new();
-    for record in rdr.records() {
-        let record = record?;
-        r.push(record.as_slice().to_string())
+    let mut rdr = csv::ReaderBuilder::new()
+        .has_headers(false)
+        .from_reader(thing.as_bytes());
+    trace!("Reader: {:?}", rdr);
+    if let Some(r) = rdr.records().next() {
+        Ok(r?.iter().map(|x| x.to_string()).collect())
+    } else {
+        Err(anyhow!("No records found"))
     }
-    Ok(r)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
+    #[test]
+    fn test_csv() {
+        init();
+        let values: Vec<String> = ["first", "second", "third"].iter().map(|x| x.to_string()).collect();
+
+        let csv = mkcsv(&values).unwrap();
+        assert_eq!("first,second,third\n", csv);
+
+        let back = getcsv(csv).unwrap();
+        assert_eq!(values, back);
+    }
 }
