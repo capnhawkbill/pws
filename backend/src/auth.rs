@@ -4,11 +4,12 @@
 //! + User if you don't care about permission
 //! + Student, Teacher or Admin if you do
 
+use std::ops::Deref;
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 
-use crate::database::{login, DbConn, models};
+use crate::database::{login, models, DbConn};
 
 /// This is a request guard for logging in as any user
 pub enum User {
@@ -24,10 +25,23 @@ pub enum User {
 /// It is a wrapper for the struct from the database
 pub struct Student(models::Student);
 
+impl Deref for Student {
+    type Target = models::Student;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// This is a request guard for logging in as a teacher
 /// It is a wrapper for the struct from the database
 pub struct Teacher(models::Teacher);
 
+impl Deref for Teacher {
+    type Target = models::Teacher;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 /// This is a request guard for logging in as a admin
 /// It is a wrapper for the struct from the database
 //pub struct Admin(crate::database::models::Admin);
