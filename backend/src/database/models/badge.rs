@@ -33,9 +33,21 @@ impl std::fmt::Display for Condition {
     }
 }
 
+#[derive(Debug)]
 enum ParseConditionError {
     DoesntExist,
 }
+
+impl std::fmt::Display for ParseConditionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = match self {
+            ParseConditionError::DoesntExist => "Badge doesn't exist",
+        };
+        write!(f, "{}", text)
+    }
+}
+
+impl std::error::Error for ParseConditionError {}
 
 impl FromStr for Condition {
     type Err = ParseConditionError;

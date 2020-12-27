@@ -63,17 +63,12 @@ pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
         if let Err(e) = classes {
             return Err(e)
         }
-        let badges = getcsv(row.get(4));
-        if let Err(e) = badges {
-            return Err(e)
-        }
         // Parse from json
         Ok(Teacher {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
             classes: classes.unwrap(),
-            badges: badges.unwrap(),
         })
     })?;
 
