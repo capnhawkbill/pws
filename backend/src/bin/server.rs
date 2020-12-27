@@ -2,7 +2,6 @@ extern crate backend;
 #[macro_use]
 extern crate rocket;
 
-use backend::config::AppState;
 use backend::database::DbConn;
 use backend::routes::*;
 
