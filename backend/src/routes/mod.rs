@@ -3,7 +3,7 @@
 pub mod student;
 pub mod teacher;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// The credentials that are received as json
 #[derive(Deserialize)]
