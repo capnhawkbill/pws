@@ -1,4 +1,4 @@
-use super::Id;
+use super::super::Id;
 
 /// A Class
 pub struct Class {

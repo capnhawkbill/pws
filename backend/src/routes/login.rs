@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use anyhow::Result;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};

@@ -1,5 +1,4 @@
-use super::super::{getcsv, mkcsv};
-use super::Id;
+use super::super::{Id, getcsv, mkcsv};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 

@@ -1,4 +1,4 @@
-use super::Id;
+use super::super::Id;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
