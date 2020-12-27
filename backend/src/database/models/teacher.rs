@@ -6,13 +6,13 @@ use rocket_contrib::databases::rusqlite::Connection;
 /// The teacher
 pub struct Teacher {
     /// The id of the teacher
-    id: Id,
+    pub id: Id,
     /// The name of the teacher
-    name: String,
+    pub name: String,
     /// The password of the teacher
-    password: String,
+    pub password: String,
     /// Id's of the classes the teacher is in
-    classes: Vec<Id>,
+    pub classes: Vec<Id>,
 }
 
 /// Insert a teacher into the database

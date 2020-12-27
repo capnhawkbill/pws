@@ -6,17 +6,17 @@ use rocket_contrib::databases::rusqlite::Connection;
 /// The student
 pub struct Student {
     /// The id of the student
-    id: Id,
+    pub id: Id,
     /// The name of the student
-    name: String,
+    pub name: String,
     /// The password of the student TODO plaintext lol
-    password: String,
+    pub password: String,
     /// Id's of the classes the student is in
     /// Stored as csv
-    classes: Vec<Id>,
+    pub classes: Vec<Id>,
     /// Id's of the badges the student has
     /// Stored as csv
-    badges: Vec<Id>,
+    pub badges: Vec<Id>,
 }
 
 /// Insert a student into the database
