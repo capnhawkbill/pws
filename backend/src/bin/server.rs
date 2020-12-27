@@ -3,11 +3,11 @@ extern crate backend;
 extern crate rocket;
 
 use backend::database::DbConn;
-use backend::routes::*;
+use backend::routes;
 
 fn main() {
-    rocket::ignite()
-        .mount("/api", routes![login, signup, student])
-        .attach(DbConn::fairing())
-        .launch();
+    let rocket = rocket::ignite().attach(DbConn::fairing());
+    let rocket = routes::student::mount(rocket);
+    let rocket = routes::teacher::mount(rocket);
+    rocket.launch();
 }

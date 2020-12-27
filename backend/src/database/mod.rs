@@ -5,7 +5,7 @@ use rocket_contrib::databases::rusqlite;
 
 use crate::auth::User;
 pub mod models;
-use models::{insert_student, insert_teacher, get_teacher_by_name, get_student_by_name};
+use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
 
 #[database("sqlite_database")]
 pub struct DbConn(rusqlite::Connection);
@@ -45,7 +45,8 @@ pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
     Ok(r)
 }
 
-pub fn generate_id() -> Id {
+/// Generates a unique id
+pub fn generate_id() -> Result<Id> {
     todo![]
 }
 
