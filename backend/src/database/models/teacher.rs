@@ -22,7 +22,7 @@ pub fn insert_teacher(conn: Connection, teacher: Teacher) -> Result<()> {
     // Convert to json
     conn.execute(
             "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?45)",
-            &[&teacher.id, &teacher.name, &teacher.password, &classes]);
+            &[&teacher.id, &teacher.name, &teacher.password, &classes])?;
     Ok(())
 }
 

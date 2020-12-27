@@ -26,7 +26,7 @@ pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
     // Convert to json
     conn.execute(
             "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
-            &[&student.id, &student.name, &student.password, &classes, &badges]);
+            &[&student.id, &student.name, &student.password, &classes, &badges])?;
     Ok(())
 }
 
