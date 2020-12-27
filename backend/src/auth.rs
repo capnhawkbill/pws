@@ -1,4 +1,5 @@
 use crate::database::DbConn;
+use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request, State};
 
@@ -41,6 +42,20 @@ pub enum LoginError {
     Permission,
 }
 
+impl std::fmt::Display for LoginError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = match self {
+            LoginError::Invalid => "Invalid username or password",
+            LoginError::Database => "Database error",
+            LoginError::Format => "Incorrect format",
+            LoginError::Missing => "Missing username or password",
+            LoginError::Permission => "Insufficient permission",
+        };
+        write!(f, "{}", text)
+    }
+}
+impl std::error::Error for LoginError {}
+
 // /// Verify that the user is an admin
 // impl<'a, 'r> FromRequest<'a, 'r> for Admin {
 //     type Error = LoginError;
@@ -55,11 +70,11 @@ pub enum LoginError {
 
 /// Verify that the user is a teacher
 impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(User::Teacher(t)) => Outcome::Success(Teacher(t)),
-            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission.into())),
             Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
@@ -67,11 +82,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
 
 /// Verify that the user is a student
 impl<'a, 'r> FromRequest<'a, 'r> for Student {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(User::Student(s)) => Outcome::Success(Student(s)),
-            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission.into())),
             Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
@@ -79,7 +94,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
 
 /// Verify that the user is authenticated
 impl<'a, 'r> FromRequest<'a, 'r> for User {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(r) => Outcome::Success(r),
@@ -88,31 +103,34 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     }
 }
 
-pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> std::result::Result<User, LoginError> {
+pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
     // Retrieve header
     let header: Vec<_> = req.headers().get("Authorization").collect();
 
     // Retrieve database
-    let db = req.guard::<State<DbConn>>()?;
+    let db = match req.guard::<DbConn>() {
+        Outcome::Success(v) => Ok(v),
+        _ => Err(LoginError::Database),
+    }?;
 
     // Check for the correct amount
-    if header < 1 {
-        return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-    } else if header > 1 {
-        return Outcome::Failure((Status::BadRequest, LoginError::Format));
+    if header.len() < 1 {
+        return Err(LoginError::Missing.into());
+    } else if header.len() > 1 {
+        return Err(LoginError::Format.into());
     }
 
-    check_value(header, db)?
+    Ok(check_value(header[0].as_bytes(), db)?)
 }
 
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
-pub fn check_value(value: &[u8], db: DbConn) -> std::result::Result<User, LoginError> {
-    let value = base64::decode(value).split(|x| x == ':');
+pub fn check_value(value: &[u8], db: DbConn) -> Result<User> {
+    let value = base64::decode(value)?.split(|x| *x == ":".as_bytes()[0]);
 
     if value.clone().count() != 2 {
-        return Err(LoginError::Format);
+        return Err(LoginError::Format.into());
     }
 
     // Unwraps should be save because of the check above
