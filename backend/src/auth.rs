@@ -12,6 +12,7 @@ use std::ops::Deref;
 use crate::database::{login, models, DbConn};
 
 /// This is a request guard for logging in as any user
+#[derive(Debug)]
 pub enum User {
     /// A student
     Student(models::Student),
@@ -122,7 +123,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     }
 }
 
-fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
+fn get_user(req: &'_ Request<'_>) -> Result<User> {
+    trace!("getting user");
     // Retrieve header
     let header: Vec<_> = req.headers().get("Authorization").collect();
 
@@ -146,6 +148,7 @@ fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
 fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
+    trace!("Checking value");
     // Decode base64
     let decoded = base64::decode(value)?;
     let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);

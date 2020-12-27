@@ -3,6 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The student
+#[derive(Debug)]
 pub struct Student {
     /// The id of the student
     pub id: Id,
@@ -35,6 +36,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 
 /// Insert a student into the database
 pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
+    trace!("Inserting student {}", student.name);
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
@@ -54,6 +56,7 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
 
 /// Get a student from the database
 pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
+    trace!("Getting student with id {}", id);
     let mut stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
     let mut students = stmt.query_map(&[&id], |row| {
         // Parse from csv
@@ -89,6 +92,7 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
 
 /// Get a student from the database using the username
 pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
+    trace!("Getting student {}", name);
     let mut stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
     let mut students = stmt.query_map(&[&name], |row| {
         // Parse from csv

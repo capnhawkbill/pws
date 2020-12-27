@@ -3,6 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The teacher
+#[derive(Debug)]
 pub struct Teacher {
     /// The id of the teacher
     pub id: Id,
@@ -30,11 +31,12 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 
 /// Insert a teacher into the database
 pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
+    trace!("Inserting teacher {}", teacher.name);
     // Convert to csv
     let classes = mkcsv(&teacher.classes)?;
     // Convert to json
     conn.execute(
-        "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?45)",
+        "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?4)",
         &[&teacher.id, &teacher.name, &teacher.password, &classes],
     )?;
     Ok(())
@@ -42,6 +44,7 @@ pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
 
 /// Gets a teacher from the database
 pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
+    trace!("Getting teacher with id {}", id);
     let mut stmt = conn.prepare("SELECT * FROM teacher where id = ?1")?;
     let mut teachers = stmt.query_map(&[&id], |row| {
         // Parse from csv
@@ -71,6 +74,7 @@ pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
 
 /// Get a teacher from the database using the username
 pub fn get_teacher_by_name(conn: &Connection, name: &str) -> Result<Teacher> {
+    trace!("Getting teacher {}", name);
     let mut stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
     let mut teachers = stmt.query_map(&[&name], |row| {
         // Parse from csv

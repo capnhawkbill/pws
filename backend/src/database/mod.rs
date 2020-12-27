@@ -21,25 +21,35 @@ pub type Id = String;
 // TODO make this work with a single query
 // TODO right now this doesn't handle name collisions
 pub fn login(conn: &rusqlite::Connection, name: &str, password: &str) -> Result<User> {
+    trace!("Logging in {} with password {}", name, password);
     if let Ok(student) = get_student_by_name(&conn, name) {
+        trace!("Is student");
+        trace!("checking {} against {}", password, student.password);
         if student.password == password {
+            trace!("Correct password");
             Ok(User::Student(student))
         } else {
+            trace!("incorrect password");
             Err(anyhow!("No user with this username and password"))
         }
     } else if let Ok(teacher) = get_teacher_by_name(&conn, name) {
+        trace!("Is teacher");
         if teacher.password == password {
+            trace!("Correct password");
             Ok(User::Teacher(teacher))
         } else {
+            trace!("incorrect password");
             Err(anyhow!("No user with this username and password"))
         }
     } else {
+        trace!("Doesn't exist");
         Err(anyhow!("No user with this username and password"))
     }
 }
 
 /// Create a new user and insert it into the database
 pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
+    trace!("Signing up {:?}", user);
     let r = match user {
         User::Student(student) => insert_student(&conn, &student)?,
         User::Teacher(teacher) => insert_teacher(&conn, &teacher)?,
@@ -50,6 +60,7 @@ pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
 
 /// Generates a unique id
 pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
+    trace!("generating id");
     loop {
     // generate random id
         let id: Vec<u8> = thread_rng()
@@ -58,15 +69,18 @@ pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
             .collect();
 
         let id = String::from_utf8(id)?;
+        trace!("trying {:?}", id);
 
         // check collision
         //let mut stmt = conn.prepare("SELECT * FROM badge,class,student,teacher");
         // TODO change this to above when those tables get added
-        let mut stmt = conn.prepare("SELECT * FROM student,teacher WHERE id = ?1")?;
+        let mut stmt = conn.prepare("SELECT * FROM student,teacher WHERE student.id = ?1 OR teacher.id = ?1")?;
         let mut res = stmt.query(&[&id])?;
         if !res.next().is_some() {
+            trace!("Unique");
             return Ok(id)
         }
+        trace!("Collided");
     }
 }
 
