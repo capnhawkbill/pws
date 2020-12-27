@@ -1,8 +1,7 @@
 use super::Id;
 use super::super::{getcsv, mkcsv};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
-use serde::{Deserialize, Serialize};
 
 pub struct Student {
     /// The id of the student
@@ -11,9 +10,6 @@ pub struct Student {
     name: String,
     /// The password of the student TODO plaintext lol
     password: String,
-    /// Other information that isn't strictly necessary
-    /// Stored in json inside of the database
-    info: Option<StudentInfo>,
     /// Id's of the classes the student is in
     /// Stored as csv
     classes: Vec<Id>,
@@ -22,60 +18,50 @@ pub struct Student {
     badges: Vec<Id>,
 }
 
-/// Non necessary information about a student
-/// Stored in json
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct StudentInfo {
-    /// Gender
-    gender: Option<String>,
-    /// Status
-    status: Option<String>,
-    /// Disorder
-    disorders: Option<Vec<String>>, // TODO more unnecessary information
-}
-
 /// Insert a student into the database
 pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
     // Convert to json
-    if let Some(info) = student.info {
-        conn.execute(
-                "INSERT INTO student (id, name, password, info, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                &[&student.id, &student.name, &student.password, &serde_json::to_string(&info)?, &classes, &badges]
-            )?;
-    } else {
-        conn.execute(
-                "INSERT INTO student (id, name, password, info, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                &[&student.id, &student.name, &student.password, "None".into(), &classes, &badges]
-            )?;
-    }
+    conn.execute(
+            "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
+            &[&student.id, &student.name, &student.password, &classes, &badges]);
     Ok(())
 }
 
-/// Gets a student from the database
-pub fn get_student(conn: Connection, id: Id) -> Result<()> {
+/// Get a student from the database
+pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
     let stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
     let students = stmt.query_map(&[&id], |row| {
         // Parse from csv
-        let classes = getcsv(row.get(4))?;
-        let badges = getcsv(row.get(5))?;
+        let classes = getcsv(row.get(3));
+        if let Err(e) = classes {
+            return Err(e)
+        }
+        let badges = getcsv(row.get(4));
+        if let Err(e) = badges {
+            return Err(e)
+        }
         // Parse from json
-        let info: Option<StudentInfo> = match row.get::<_, String>(3).as_str() {
-            "None" => None,
-            s => serde_json::from_str(s)?,
-        };
         Ok(Student {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
-            info,
-            classes,
-            badges,
+            classes: classes.unwrap(),
+            badges: badges.unwrap(),
         })
     })?;
-    Ok(())
+
+    if let Some(student) = students.next() {
+        if students.next().is_some() {
+            Err(anyhow!("Multiple students found with this id: {}", id))
+        } else {
+            Ok(student??)
+        }
+    } else {
+        Err(anyhow!("No students found with this id: {}", id))
+    }
 }
 
 #[cfg(Test)]
@@ -87,7 +73,6 @@ mod tests {
             id: "ID".into(),
             name: "Elias".into(),
             password: "very secure".into(),
-            info: None,
             classes: vec!["ClassId".into(), "Second ClassId".into()],
             badges: vec!["BadgeId".into(), "Second BadgeId".into()],
         };
@@ -97,7 +82,6 @@ mod tests {
                     id          varchar(50)
                     name        TEXT NOT NULL
                     password    TEXT NOT NULL
-                    info        TEXT
                     classes     TEXT
                     badges      TEXT
             )",
