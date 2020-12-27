@@ -22,6 +22,7 @@ pub struct Badge {
 /// in the database
 // TODO checking conditions
 pub enum Condition {
+    /// A test condition
     Test,
 }
 impl std::fmt::Display for Condition {
@@ -33,8 +34,10 @@ impl std::fmt::Display for Condition {
     }
 }
 
+/// Error type for parsing a condition
 #[derive(Debug)]
 pub enum ParseConditionError {
+    /// This variant of the enum doesn't exist
     DoesntExist,
 }
 
@@ -60,6 +63,7 @@ impl FromStr for Condition {
     }
 }
 
+/// Insert a badge into the database
 pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
     conn.execute(
         "INSERT INTO badge (id, name, description, official, condition) VALUES (?1, ?2, ?3, ?4, ?5)",
@@ -68,6 +72,7 @@ pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
     Ok(())
 }
 
+/// Get a badge from the database
 pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
     let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let mut badges = stmt.query_map(&[&id], |row| {

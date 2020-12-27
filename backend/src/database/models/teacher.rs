@@ -56,6 +56,7 @@ pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
     }
 }
 
+/// Get a teacher from the database using the username
 pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
     let mut stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
     let mut teachers = stmt.query_map(&[&name], |row| {
@@ -84,5 +85,32 @@ pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
         }
     } else {
         Err(anyhow!("No teachers found with this username: {}", name))
+    }
+}
+
+#[cfg(Test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_teacher_db() -> Connection {
+        let teacher = Teacher {
+            id: "ID".into(),
+            name: "Elias".into(),
+            password: "very secure".into(),
+            classes: vec!["ClassId".into(), "Second ClassId".into()],
+        };
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute(
+            "CREATE TABEL teacher (
+                    id          varchar(50)
+                    name        TEXT NOT NULL
+                    password    TEXT NOT NULL
+                    classes     TEXT
+            )",
+        )
+        .unwrap();
+        insert_teacher(conn, &teacher).unwrap();
+        let gotten = get_teacher(conn, "ID".into());
+        assert_eq!(badge, gotten);
     }
 }

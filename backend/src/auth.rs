@@ -8,9 +8,6 @@ use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use crate::database::DbConn;
-use anyhow::Result;
-use rocket::http::Status;
-use rocket::request::{FromRequest, Outcome, Request, State};
 
 use crate::database::models;
 
@@ -112,7 +109,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     }
 }
 
-pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
+fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
     // Retrieve header
     let header: Vec<_> = req.headers().get("Authorization").collect();
 
@@ -135,7 +132,7 @@ pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
-pub fn check_value(value: &[u8], db: DbConn) -> Result<User> {
+fn check_value(value: &[u8], db: DbConn) -> Result<User> {
     let decoded = base64::decode(value)?;
     let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 

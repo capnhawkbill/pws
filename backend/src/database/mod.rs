@@ -1,3 +1,4 @@
+//! This module contains everything concerning the database
 use anyhow::Result;
 use csv::{Reader, Writer};
 use rocket_contrib::databases::rusqlite;

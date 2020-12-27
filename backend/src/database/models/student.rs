@@ -3,6 +3,7 @@ use super::Id;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
+/// The student
 pub struct Student {
     /// The id of the student
     id: Id,
@@ -71,6 +72,7 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
     }
 }
 
+/// Get a student from the database using the username
 pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
     let mut stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
     let mut students = stmt.query_map(&[&name], |row| {
@@ -130,8 +132,8 @@ mod tests {
             )",
         )
         .unwrap();
-        insert_student(conn, &badge).unwrap();
+        insert_student(conn, &student).unwrap();
         let gotten = get_student(conn, "ID".into());
-        assert_eq!(badge, gotten);
+        assert_eq!(student, gotten);
     }
 }
