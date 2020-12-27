@@ -1,4 +1,4 @@
-use super::super::{Id, getcsv, mkcsv};
+use super::super::{getcsv, mkcsv, Id};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -16,6 +16,21 @@ pub struct Student {
     /// Id's of the badges the student has
     /// Stored as csv
     pub badges: Vec<Id>,
+}
+
+/// Create a table for the students
+pub fn create_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE student (
+            id          varchar(50),
+            name        TEXT NOT NULL,
+            password    TEXT NOT NULL,
+            classes     TEXT,
+            badges      TEXT
+        )",
+        &[],
+    )?;
+    Ok(())
 }
 
 /// Insert a student into the database

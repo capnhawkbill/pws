@@ -10,6 +10,8 @@ use comfy_table::Table;
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
+use backend::database::create_tables;
+
 #[derive(FromArgs)]
 /// a tool to interact with the database
 struct Args {
@@ -38,11 +40,11 @@ struct InitDb {
 #[argh(subcommand, name = "print")]
 struct PrintDb {
     #[argh(positional)]
-    /// the path to the database
-    path: PathBuf,
-    #[argh(positional)]
     /// table to print
     table: String,
+    #[argh(positional)]
+    /// the path to the database
+    path: PathBuf,
 }
 
 fn main() {
@@ -56,12 +58,8 @@ fn main() {
 }
 
 fn init_db(path: &Path) -> Result<()> {
-    let _db = Connection::open(&path)?;
-    // TODO make empty student table
-    // TODO make empty teacher table
-    // TODO make empty admin table
-    // TODO make empty class table
-    // TODO make empty badge table
+    let db = Connection::open(&path)?;
+    create_tables(&db)?;
     println!("Created database at {:?}", path);
     Ok(())
 }

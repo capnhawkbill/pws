@@ -22,7 +22,7 @@ fn main() {
 
     // Signup
     let signup = client
-        .post("/api/signup")
+        .post("/api/student/signup")
         .body(SIGNUPBODY)
         .header(ContentType::Json);
     // TODO check the response

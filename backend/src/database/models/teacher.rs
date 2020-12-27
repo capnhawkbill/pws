@@ -14,6 +14,20 @@ pub struct Teacher {
     pub classes: Vec<Id>,
 }
 
+/// Create a table for the teachers
+pub fn create_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE teacher (
+            id          varchar(50),
+            name        TEXT NOT NULL,
+            password    TEXT NOT NULL,
+            classes     TEXT
+        )",
+        &[],
+    )?;
+    Ok(())
+}
+
 /// Insert a teacher into the database
 pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
     // Convert to csv
