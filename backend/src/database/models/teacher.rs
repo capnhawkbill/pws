@@ -28,8 +28,8 @@ pub fn insert_teacher(conn: Connection, teacher: Teacher) -> Result<()> {
 
 /// Gets a teacher from the database
 pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
-    let stmt = conn.prepare("SELECT * FROM teacher where id = ?1")?;
-    let teachers = stmt.query_map(&[&id], |row| {
+    let mut stmt = conn.prepare("SELECT * FROM teacher where id = ?1")?;
+    let mut teachers = stmt.query_map(&[&id], |row| {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
@@ -56,8 +56,8 @@ pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
 }
 
 pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
-    let stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
-    let teachers = stmt.query_map(&[&name], |row| {
+    let mut stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
+    let mut teachers = stmt.query_map(&[&name], |row| {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {

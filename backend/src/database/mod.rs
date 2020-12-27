@@ -17,7 +17,7 @@ fn mkcsv(thing: &[String]) -> Result<String> {
 /// Parse a csv string
 fn getcsv(thing: String) -> Result<Vec<String>> {
     let mut rdr = Reader::from_reader(thing.as_bytes());
-    let r = Vec::new();
+    let mut r = Vec::new();
     for record in rdr.records() {
         let record = record?;
         r.push(record.as_slice().to_string())

@@ -32,8 +32,8 @@ pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
 
 /// Get a student from the database
 pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
-    let stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
-    let students = stmt.query_map(&[&id], |row| {
+    let mut stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
+    let mut students = stmt.query_map(&[&id], |row| {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {
@@ -65,8 +65,8 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
 }
 
 pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
-    let stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
-    let students = stmt.query_map(&[&name], |row| {
+    let mut stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
+    let mut students = stmt.query_map(&[&name], |row| {
         // Parse from csv
         let classes = getcsv(row.get(3));
         if let Err(e) = classes {

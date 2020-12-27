@@ -127,7 +127,8 @@ pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
 pub fn check_value(value: &[u8], db: DbConn) -> Result<User> {
-    let value = base64::decode(value)?.split(|x| *x == ":".as_bytes()[0]);
+    let decoded =  base64::decode(value)?;
+    let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 
     if value.clone().count() != 2 {
         return Err(LoginError::Format.into());

@@ -34,7 +34,7 @@ impl std::fmt::Display for Condition {
 }
 
 #[derive(Debug)]
-enum ParseConditionError {
+pub enum ParseConditionError {
     DoesntExist,
 }
 
@@ -69,8 +69,8 @@ pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
 }
 
 pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
-    let stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
-    let badges = stmt.query_map(&[&id], |row| {
+    let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
+    let mut badges = stmt.query_map(&[&id], |row| {
         let condition = Condition::from_str(row.get::<_, String>(4).as_str())?;
         Ok(Badge {
             id: row.get(0),
