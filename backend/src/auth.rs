@@ -7,9 +7,8 @@
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
-use crate::database::DbConn;
 
-use crate::database::models;
+use crate::database::{login, DbConn, models};
 
 /// This is a request guard for logging in as any user
 pub enum User {
@@ -132,7 +131,7 @@ fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
-fn check_value(value: &[u8], db: DbConn) -> Result<User> {
+fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
     let decoded = base64::decode(value)?;
     let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 
@@ -142,13 +141,10 @@ fn check_value(value: &[u8], db: DbConn) -> Result<User> {
 
     // Unwraps should be save because of the check above
     let (username, password) = (value.next().unwrap(), value.next().unwrap());
+    let username = String::from_utf8(username.to_vec())?;
+    let password = String::from_utf8(password.to_vec())?;
 
-    // TODO Get the stuff from the database
-
-    // TODO Check them against eachother
-    // TODO Return the correct variant
-
-    todo![];
+    Ok(login(conn, &username, &password)?)
 }
 
 #[cfg(test)]
