@@ -21,6 +21,7 @@ mysql = "20.0.1"
 argh = "0.1.4"
 csv = "1.1.4"
 serde_json = "1.0.60"
+comfy-table = "1.4.2"
 
 [dependencies.rocket_contrib]
 version = "0.4.5"
