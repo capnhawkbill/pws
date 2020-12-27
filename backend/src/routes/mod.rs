@@ -1,8 +1,7 @@
 //! All the routes that form the api
 
-
-pub mod teacher;
 pub mod student;
+pub mod teacher;
 
 use serde::{Deserialize, Serialize};
 

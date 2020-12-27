@@ -2,13 +2,13 @@
 //! All these require you to be authenticated as a student
 //! They are all prefixed with "/student"
 use anyhow::Result;
-use rocket_contrib::json::Json;
 use rocket::Rocket;
+use rocket_contrib::json::Json;
 
 use super::Credentials;
 use crate::auth::{self, User};
-use crate::database::{self, models::Student, Id};
 use crate::database::DbConn;
+use crate::database::{self, models::Student, Id};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
@@ -18,7 +18,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
 /// Signup
 #[post("/signup", format = "json", data = "<credentials>")]
 fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
-    let id = database::generate_id()?;
+    let id = database::generate_id(&*conn)?;
 
     // type declarations
     let classes: Vec<Id> = Vec::new();

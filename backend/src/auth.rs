@@ -4,10 +4,10 @@
 //! + User if you don't care about permission
 //! + Student, Teacher or Admin if you do
 
-use std::ops::Deref;
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
+use std::ops::Deref;
 
 use crate::database::{login, models, DbConn};
 

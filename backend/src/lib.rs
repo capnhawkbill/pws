@@ -7,6 +7,7 @@ extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
 extern crate anyhow;
+extern crate rand;
 extern crate base64;
 extern crate derive_builder;
 extern crate serde;

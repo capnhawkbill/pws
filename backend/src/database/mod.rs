@@ -2,9 +2,12 @@
 use anyhow::{anyhow, Result};
 use csv::{Reader, Writer};
 use rocket_contrib::databases::rusqlite;
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 
 use crate::auth::User;
 pub mod models;
+pub use models::create_tables;
 use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
 
 #[database("sqlite_database")]
@@ -46,8 +49,25 @@ pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
 }
 
 /// Generates a unique id
-pub fn generate_id() -> Result<Id> {
-    todo![]
+pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
+    loop {
+    // generate random id
+        let id: Vec<u8> = thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(50)
+            .collect();
+
+        let id = String::from_utf8(id)?;
+
+        // check collision
+        //let mut stmt = conn.prepare("SELECT * FROM badge,class,student,teacher");
+        // TODO change this to above when those tables get added
+        let mut stmt = conn.prepare("SELECT * FROM student,teacher WHERE id = ?1")?;
+        let mut res = stmt.query(&[&id])?;
+        if !res.next().is_some() {
+            return Ok(id)
+        }
+    }
 }
 
 /// Make a csv string
