@@ -1,12 +1,12 @@
 extern crate argh;
 //extern crate backend;
-extern crate rocket_contrib;
 extern crate comfy_table;
+extern crate rocket_contrib;
 use rocket_contrib::databases::rusqlite;
 
 use anyhow::{anyhow, Result};
-use comfy_table::Table;
 use argh::FromArgs;
+use comfy_table::Table;
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
@@ -21,7 +21,7 @@ struct Args {
 #[argh(subcommand)]
 enum SubCommand {
     Init(InitDb),
-    Print(PrintDb)
+    Print(PrintDb),
 }
 
 /// Initialize a database
@@ -43,7 +43,6 @@ struct PrintDb {
     #[argh(positional)]
     /// table to print
     table: String,
-
 }
 
 fn main() {
@@ -74,14 +73,14 @@ fn print_db(path: &Path, table: &str) -> Result<()> {
         "teacher" => 4,
         "class" => 4,
         "badge" => 5,
-        _ => return Err(anyhow!("Invalid table"))
+        _ => return Err(anyhow!("Invalid table")),
     };
 
     // get the stuff
     let mut stmt = conn.prepare(&format!("SELECT * FROM {}", table))?;
     let rows = stmt.query_map(&[], |row| {
         let mut rowv: Vec<String> = Vec::new();
-        for i in 0..columns-1 {
+        for i in 0..columns - 1 {
             rowv.push(row.get(i))
         }
         rowv

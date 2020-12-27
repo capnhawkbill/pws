@@ -10,7 +10,6 @@ pub use class::*;
 pub use student::*;
 pub use teacher::*;
 
-
 //#[macro_export]
 //macro_rules! params {
 //    () => {
