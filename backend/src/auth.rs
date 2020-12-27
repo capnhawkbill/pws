@@ -146,7 +146,7 @@ fn get_user(req: &'_ Request<'_>) -> Result<User> {
 
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
-// TODO it currently gets the whole header i don't know if this is a problem
+// NOTE it currently gets the whole header i don't know if this is a problem
 fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
     trace!("Checking value");
     // Decode base64

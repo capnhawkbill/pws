@@ -94,7 +94,7 @@ pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
     }
 }
 
-#[cfg(Test)]
+#[cfg(test)]
 mod tests {
     use super::*;
     #[test]

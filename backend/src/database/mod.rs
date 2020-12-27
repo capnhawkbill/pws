@@ -1,6 +1,6 @@
 //! This module contains everything concerning the database
 use anyhow::{anyhow, Result};
-use csv::{Reader, Writer};
+use csv::Writer;
 use rocket_contrib::databases::rusqlite;
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -20,6 +20,7 @@ pub type Id = String;
 /// Get a user from the database using username and password
 // TODO make this work with a single query
 // TODO right now this doesn't handle name collisions
+// TODO ugly if tree
 pub fn login(conn: &rusqlite::Connection, name: &str, password: &str) -> Result<User> {
     trace!("Logging in {} with password {}", name, password);
     if let Ok(student) = get_student_by_name(&conn, name) {
@@ -50,12 +51,12 @@ pub fn login(conn: &rusqlite::Connection, name: &str, password: &str) -> Result<
 /// Create a new user and insert it into the database
 pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
     trace!("Signing up {:?}", user);
-    let r = match user {
+    let _r = match user {
         User::Student(student) => insert_student(&conn, &student)?,
         User::Teacher(teacher) => insert_teacher(&conn, &teacher)?,
     };
 
-    Ok(r)
+    Ok(())
 }
 
 /// Generates a unique id
@@ -76,7 +77,7 @@ pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
         // TODO change this to above when those tables get added
         let mut stmt = conn.prepare("SELECT * FROM student,teacher WHERE student.id = ?1 OR teacher.id = ?1")?;
         let mut res = stmt.query(&[&id])?;
-        if !res.next().is_some() {
+        if res.next().is_none() {
             trace!("Unique");
             return Ok(id)
         }
