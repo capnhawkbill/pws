@@ -1,14 +1,14 @@
 <template>
   <header>
     <nav>
-      <ul>
+      <ol>
         <router-link tag="li" id="button" to="/">Home</router-link>
         <router-link tag="li" id="button" to="/rang">Rang</router-link> 
         <router-link tag="li" id="button" to="/klas">Klas</router-link> 
         <router-link tag="li" id="button" to="/winkel">Winkel</router-link> 
         <router-link tag="li" id="button" to="/profiel">Profiel</router-link> 
         <router-link tag="li" id="button" to="/opties">Opties</router-link>
-      </ul>
+      </ol>
     </nav>
   </header>
   <main>
