@@ -1,121 +1,97 @@
-//! A cli interface for the database
+extern crate argh;
+//extern crate backend;
+extern crate rocket_contrib;
+extern crate comfy_table;
+use rocket_contrib::databases::rusqlite;
 
-extern crate backend;
-extern crate diesel;
-extern crate dotenv;
-extern crate structopt;
+use anyhow::{anyhow, Result};
+use comfy_table::Table;
+use argh::FromArgs;
+use rusqlite::Connection;
+use std::path::{Path, PathBuf};
 
-use backend::database;
-use backend::permission::Permission;
-use diesel::{Connection, SqliteConnection};
-use dotenv::dotenv;
-use std::env;
-use std::str::FromStr;
-use structopt::StructOpt;
-
-#[derive(StructOpt, Debug)]
-enum SubCommand {
-    /// View all the users
-    #[structopt(name = "view")]
-    View,
-
-    /// Delete a user
-    #[structopt(name = "delete")]
-    Delete { username: String },
-
-    /// Update a field of a user
-    #[structopt(name = "update")]
-    Update {
-        username: String,
-
-        /// The field to change with update
-        #[structopt(short, long)]
-        field: String,
-
-        /// The value to change to with update
-        #[structopt(short, long)]
-        value: String,
-    },
-
-    /// Insert a user
-    #[structopt(name = "insert")]
-    Insert {
-        username: String,
-        password: String,
-        apikey: String,
-        permission: String,
-    },
-}
-
-#[derive(StructOpt, Debug)]
-#[structopt(name = "Db tool")]
-struct Opt {
-    /// The commands that this tool can use
-    #[structopt(subcommand)]
+#[derive(FromArgs)]
+/// a tool to interact with the database
+struct Args {
+    #[argh(subcommand)]
     subcommand: SubCommand,
 }
 
+#[derive(FromArgs)]
+#[argh(subcommand)]
+enum SubCommand {
+    Init(InitDb),
+    Print(PrintDb)
+}
+
+/// Initialize a database
+#[derive(FromArgs)]
+#[argh(subcommand, name = "init")]
+struct InitDb {
+    #[argh(positional)]
+    /// the path to the database
+    path: PathBuf,
+}
+
+/// Print a table of a database
+#[derive(FromArgs)]
+#[argh(subcommand, name = "print")]
+struct PrintDb {
+    #[argh(positional)]
+    /// the path to the database
+    path: PathBuf,
+    #[argh(positional)]
+    /// table to print
+    table: String,
+
+}
+
 fn main() {
-    let opt = Opt::from_args();
+    let args: Args = argh::from_env();
 
-    let conn = establish_connection();
-    match opt.subcommand {
-        SubCommand::View => view(&conn),
-        SubCommand::Delete { username } => delete(&conn, username),
-        SubCommand::Insert {
-            username,
-            password,
-            apikey,
-            permission,
-        } => insert(
-            &conn,
-            username,
-            password,
-            apikey,
-            Permission::from_str(&permission).expect("invalid permission"),
-        ),
-        SubCommand::Update {
-            username,
-            field,
-            value,
-        } => update(&conn, username, field, value),
+    // This is stupid if there are more subcommands than init
+    match args.subcommand {
+        SubCommand::Init(v) => init_db(&v.path).unwrap(),
+        SubCommand::Print(v) => print_db(&v.path, &v.table).unwrap(),
+    };
+}
+
+fn init_db(path: &Path) -> Result<()> {
+    let _db = Connection::open(&path)?;
+    // TODO make empty student table
+    // TODO make empty teacher table
+    // TODO make empty admin table
+    // TODO make empty class table
+    // TODO make empty badge table
+    println!("Created database at {:?}", path);
+    Ok(())
+}
+
+fn print_db(path: &Path, table: &str) -> Result<()> {
+    let conn = Connection::open(&path)?;
+    let columns = match table {
+        "student" => 5,
+        "teacher" => 4,
+        "class" => 4,
+        "badge" => 5,
+        _ => return Err(anyhow!("Invalid table"))
+    };
+
+    // get the stuff
+    let mut stmt = conn.prepare(&format!("SELECT * FROM {}", table))?;
+    let rows = stmt.query_map(&[], |row| {
+        let mut rowv: Vec<String> = Vec::new();
+        for i in 0..columns-1 {
+            rowv.push(row.get(i))
+        }
+        rowv
+    })?;
+
+    // make a table
+    let mut table = Table::new();
+    for row in rows {
+        table.add_row(row?);
     }
-}
-
-fn view(conn: &SqliteConnection) {
-    for user in database::get_users(&conn).unwrap() {
-        println!(
-            "name: {}\npassword: {}\napikey: {}\npermission: {}\n",
-            user.username, user.password, user.apikey, user.permission
-        );
-    }
-}
-
-fn update(conn: &SqliteConnection, username: String, field: String, value: String) {
-    database::update_user(&conn, &username, &field, &value).unwrap();
-    println!("Updated field {} to {}", field, value);
-}
-
-fn delete(conn: &SqliteConnection, username: String) {
-    database::delete_user(&conn, &username).unwrap();
-    println!("Deleted {}", username);
-}
-
-fn insert(
-    conn: &SqliteConnection,
-    username: String,
-    password: String,
-    apikey: String,
-    permission: Permission,
-) {
-    database::create_user(&conn, &username, &password, &apikey, permission).unwrap();
-    println!("Created {}", username);
-}
-
-fn establish_connection() -> diesel::SqliteConnection {
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
-    SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    println!("{}", table);
+    Ok(())
 }

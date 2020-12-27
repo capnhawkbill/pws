@@ -24,7 +24,6 @@
 - Has in it:
   - Information about the badge
 
-
 ### table with teachers
 - Contains references to:
   - classes

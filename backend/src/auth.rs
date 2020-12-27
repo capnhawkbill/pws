@@ -7,11 +7,12 @@
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
+use crate::database::DbConn;
+use anyhow::Result;
+use rocket::http::Status;
+use rocket::request::{FromRequest, Outcome, Request, State};
 
-use super::models;
-
-// TODO Nonsense
-type Database = bool;
+use crate::database::models;
 
 /// This is a request guard for logging in as any user
 pub enum User {
@@ -19,18 +20,21 @@ pub enum User {
     Student(models::Student),
     /// A teacher
     Teacher(models::Teacher),
-    /// A admin
-    Admin(models::Admin),
+    // A admin
+    //Admin(models::Admin),
 }
 
 /// This is a request guard for logging in as a user
-pub struct Student {}
+/// It is a wrapper for the struct from the database
+pub struct Student(models::Student);
 
 /// This is a request guard for logging in as a teacher
-pub struct Teacher {}
+/// It is a wrapper for the struct from the database
+pub struct Teacher(models::Teacher);
 
 /// This is a request guard for logging in as a admin
-pub struct Admin {}
+/// It is a wrapper for the struct from the database
+//pub struct Admin(crate::database::models::Admin);
 
 /// The error type for logging in
 #[derive(Debug)]
@@ -47,119 +51,96 @@ pub enum LoginError {
     Permission,
 }
 
-/// Verify that the user is an admin
-impl<'a, 'r> FromRequest<'a, 'r> for Admin {
-    type Error = LoginError;
-    fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Admin(a) => Outcome::Success(a),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
-        }
+impl std::fmt::Display for LoginError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = match self {
+            LoginError::Invalid => "Invalid username or password",
+            LoginError::Database => "Database error",
+            LoginError::Format => "Incorrect format",
+            LoginError::Missing => "Missing username or password",
+            LoginError::Permission => "Insufficient permission",
+        };
+        write!(f, "{}", text)
     }
 }
+impl std::error::Error for LoginError {}
+
+// /// Verify that the user is an admin
+// impl<'a, 'r> FromRequest<'a, 'r> for Admin {
+//     type Error = LoginError;
+//     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+//         match get_user(req) {
+//             Ok(User::Admin(a)) => Outcome::Success(a),
+//             Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+//             Err(e) => Outcome::Failure((Status::BadRequest, e)),
+//         }
+//     }
+// }
 
 /// Verify that the user is a teacher
 impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Teacher(t) => Outcome::Success(t),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+        match get_user(req) {
+            Ok(User::Teacher(t)) => Outcome::Success(Teacher(t)),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission.into())),
+            Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
 }
 
 /// Verify that the user is a student
 impl<'a, 'r> FromRequest<'a, 'r> for Student {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
-        }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        match user {
-            User::Student(s) => Outcome::Success(s),
-            _ => Outcome::Failure((Status::BadRequest, LoginError::Permission)),
+        match get_user(req) {
+            Ok(User::Student(s)) => Outcome::Success(Student(s)),
+            Ok(_) => Outcome::Failure((Status::BadRequest, LoginError::Permission.into())),
+            Err(e) => Outcome::Failure((Status::BadRequest, e)),
         }
     }
 }
 
 /// Verify that the user is authenticated
 impl<'a, 'r> FromRequest<'a, 'r> for User {
-    type Error = LoginError;
+    type Error = anyhow::Error;
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        // TODO get the database
-        //let db = req.guard::
-        let db = true;
-
-        // Retrieve header
-        let header: Vec<_> = req.headers().get("Authorization").collect();
-        // Check for the correct amount
-        if header < 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Missing));
-        } else if header > 1 {
-            return Outcome::Failure((Status::BadRequest, LoginError::Format));
+        match get_user(req) {
+            Ok(r) => Outcome::Success(r),
+            Err(err) => Outcome::Failure((Status::BadRequest, err)),
         }
-
-        let user =
-            check_value(header, db).map_err(|err| Outcome::Failure((Status::BadRequest, err)))?;
-
-        Outcome::Success(user)
     }
+}
+
+pub fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
+    // Retrieve header
+    let header: Vec<_> = req.headers().get("Authorization").collect();
+
+    // Retrieve database
+    let db = match req.guard::<DbConn>() {
+        Outcome::Success(v) => Ok(v),
+        _ => Err(LoginError::Database),
+    }?;
+
+    // Check for the correct amount
+    if header.len() < 1 {
+        return Err(LoginError::Missing.into());
+    } else if header.len() > 1 {
+        return Err(LoginError::Format.into());
+    }
+
+    Ok(check_value(header[0].as_bytes(), db)?)
 }
 
 /// Verify a base64 encoded username and password pair
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
-pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, LoginError> {
-    let value = base64::decode(value).split(|x| x == ':');
+pub fn check_value(value: &[u8], db: DbConn) -> Result<User> {
+    let decoded = base64::decode(value)?;
+    let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 
     if value.clone().count() != 2 {
-        return Err(LoginError::Format);
+        return Err(LoginError::Format.into());
     }
 
     // Unwraps should be save because of the check above
@@ -176,16 +157,17 @@ pub fn check_value(value: &[u8], db: Database) -> std::result::Result<User, Logi
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rusqlite::Connection;
 
-    fn custom_database() -> Database {
-        // TODO Make this actually setup a mock database
-        true
+    fn custom_database() -> DbConn {
+        let db = Connection::open_in_memory().unwrap();
+        // TODO put stuff in the database
+        DbConn(db)
     }
 
     #[test]
     fn test_check_value() {
         let db = custom_database();
-        // TODO make check_value calls to verify stuff in the database
         check_value(&[], db).unwrap();
     }
 }
