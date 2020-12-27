@@ -3,7 +3,7 @@ use anyhow::Result;
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
-use crate::database::UserDataBase;
+use crate::database::DbConn;
 
 /// The credentials that are received as json
 #[derive(Deserialize)]
@@ -16,7 +16,7 @@ pub struct Credentials {
 
 /// Just sends everything to the signup function
 #[post("/signup", format = "json", data = "<credentials>")]
-pub fn signup(conn: UserDataBase, credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
+pub fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Json<ApiKey>> {
     todo![]
     //    let apikey = match login::signup(
     //        &conn,

@@ -9,6 +9,5 @@ fn main() {
     rocket::ignite()
         .mount("/api", routes![login, signup, student])
         .attach(DbConn::fairing())
-        .attach(AppState::manage())
         .launch();
 }

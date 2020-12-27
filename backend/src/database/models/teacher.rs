@@ -16,7 +16,7 @@ pub struct Teacher {
 }
 
 /// Insert a teacher into the database
-pub fn insert_teacher(conn: Connection, teacher: Teacher) -> Result<()> {
+pub fn insert_teacher(conn: &Connection, teacher: Teacher) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&teacher.classes)?;
     // Convert to json
@@ -28,7 +28,7 @@ pub fn insert_teacher(conn: Connection, teacher: Teacher) -> Result<()> {
 }
 
 /// Gets a teacher from the database
-pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
+pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
     let mut stmt = conn.prepare("SELECT * FROM teacher where id = ?1")?;
     let mut teachers = stmt.query_map(&[&id], |row| {
         // Parse from csv
@@ -57,7 +57,7 @@ pub fn get_teacher(conn: Connection, id: Id) -> Result<Teacher> {
 }
 
 /// Get a teacher from the database using the username
-pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
+pub fn get_teacher_by_name(conn: &Connection, name: &str) -> Result<Teacher> {
     let mut stmt = conn.prepare("SELECT * FROM teacher where name = ?1")?;
     let mut teachers = stmt.query_map(&[&name], |row| {
         // Parse from csv
@@ -92,14 +92,14 @@ pub fn get_teacher_by_name(conn: Connection, name: &str) -> Result<Teacher> {
 mod tests {
     use super::*;
     #[test]
-    fn test_teacher_db() -> Connection {
+    fn test_teacher_db() -> &Connection {
         let teacher = Teacher {
             id: "ID".into(),
             name: "Elias".into(),
             password: "very secure".into(),
             classes: vec!["ClassId".into(), "Second ClassId".into()],
         };
-        let conn = Connection::open_in_memory().unwrap();
+        let conn = &Connection::open_in_memory().unwrap();
         conn.execute(
             "CREATE TABEL teacher (
                     id          varchar(50)

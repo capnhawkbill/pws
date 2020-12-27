@@ -132,6 +132,7 @@ fn get_user<'a, 'r>(req: &'a Request<'r>) -> Result<User> {
 /// It should be in the format "username:password"
 // TODO it currently gets the whole header i don't know if this is a problem
 fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
+    // Decode base64
     let decoded = base64::decode(value)?;
     let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 
@@ -141,26 +142,11 @@ fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
 
     // Unwraps should be save because of the check above
     let (username, password) = (value.next().unwrap(), value.next().unwrap());
+
+    // parse the byte arrays
     let username = String::from_utf8(username.to_vec())?;
     let password = String::from_utf8(password.to_vec())?;
 
-    Ok(login(conn, &username, &password)?)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rusqlite::Connection;
-
-    fn custom_database() -> DbConn {
-        let db = Connection::open_in_memory().unwrap();
-        // TODO put stuff in the database
-        DbConn(db)
-    }
-
-    #[test]
-    fn test_check_value() {
-        let db = custom_database();
-        check_value(&[], db).unwrap();
-    }
+    // login
+    Ok(login(&*conn, &username, &password)?)
 }

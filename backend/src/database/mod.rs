@@ -13,14 +13,14 @@ pub struct DbConn(rusqlite::Connection);
 /// Get a user from the database using username and password
 // TODO make this work with a single query
 // TODO right now this doesn't handle name collisions
-pub fn login(conn: rusqlite::Connection, name: &str, password: &str) -> Result<User> {
-    if let Ok(student) = get_student_by_name(conn, name) {
+pub fn login(conn: &rusqlite::Connection, name: &str, password: &str) -> Result<User> {
+    if let Ok(student) = get_student_by_name(&conn, name) {
         if student.password == password {
             Err(anyhow!("No user with this username and password"))
         } else {
             Err(anyhow!("No user with this username and password"))
         }
-    } else if let Ok(teacher) = get_teacher_by_name(conn, name) {
+    } else if let Ok(teacher) = get_teacher_by_name(&conn, name) {
         if teacher.password == password {
             Ok(User::Teacher(teacher))
         } else {

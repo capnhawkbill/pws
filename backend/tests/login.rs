@@ -1,7 +1,11 @@
 extern crate backend;
 extern crate rocket;
+use rocket::local::Client;
 
-use backend::routes::login::*;
+use backend::{
+    routes::login::*,
+    database::DbConn,
+};
 
 /// The json body for signing up
 const SIGNUPBODY: &'static str = r#"
@@ -15,8 +19,7 @@ fn main() {
     // Construct application
     let rocket = rocket::ignite()
         .mount("/api", routes![signup])
-        .attach(UserDataBase::fairing())
-        .attach(AppState::manage());
+        .attach(DbConn::fairing());
 
     let client = Client::new(rocket).expect("Failed to initialize client");
 

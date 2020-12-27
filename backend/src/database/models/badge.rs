@@ -86,6 +86,7 @@ pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
         })
     })?;
 
+    // TODO This just gets the first badge it sees no checks
     if let Some(badge) = badges.next() {
         badge?
     } else {

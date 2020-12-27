@@ -20,7 +20,7 @@ pub struct Student {
 }
 
 /// Insert a student into the database
-pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
+pub fn insert_student(conn: &Connection, student: Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
@@ -39,7 +39,7 @@ pub fn insert_student(conn: Connection, student: Student) -> Result<()> {
 }
 
 /// Get a student from the database
-pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
+pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
     let mut stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
     let mut students = stmt.query_map(&[&id], |row| {
         // Parse from csv
@@ -61,6 +61,7 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
         })
     })?;
 
+    // Check if exactly one student is found
     if let Some(student) = students.next() {
         if students.next().is_some() {
             Err(anyhow!("Multiple students found with this id: {}", id))
@@ -73,7 +74,7 @@ pub fn get_student(conn: Connection, id: Id) -> Result<Student> {
 }
 
 /// Get a student from the database using the username
-pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
+pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
     let mut stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
     let mut students = stmt.query_map(&[&name], |row| {
         // Parse from csv
@@ -95,6 +96,7 @@ pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
         })
     })?;
 
+    // Check if exactly one student is found
     if let Some(student) = students.next() {
         if students.next().is_some() {
             Err(anyhow!(
@@ -113,7 +115,8 @@ pub fn get_student_by_name(conn: Connection, name: &str) -> Result<Student> {
 mod tests {
     use super::*;
     #[test]
-    fn test_student_db() -> Connection {
+    fn test_student_db() -> &Connection {
+        // create mock student
         let student = Student {
             id: "ID".into(),
             name: "Elias".into(),
@@ -121,7 +124,9 @@ mod tests {
             classes: vec!["ClassId".into(), "Second ClassId".into()],
             badges: vec!["BadgeId".into(), "Second BadgeId".into()],
         };
-        let conn = Connection::open_in_memory().unwrap();
+
+        // create mock database
+        let conn = &Connection::open_in_memory().unwrap();
         conn.execute(
             "CREATE TABEL student (
                     id          varchar(50)
@@ -132,6 +137,8 @@ mod tests {
             )",
         )
         .unwrap();
+
+        // test if the inserted student can be retrieved
         insert_student(conn, &student).unwrap();
         let gotten = get_student(conn, "ID".into());
         assert_eq!(student, gotten);
