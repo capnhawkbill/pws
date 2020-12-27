@@ -20,7 +20,7 @@ pub struct Student {
 }
 
 /// Insert a student into the database
-pub fn insert_student(conn: &Connection, student: Student) -> Result<()> {
+pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;

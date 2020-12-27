@@ -10,9 +10,6 @@ pub use class::*;
 pub use student::*;
 pub use teacher::*;
 
-/// Id for types in the database
-/// `TEXT NOT NULL PRIMARY KEY`
-pub type Id = String;
 
 //#[macro_export]
 //macro_rules! params {

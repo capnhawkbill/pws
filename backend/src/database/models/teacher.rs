@@ -16,7 +16,7 @@ pub struct Teacher {
 }
 
 /// Insert a teacher into the database
-pub fn insert_teacher(conn: &Connection, teacher: Teacher) -> Result<()> {
+pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&teacher.classes)?;
     // Convert to json
