@@ -36,6 +36,11 @@ fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
     Ok(id)
 }
 
+#[get("/info")]
+fn info(teacher: auth::Student) -> Json<Teacher> {
+    Json(*teacher.clone())
+}
+
 /// A test route
 #[get("/teacher")]
 fn teacher(teacher: auth::Teacher) -> String {

@@ -12,7 +12,7 @@ use std::ops::Deref;
 use crate::database::{login, models, DbConn};
 
 /// This is a request guard for logging in as any user
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum User {
     /// A student
     Student(models::Student),
@@ -24,6 +24,7 @@ pub enum User {
 
 /// This is a request guard for logging in as a user
 /// It is a wrapper for the struct from the database
+#[derive(Clone, Debug)]
 pub struct Student(models::Student);
 
 impl Deref for Student {
@@ -35,6 +36,7 @@ impl Deref for Student {
 
 /// This is a request guard for logging in as a teacher
 /// It is a wrapper for the struct from the database
+#[derive(Clone, Debug)]
 pub struct Teacher(models::Teacher);
 
 impl Deref for Teacher {

@@ -8,17 +8,17 @@ use rocket_contrib::json::Json;
 use super::Credentials;
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{self, models::Student, Id};
+use crate::database::{self, Student, Id, generate_id, signup};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/student", routes![signup, student])
+    rocket.mount("/api/student", routes![signup_route, student])
 }
 
 /// Signup
 #[post("/signup", format = "json", data = "<credentials>")]
-fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
-    let id = database::generate_id(&*conn)?;
+fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
+    let id = generate_id(&*conn)?;
 
     // type declarations
     let classes: Vec<Id> = Vec::new();
@@ -32,9 +32,14 @@ fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
         badges,
     };
 
-    database::signup(&*conn, &User::Student(student))?;
+    signup(&*conn, &User::Student(student))?;
 
     Ok(id)
+}
+
+#[get("/info")]
+fn info(student: auth::Student) -> Json<Student> {
+    Json(*student.clone())
 }
 
 /// A test route

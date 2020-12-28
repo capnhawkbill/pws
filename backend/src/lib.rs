@@ -12,6 +12,7 @@ extern crate anyhow;
 extern crate rand;
 extern crate base64;
 extern crate derive_builder;
+#[macro_use]
 extern crate serde;
 extern crate serde_json;
 

@@ -4,7 +4,7 @@ use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
 
 /// A badge that cab be awarded to students
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Badge {
     /// The id
     id: Id,

@@ -5,11 +5,12 @@ use rocket_contrib::databases::rusqlite;
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
 
-use crate::auth::User;
 pub mod models;
 pub use models::create_tables;
+
+use crate::auth::User;
 use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
-use models::{Student, Class, Teacher, Badge}
+pub use models::{Student, Class, Teacher, Badge};
 
 #[database("sqlite_database")]
 pub struct DbConn(rusqlite::Connection);
