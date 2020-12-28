@@ -9,6 +9,7 @@ use crate::auth::User;
 pub mod models;
 pub use models::create_tables;
 use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
+use models::{Student, Class, Teacher, Badge}
 
 #[database("sqlite_database")]
 pub struct DbConn(rusqlite::Connection);
@@ -58,6 +59,18 @@ pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
 
     Ok(())
 }
+
+// TODO a common trait for all the models so common functions are possible
+// pub trait Model {
+//     fn get(conn: &rusqlite::Connection, id: Id) -> Result<Self>
+//     fn insert(&self, conn: &rusqlite::Connection) -> Result<()>
+// }
+// impl Model for Class {}
+// impl Model for Student {}
+// impl Model for Teacher {}
+// impl Model for Badge {}
+//
+// fn get_multiple(conn: &rusqlite::Connection, ids: Vec<Id>, f: bool) -> Vec<impl Model>
 
 /// Generates a unique id
 pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
