@@ -17,7 +17,8 @@ use rocket_contrib::databases::rusqlite::Connection;
 pub fn create_tables(conn: &Connection) -> Result<()> {
     student::create_table(&conn)?;
     teacher::create_table(&conn)?;
-    // TODO badges and classes
+    badge::create_table(&conn)?;
+    class::create_table(&conn)?;
     Ok(())
 }
 

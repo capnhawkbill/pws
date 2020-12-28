@@ -63,8 +63,23 @@ impl FromStr for Condition {
     }
 }
 
+pub fn create_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE badge (
+                id          TEXT NOT NULL PRIMARY KEY,
+                name        TEXT NOT NULL,
+                description TEXT NOT NULL,
+                official    TEXT NOT NULL,
+                condition   TEXT NOT NULL
+        )",
+        &[]
+    )?;
+
+    Ok(())
+}
+
 /// Insert a badge into the database
-pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
+pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
     conn.execute(
         "INSERT INTO badge (id, name, description, official, condition) VALUES (?1, ?2, ?3, ?4, ?5)",
         &[&badge.id, &badge.name, &badge.description, &badge.official, &badge.condition.to_string()]
@@ -73,7 +88,7 @@ pub fn insert_badge(conn: Connection, badge: &Badge) -> Result<()> {
 }
 
 /// Get a badge from the database
-pub fn get_badge(conn: Connection, id: Id) -> Result<Badge> {
+pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
     let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let mut badges = stmt.query_map(&[&id], |row| {
         let condition = Condition::from_str(row.get::<_, String>(4).as_str())?;
@@ -107,15 +122,7 @@ mod tests {
             condition: Condition::Test,
         };
         let conn = Connection::open_in_memory().unwrap();
-        conn.execute(
-            "CREATE TABEL badge (
-                    id          TEXT NOT NULL PRIMARY KEY
-                    name        TEXT NOT NULL
-                    description TEXT NOT NULL
-                    official    TEXT NOT NULL
-                    condition   TEXT NOT NULL
-            )",
-        );
+        create_table(&conn).unwrap();
         insert_badge(conn, &badge).unwrap();
         let gotten = get_badge(conn, "ID".into());
         assert_eq!(badge, gotten);
