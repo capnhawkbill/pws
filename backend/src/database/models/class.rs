@@ -1,4 +1,5 @@
 use super::super::{getcsv, mkcsv, Id};
+use super::{get_student, get_teacher};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -73,6 +74,26 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         }
     } else {
         Err(anyhow!("No classes found with this id: {}", id))
+    }
+}
+
+/// Add a student or teacher to a class
+pub fn add_to_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
+    trace!("Adding {:?} to class {:?}", id, class);
+    if let Ok(student) = get_student(&conn, id.clone()) {
+        let mut classes = student.classes;
+        classes.push(class);
+        let classes = mkcsv(&classes)?;
+        conn.execute("UPDATE student SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+        Ok(())
+    } else if let Ok(teacher) = get_teacher(&conn, id.clone()) {
+        let mut classes = teacher.classes;
+        classes.push(class);
+        let classes = mkcsv(&classes)?;
+        conn.execute("UPDATE teacher SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+        Ok(())
+    } else {
+        Err(anyhow!("User {:?} doesn't exist", id))
     }
 }
 

@@ -22,12 +22,3 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-//#[macro_export]
-//macro_rules! params {
-//    () => {
-//        rocket_contrib::databases::rusqlite::NO_PARAMS
-//    };
-//    ($($param:expr),+ $(,)?) => {
-//        &[$(&$param as &dyn rocket_contrib::databases::rusqlite::ToSql),+] as &[&dyn rocket_contrib::databases::rusqlite::ToSql]
-//    };
-//}

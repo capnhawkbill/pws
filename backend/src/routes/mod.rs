@@ -1,7 +1,8 @@
 //! All the routes that form the api
-
+// TODO Make a error handler for the routes returning Result<T>
 pub mod student;
 pub mod teacher;
+pub mod class;
 
 use serde::Deserialize;
 

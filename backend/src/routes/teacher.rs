@@ -1,5 +1,5 @@
 //! Routes for teachers
-//! All these require you to be authenticated as a teacher
+//! All these require you to be authenticated as a teacher except the signup route
 //! They are all prefixed with "/teacher"
 
 use anyhow::Result;

@@ -87,7 +87,10 @@ pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
         //let mut stmt = conn.prepare("SELECT * FROM badge,class,student,teacher");
         // TODO change this to above when those tables get added
         let mut stmt =
-            conn.prepare("SELECT * FROM student,teacher WHERE student.id = ?1 OR teacher.id = ?1")?;
+            conn.prepare(r#"
+SELECT * FROM student,teacher,class,badge
+WHERE student.id = ?1 OR teacher.id = ?1 OR class.id = ?1 OR badge.id = ?1"#
+            )?;
         let mut res = stmt.query(&[&id])?;
         if res.next().is_none() {
             trace!("Unique");
