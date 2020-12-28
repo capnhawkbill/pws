@@ -5,6 +5,8 @@ pub mod teacher;
 
 use serde::Deserialize;
 
+use crate::database::{Id, Student};
+
 /// The credentials that are received as json
 #[derive(Deserialize)]
 pub struct Credentials {
@@ -16,7 +18,7 @@ pub struct Credentials {
 /// Checks should make sure that classes can only be accessed
 /// when the user is in it
 #[derive(Serialize)]
-struct SafeStudent {
+pub struct SafeStudent {
     name: String,
     classes: Vec<Id>,
     badges: Vec<Id>,

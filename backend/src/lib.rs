@@ -20,3 +20,4 @@ pub mod auth;
 pub mod database;
 // Temporarily disable this
 pub mod routes;
+pub mod testhelp;

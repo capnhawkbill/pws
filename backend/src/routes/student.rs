@@ -5,14 +5,14 @@ use anyhow::Result;
 use rocket::Rocket;
 use rocket_contrib::json::Json;
 
-use super::Credentials;
+use super::{SafeStudent, Credentials};
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{self, generate_id, signup, Id, Student};
+use crate::database::{self, generate_id, models::get_student, signup, Id, Student};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/student", routes![signup_route, student])
+    rocket.mount("/api/student", routes![signup_route, student, id_student, info])
 }
 
 /// Signup
@@ -37,10 +37,9 @@ fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
     Ok(id)
 }
 
-// FIXME This sends the password too
 #[get("/info")]
-fn info(student: auth::Student) -> Json<Student> {
-    Json((*student).clone())
+fn info(student: auth::Student) -> Json<SafeStudent> {
+    Json((*student).clone().into())
 }
 
 /// Look up a student with the id
