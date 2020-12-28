@@ -1,9 +1,10 @@
-use super::super::Id;
+use super::super::{mkbool, getbool, Id};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
 
 /// A badge that cab be awarded to students
+#[derive(Debug, PartialEq)]
 pub struct Badge {
     /// The id
     id: Id,
@@ -21,6 +22,7 @@ pub struct Badge {
 /// Has methodes for converting into and from strings for using
 /// in the database
 // TODO checking conditions
+#[derive(Debug, PartialEq)]
 pub enum Condition {
     /// A test condition
     Test,
@@ -69,7 +71,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 id          TEXT NOT NULL PRIMARY KEY,
                 name        TEXT NOT NULL,
                 description TEXT NOT NULL,
-                official    TEXT NOT NULL,
+                official    INTEGER,
                 condition   TEXT NOT NULL
         )",
         &[]
@@ -80,9 +82,10 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 
 /// Insert a badge into the database
 pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
+    let official = mkbool(badge.official);
     conn.execute(
         "INSERT INTO badge (id, name, description, official, condition) VALUES (?1, ?2, ?3, ?4, ?5)",
-        &[&badge.id, &badge.name, &badge.description, &badge.official, &badge.condition.to_string()]
+        &[&badge.id, &badge.name, &badge.description, &official, &badge.condition.to_string()]
     )?;
     Ok(())
 }
@@ -92,11 +95,12 @@ pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
     let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let mut badges = stmt.query_map(&[&id], |row| {
         let condition = Condition::from_str(row.get::<_, String>(4).as_str())?;
+        let official = getbool(row.get(3))?;
         Ok(Badge {
             id: row.get(0),
             name: row.get(1),
             description: row.get(2),
-            official: row.get(3),
+            official,
             condition,
         })
     })?;
@@ -113,7 +117,7 @@ pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
 mod tests {
     use super::*;
     #[test]
-    fn test_badge_db() -> Connection {
+    fn test_badge_db() {
         let badge = Badge {
             id: "ID".into(),
             name: "Elias".into(),
@@ -123,8 +127,8 @@ mod tests {
         };
         let conn = Connection::open_in_memory().unwrap();
         create_table(&conn).unwrap();
-        insert_badge(conn, &badge).unwrap();
-        let gotten = get_badge(conn, "ID".into());
+        insert_badge(&conn, &badge).unwrap();
+        let gotten = get_badge(&conn, "ID".into()).unwrap();
         assert_eq!(badge, gotten);
     }
 }

@@ -87,6 +87,7 @@ pub fn generate_id(conn: &rusqlite::Connection) -> Result<Id> {
 
 /// Make a csv string
 fn mkcsv(thing: &[String]) -> Result<String> {
+    trace!("writing csv");
     let mut wtr = Writer::from_writer(vec![]);
     wtr.write_record(thing)?;
     wtr.flush()?;
@@ -95,14 +96,33 @@ fn mkcsv(thing: &[String]) -> Result<String> {
 
 /// Parse a csv string
 fn getcsv(thing: String) -> Result<Vec<String>> {
+    trace!("reading csv");
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(false)
         .from_reader(thing.as_bytes());
-    trace!("Reader: {:?}", rdr);
     if let Some(r) = rdr.records().next() {
         Ok(r?.iter().map(|x| x.to_string()).collect())
     } else {
         Err(anyhow!("No records found"))
+    }
+}
+
+/// Parse a boolean to a integer
+/// Booleans are stored as a integer in sqlite
+fn mkbool(thing: bool) -> i32 {
+    match thing {
+        true => 1,
+        false => 0,
+    }
+}
+
+/// Parse a integer to a boolean
+/// Booleans are stored as a integer in sqlite
+fn getbool(thing: i32) -> Result<bool> {
+    match thing {
+        1 => Ok(true),
+        0 => Ok(false),
+        _ => Err(anyhow!("Incorrect string"))
     }
 }
 

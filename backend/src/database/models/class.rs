@@ -3,6 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// A Class
+#[derive(Debug, PartialEq)]
 pub struct Class {
     /// The id of the class
     pub id: Id,
@@ -41,7 +42,7 @@ pub fn insert_class(conn: &Connection, class: &Class) -> Result<()> {
 /// Get a class from the database
 pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
     trace!("Getting class with id {}", id);
-    let mut stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
+    let mut stmt = conn.prepare("SELECT * FROM class where id = ?1")?;
     let mut classes = stmt.query_map(&[&id], |row| {
         // Parse from csv
         let teachers = getcsv(row.get(2));
@@ -72,4 +73,34 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         Err(anyhow!("No classes found with this id: {}", id))
     }
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn init() {
+        let _ = env_logger::builder().is_test(true).try_init();
+    }
+
+    #[test]
+    fn test_class_db() {
+        init();
+        // create mock class
+        let class = Class {
+            id: "ID".into(),
+            name: "Coolest".into(),
+            teachers: vec!["TeacherA".into(), "TeacherB".into()],
+            students: vec!["StudentA".into(), "StudentB".into()],
+        };
+
+        // create mock database
+        let conn = &Connection::open_in_memory().unwrap();
+        create_table(&conn).unwrap();
+
+        // test if the inserted class can be retrieved
+        insert_class(conn, &class).unwrap();
+        let gotten = get_class(conn, "ID".into()).unwrap();
+        assert_eq!(class, gotten);
+    }
 }
