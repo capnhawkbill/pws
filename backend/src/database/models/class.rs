@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// A Class
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Class {
     /// The id of the class
     pub id: Id,
@@ -23,7 +23,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 teachers    TEXT NOT NULL,
                 students    TEXT NOT NULL
         )",
-        &[]
+        &[],
     )?;
 
     Ok(())
@@ -34,8 +34,10 @@ pub fn insert_class(conn: &Connection, class: &Class) -> Result<()> {
     trace!("Inserting class {}", class.name);
     let teachers = mkcsv(&class.teachers)?;
     let students = mkcsv(&class.students)?;
-    conn.execute("INSERT INTO class (id, name, teachers, students) VALUES (?1, ?2, ?3, ?4)",
-                 &[&class.id, &class.name, &teachers, &students])?;
+    conn.execute(
+        "INSERT INTO class (id, name, teachers, students) VALUES (?1, ?2, ?3, ?4)",
+        &[&class.id, &class.name, &teachers, &students],
+    )?;
     Ok(())
 }
 
@@ -47,11 +49,11 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         // Parse from csv
         let teachers = getcsv(row.get(2));
         if let Err(e) = teachers {
-            return Err(e)
+            return Err(e);
         }
         let students = getcsv(row.get(3));
         if let Err(e) = students {
-            return Err(e)
+            return Err(e);
         }
 
         Ok(Class {
@@ -72,7 +74,6 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
     } else {
         Err(anyhow!("No classes found with this id: {}", id))
     }
-
 }
 
 #[cfg(test)]

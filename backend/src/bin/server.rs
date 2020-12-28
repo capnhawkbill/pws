@@ -1,7 +1,6 @@
 extern crate backend;
-#[macro_use]
-extern crate rocket;
 extern crate env_logger;
+extern crate rocket;
 
 use backend::database::DbConn;
 use backend::routes;

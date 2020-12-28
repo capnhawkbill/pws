@@ -9,17 +9,17 @@ use rocket_contrib::json::Json;
 use super::Credentials;
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{self, models::Teacher, Id};
+use crate::database::{generate_id, models::get_student, signup, Id, Student, Teacher};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/teacher", routes![signup, teacher])
+    rocket.mount("/api/teacher", routes![signup_route, teacher])
 }
 
 /// Signup
 #[post("/signup", format = "json", data = "<credentials>")]
-fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
-    let id = database::generate_id(&*conn)?;
+fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
+    let id = generate_id(&*conn)?;
 
     // type declarations
     let classes: Vec<Id> = Vec::new();
@@ -31,14 +31,21 @@ fn signup(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
         classes,
     };
 
-    database::signup(&*conn, &User::Teacher(teacher))?;
+    signup(&*conn, &User::Teacher(teacher))?;
 
     Ok(id)
 }
 
+// FIXME This sends the password too
 #[get("/info")]
-fn info(teacher: auth::Student) -> Json<Teacher> {
-    Json(*teacher.clone())
+fn info(teacher: auth::Teacher) -> Json<Teacher> {
+    Json((*teacher).clone())
+}
+
+/// Look up a student with the id
+#[get("/id?<id>", rank = 2)]
+fn id_teacher(id: Id, conn: DbConn, _teacher: auth::Teacher) -> Result<Json<SafeStudent>> {
+    Ok(Json(get_student(&*conn, id)?.into()))
 }
 
 /// A test route

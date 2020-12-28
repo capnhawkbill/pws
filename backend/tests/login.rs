@@ -1,7 +1,7 @@
 extern crate backend;
 extern crate rocket;
-use rocket::local::Client;
 use rocket::http::{ContentType, Header};
+use rocket::local::Client;
 
 use backend::database::DbConn;
 
@@ -17,8 +17,7 @@ const AUTHHEADER: &'static str = "Q2Fwbmhhd2tiaWxsOkVhc3lwYXNzd29yZA==";
 
 fn main() {
     // Construct application
-    let rocket = rocket::ignite()
-        .attach(DbConn::fairing());
+    let rocket = rocket::ignite().attach(DbConn::fairing());
     let rocket = backend::routes::student::mount(rocket);
 
     let client = Client::new(rocket).expect("Failed to initialize client");
@@ -32,8 +31,10 @@ fn main() {
 
     // Access protected path
     let auth = Header::new("Authorization", AUTHHEADER);
-    let check = client.get("/api/student/student")
-        .header(auth);
+    let check = client.get("/api/student/student").header(auth);
     let mut result = check.dispatch();
-    assert_eq!("Hello student Capnhawkbill".to_string(), result.body_string().unwrap());
+    assert_eq!(
+        "Hello student Capnhawkbill".to_string(),
+        result.body_string().unwrap()
+    );
 }

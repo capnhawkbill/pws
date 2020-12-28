@@ -9,9 +9,9 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate log;
 extern crate anyhow;
-extern crate rand;
 extern crate base64;
 extern crate derive_builder;
+extern crate rand;
 #[macro_use]
 extern crate serde;
 extern crate serde_json;

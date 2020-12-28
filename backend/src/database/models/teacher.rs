@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// The teacher
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Teacher {
     /// The id of the teacher
     pub id: Id,

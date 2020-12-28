@@ -1,10 +1,10 @@
-use super::super::{mkbool, getbool, Id};
+use super::super::{getbool, mkbool, Id};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 use std::str::FromStr;
 
 /// A badge that cab be awarded to students
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Badge {
     /// The id
     id: Id,
@@ -22,7 +22,7 @@ pub struct Badge {
 /// Has methodes for converting into and from strings for using
 /// in the database
 // TODO checking conditions
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Condition {
     /// A test condition
     Test,
@@ -74,7 +74,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 official    INTEGER,
                 condition   TEXT NOT NULL
         )",
-        &[]
+        &[],
     )?;
 
     Ok(())
