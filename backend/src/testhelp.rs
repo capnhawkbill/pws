@@ -24,6 +24,7 @@ pub fn init_test_db() -> Config {
         .unwrap()
 }
 
+/// Initialize logger for tests
 pub fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
 }
