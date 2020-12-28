@@ -80,21 +80,38 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
 /// Add a student or teacher to a class
 pub fn add_to_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
     trace!("Adding {:?} to class {:?}", id, class);
+    // make sure the class exists
+    let dbclass = get_class(&conn, class.clone())?;
     if let Ok(student) = get_student(&conn, id.clone()) {
+        // add the class to the student
         let mut classes = student.classes;
-        classes.push(class);
+        classes.push(class.clone());
         let classes = mkcsv(&classes)?;
         conn.execute("UPDATE student SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+
+        // add the student to the class
+        let mut students = dbclass.students;
+        students.push(id);
+        let students = mkcsv(&students)?;
+        conn.execute("UPDATE class SET students = ?1 WHERE id = ?2", &[&students, &class])?;
         Ok(())
     } else if let Ok(teacher) = get_teacher(&conn, id.clone()) {
+        // add the class to the teacher
         let mut classes = teacher.classes;
-        classes.push(class);
+        classes.push(class.clone());
         let classes = mkcsv(&classes)?;
         conn.execute("UPDATE teacher SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+
+        // add the teacher to the class
+        let mut teachers = dbclass.teachers;
+        teachers.push(id);
+        let teachers = mkcsv(&teachers)?;
+        conn.execute("UPDATE class SET teachers = ?1 WHERE id = ?2", &[&teachers, &class])?;
         Ok(())
     } else {
         Err(anyhow!("User {:?} doesn't exist", id))
     }
+
 }
 
 #[cfg(test)]
