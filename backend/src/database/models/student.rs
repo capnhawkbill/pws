@@ -68,7 +68,7 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
         if let Err(e) = badges {
             return Err(e);
         }
-        // Parse from json
+
         Ok(Student {
             id: row.get(0),
             name: row.get(1),
