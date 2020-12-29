@@ -40,9 +40,20 @@ pub fn remove_homework(conn: DbConn, homework: Json<Homework>, teacher: auth::Te
     Ok(())
 }
 
+/// Get all the homework from a student unsorted
+#[get("/get")]
+pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Homework>>> {
+    // Check if the student is student in that class
+    let mut homework = Vec::new();
+    for class in student.classes.iter() {
+        homework.append(&mut models::get_class(&*conn, class.to_string())?.homework)
+    }
+    Ok(Json(homework))
+}
+
 /// Get all the homework from a class
 #[get("/get?<class>")]
-pub fn get_homework(conn: DbConn, student: auth::Student, class: Id) -> Result<Json<Vec<Homework>>> {
+pub fn get_homework_class(conn: DbConn, student: auth::Student, class: Id) -> Result<Json<Vec<Homework>>> {
     // Check if the student is student in that class
     if !(*student).classes.contains(&class) {
         return Err(anyhow!("{:?} is not a student in this class", student))
