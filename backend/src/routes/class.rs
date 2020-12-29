@@ -19,11 +19,11 @@ use crate::{
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api", routes![create_class])
+    rocket.mount("/api/class", routes![create_class, join_class_student, join_class_teacher])
 }
 
 /// Create a class
-#[get("/class/create?<name>")]
+#[get("/create?<name>")]
 pub fn create_class(name: String, teacher: auth::Teacher, conn: DbConn) -> Result<Id> {
     trace!("Creating class {:?}", name);
     let id = generate_id(&*conn)?;
@@ -40,16 +40,16 @@ pub fn create_class(name: String, teacher: auth::Teacher, conn: DbConn) -> Resul
 }
 
 /// Make a request to here to get added to a class as a student
-#[get("/class/join?<class>")]
-pub fn join_class_student(class: Id, student: auth::Student, conn: DbConn) -> Result<()> {
-    add_to_class(&*conn, student.id.clone(), class)?;
+#[get("/join?<id>")]
+pub fn join_class_student(id: Id, student: auth::Student, conn: DbConn) -> Result<()> {
+    add_to_class(&*conn, student.id.clone(), id)?;
     Ok(())
 }
 
 /// Make a request to here to get added to a class as a teacher
-#[get("/class/join?<class>", rank = 2)]
-pub fn join_class_teacher(class: Id, teacher: auth::Teacher, conn: DbConn) -> Result<()> {
-    add_to_class(&*conn, teacher.id.clone(), class)?;
+#[get("/join?<id>", rank = 2)]
+pub fn join_class_teacher(id: Id, teacher: auth::Teacher, conn: DbConn) -> Result<()> {
+    add_to_class(&*conn, teacher.id.clone(), id)?;
     Ok(())
 }
 

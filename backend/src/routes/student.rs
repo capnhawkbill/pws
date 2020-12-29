@@ -8,7 +8,7 @@ use rocket_contrib::json::Json;
 use super::{SafeStudent, Credentials};
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{self, generate_id, models::get_student, signup, Id, Student};
+use crate::database::{generate_id, models::get_student, signup, Id, Student};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {

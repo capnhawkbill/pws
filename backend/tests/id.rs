@@ -5,13 +5,11 @@ extern crate serde;
 #[macro_use]
 extern crate log;
 
-use rocket::http::{ContentType, Header};
-use rocket::local::Client;
-use std::collections::HashMap;
-use rocket::config::{Config, Environment, Value};
-
 use backend::database::{self, Student, DbConn, Id};
 use backend::testhelp::*;
+use backend::routes::{class, student, teacher};
+
+use rocket::local::Client;
 
 /// The json body for signing up
 const SIGNUPBODY: &'static str = r#"
@@ -31,22 +29,6 @@ const SIGNUPBODY2: &'static str = r#"
 "#;
 const AUTHHEADER2: &'static str = "V2lsbGlhbTpTaGFrZXNwZWFy";
 
-#[derive(Debug, Deserialize, PartialEq)]
-pub struct SafeStudent {
-    name: String,
-    classes: Vec<Id>,
-    badges: Vec<Id>,
-}
-
-impl From<Student> for SafeStudent {
-    fn from(student: Student) -> Self {
-        SafeStudent {
-            name: student.name,
-            classes: student.classes,
-            badges: student.badges,
-        }
-    }
-}
 
 #[test]
 fn id_test() {
@@ -60,17 +42,17 @@ fn id_test() {
     let client = Client::new(rocket).expect("Failed to initialize client");
 
     // signup both
-    let id = get_id(&client, SIGNUPBODY);
-    let id2 = get_id(&client, SIGNUPBODY2);
+    let id = get_id_student(&client, SIGNUPBODY);
+    let id2 = get_id_student(&client, SIGNUPBODY2);
 
     // get info from itself
-    let selfinfo = get_self_info(&client, AUTHHEADER);
+    let selfinfo = get_self_info_student(&client, AUTHHEADER);
     // get info from the other
     let info = get_info(&client, AUTHHEADER, id2);
 
     // do it again
     // get info from itself
-    let selfinfo2 = get_self_info(&client, AUTHHEADER2);
+    let selfinfo2 = get_self_info_student(&client, AUTHHEADER2);
     // get info from the other
     let info2 = get_info(&client, AUTHHEADER2, id);
 
@@ -79,34 +61,3 @@ fn id_test() {
     assert_eq!(selfinfo2, info);
 }
 
-fn get_self_info(client: &Client, auth: &'static str) -> SafeStudent {
-    let auth = Header::new("Authorization", auth);
-    let req = client
-        .get("/api/student/info")
-        .header(auth);
-
-    let body = &req.dispatch().body_string().unwrap();
-    trace!("{}", body);
-    serde_json::from_str(&body).unwrap()
-}
-
-fn get_info(client: &Client, auth: &'static str, lookup: Id) -> SafeStudent {
-    let auth = Header::new("Authorization", auth);
-    let req = client
-        .get(format!("/api/student/id?id={}", lookup))
-        .header(auth);
-
-    let body = &req.dispatch().body_string().unwrap();
-    trace!("{}", body);
-    serde_json::from_str(&body).unwrap()
-}
-
-fn get_id(client: &Client, body: &'static str) -> Id {
-    // Signup
-    let signup = client
-        .post("/api/student/signup")
-        .body(body)
-        .header(ContentType::JSON);
-
-    signup.dispatch().body_string().unwrap()
-}
