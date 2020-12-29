@@ -9,7 +9,7 @@ use crate::auth;
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/homework", routes![add_homework, get_homework, remove_homework])
+    rocket.mount("/api/homework", routes![add_homework, get_homework, get_homework_class, remove_homework])
 }
 
 /// Add homework to a class as a teacher
@@ -41,11 +41,16 @@ pub fn remove_homework(conn: DbConn, homework: Json<Homework>, teacher: auth::Te
 }
 
 /// Get all the homework from a student unsorted
-#[get("/get")]
+#[get("/get", rank = 2)]
 pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Homework>>> {
     // Check if the student is student in that class
     let mut homework = Vec::new();
     for class in student.classes.iter() {
+        // FIXME HACK the first item of classes and badges is empty
+        // this is probably because of the parsing this is a fast hack
+        if class.is_empty() {
+            continue
+        }
         homework.append(&mut models::get_class(&*conn, class.to_string())?.homework)
     }
     Ok(Json(homework))

@@ -34,10 +34,14 @@ pub fn init_logger() {
 }
 
 /// Homework struct for sending
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Homework {
+    /// Name of the homework
     pub name: String,
+    /// Date of the homework
+    /// Format: YYYY-MM-DD
     pub date: String,
+    /// Description of the homework
     pub description: String,
 }
 

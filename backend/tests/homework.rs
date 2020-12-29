@@ -1,4 +1,3 @@
-
 extern crate backend;
 extern crate rocket;
 
@@ -51,6 +50,13 @@ fn test_homework() {
         .body_string()
         .unwrap();
 
+    let class2 = client
+        .get("/api/class/create?name=cooltestclass")
+        .header(authteacher.clone())
+        .dispatch()
+        .body_string()
+        .unwrap();
+
     // add homework
     let homework = Homework {
         name: "TestHomework".into(),
@@ -65,13 +71,28 @@ fn test_homework() {
           .header(ContentType::JSON)
           .dispatch();
 
+    let homework2 = Homework {
+        name: "CoolHomework".into(),
+        date: "2021-10-10".into(),
+        description: "Very Cool Homework".into(),
+    };
+    let homework2_str = serde_json::to_string(&homework2).unwrap();
+
+    client.post(format!("/api/homework/add?class={}", class2))
+          .body(&homework2_str)
+          .header(authteacher.clone())
+          .header(ContentType::JSON)
+          .dispatch();
 
     // signup student
     let _student = get_id_student(&client, SIGNUPSTUDENT);
     let authstudent = Header::new("Authorization", AUTHSTUDENT);
 
-    // add student to class
+    // add student to both classes
     client.get(format!("/api/class/join?id={}", class))
+          .header(authstudent.clone())
+          .dispatch();
+    client.get(format!("/api/class/join?id={}", class2))
           .header(authstudent.clone())
           .dispatch();
 
@@ -84,7 +105,19 @@ fn test_homework() {
     let studenthw = serde_json::from_str::<Vec<Homework>>(&studenthw).unwrap();
 
     // check
-    assert_eq!(studenthw, vec![homework]);
+    assert_eq!(studenthw, vec![homework.clone()]);
+
+    // get all the homework
+    let allstudenthw = client.get("/api/homework/get")
+                             .header(authstudent.clone())
+                             .dispatch()
+                             .body_string()
+                             .unwrap();
+    let allstudenthw = serde_json::from_str::<Vec<Homework>>(&allstudenthw).unwrap();
+
+    // check
+    assert!(allstudenthw.contains(&homework));
+    assert!(allstudenthw.contains(&homework2));
 
     // remove homework
     client.post(format!("/api/homework/remove?class={}", class))
