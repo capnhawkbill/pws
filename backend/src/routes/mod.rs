@@ -3,6 +3,7 @@
 pub mod student;
 pub mod teacher;
 pub mod class;
+pub mod homework;
 
 use serde::Deserialize;
 

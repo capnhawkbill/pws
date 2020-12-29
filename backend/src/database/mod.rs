@@ -10,7 +10,7 @@ pub use models::create_tables;
 
 use crate::auth::User;
 use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
-pub use models::{Badge, Class, Student, Teacher};
+pub use models::{Badge, Class, Homework, Student, Teacher};
 
 #[database("sqlite_database")]
 pub struct DbConn(rusqlite::Connection);

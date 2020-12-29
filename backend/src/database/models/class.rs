@@ -100,7 +100,7 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
 }
 
 /// Add homework to a class
-pub fn add_homework(conn: &Connection, homework: Homework, class: Id) -> Result<()> {
+pub fn add_homework(conn: &Connection, homework: &Homework, class: Id) -> Result<()> {
     trace!("Adding homework {:?} to class {:?}", homework, class);
     // Get the current homework
     let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
@@ -114,7 +114,32 @@ pub fn add_homework(conn: &Connection, homework: Homework, class: Id) -> Result<
         }
 
         let mut new: Vec<Homework> = current??;
-        new.push(homework);
+        new.push(homework.clone());
+        let new = serde_json::to_string(&new)?;
+
+        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new])?;
+        Ok(())
+    } else {
+        Err(anyhow!("No class with this id"))
+    }
+}
+
+/// Remove homework from a class
+pub fn remove_homework(conn: &Connection, homework: &Homework, class: Id) -> Result<()> {
+    trace!("Removing homework {:?} from class {:?}", homework, class);
+    // Get the current homework
+    let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
+    let mut things = stmt.query_map(&[&class], |row| {
+        serde_json::from_str(&row.get::<_, String>(0))
+    })?;
+    // Checks
+    if let Some(current) = things.next() {
+        if things.next().is_some() {
+            return Err(anyhow!("Multiple classes with the same id"))
+        }
+
+        let current: Vec<Homework> = current??;
+        let new: Vec<&Homework> = current.iter().filter(|x| *x != homework).collect();
         let new = serde_json::to_string(&new)?;
 
         conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new])?;
