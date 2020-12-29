@@ -25,3 +25,17 @@ pub fn add_homework(conn: DbConn, homework: Json<Homework>, teacher: auth::Teach
 
     Ok(())
 }
+
+/// Remove homework from a class as a teacher
+#[post("/remove?<class>", format = "json", data = "<homework>")]
+pub fn remove_homework(conn: DbConn, homework: Json<Homework>, teacher: auth::Teacher, class: Id) -> Result<()> {
+    // Check if the theacher is theacher from that class
+    if !(*teacher).classes.contains(&class) {
+        return Err(anyhow!("{:?} is not a teacher of this class", teacher))
+    }
+
+    // Remove the homework from a class
+    models::remove_homework(&*conn, &*homework, class)?;
+
+    Ok(())
+}
