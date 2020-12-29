@@ -14,7 +14,19 @@ pub struct Class {
     pub teachers: Vec<Id>,
     /// The id's of the students in the class
     pub students: Vec<Id>,
+    /// The homework of this class
+    pub homework: Vec<Homework>
 }
+
+/// A homework assignment
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Homework {
+    /// Name/Title of the homework
+    pub name: String,
+    /// Description of the homework
+    pub description: String,
+}
+
 
 pub fn create_table(conn: &Connection) -> Result<()> {
     conn.execute(
@@ -22,7 +34,8 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 id          TEXT NOT NULL PRIMARY KEY,
                 name        TEXT NOT NULL,
                 teachers    TEXT NOT NULL,
-                students    TEXT NOT NULL
+                students    TEXT NOT NULL,
+                homework    TEXT NOT NULL
         )",
         &[],
     )?;
@@ -35,9 +48,10 @@ pub fn insert_class(conn: &Connection, class: &Class) -> Result<()> {
     trace!("Inserting class {}", class.name);
     let teachers = mkcsv(&class.teachers)?;
     let students = mkcsv(&class.students)?;
+    let homework = serde_json::to_string(&class.homework)?;
     conn.execute(
-        "INSERT INTO class (id, name, teachers, students) VALUES (?1, ?2, ?3, ?4)",
-        &[&class.id, &class.name, &teachers, &students],
+        "INSERT INTO class (id, name, teachers, students, homework) VALUES (?1, ?2, ?3, ?4, ?5)",
+        &[&class.id, &class.name, &teachers, &students, &homework],
     )?;
     Ok(())
 }
@@ -56,12 +70,17 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         if let Err(e) = students {
             return Err(e);
         }
+        let homework: std::result::Result<Vec<Homework>, serde_json::Error> = serde_json::from_str(row.get::<_, String>(4).as_str());
+        if let Err(e) = homework {
+            return Err(e.into());
+        }
 
         Ok(Class {
             id: row.get(0),
             name: row.get(1),
             teachers: teachers.unwrap(),
             students: students.unwrap(),
+            homework: homework.unwrap(),
         })
     })?;
 

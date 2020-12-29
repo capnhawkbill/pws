@@ -32,6 +32,7 @@ pub fn create_class(name: String, teacher: auth::Teacher, conn: DbConn) -> Resul
         name,
         teachers: Vec::new(),
         students: Vec::new(),
+        homework: Vec::new(),
     };
 
     insert_class(&*conn, &class)?;
