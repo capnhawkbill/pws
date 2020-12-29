@@ -1,6 +1,7 @@
 use super::super::{getcsv, mkcsv, Id};
 use super::{get_student, get_teacher};
 use anyhow::{anyhow, Result};
+use chrono::naive::NaiveDate;
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// A Class
@@ -23,6 +24,8 @@ pub struct Class {
 pub struct Homework {
     /// Name/Title of the homework
     pub name: String,
+    /// Due date of the homework
+    pub date: NaiveDate,
     /// Description of the homework
     pub description: String,
 }
@@ -93,6 +96,31 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         }
     } else {
         Err(anyhow!("No classes found with this id: {}", id))
+    }
+}
+
+/// Add homework to a class
+pub fn add_homework(conn: &Connection, homework: Homework, class: Id) -> Result<()> {
+    trace!("Adding homework {:?} to class {:?}", homework, class);
+    // Get the current homework
+    let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
+    let mut things = stmt.query_map(&[&class], |row| {
+        serde_json::from_str(&row.get::<_, String>(0))
+    })?;
+    // Checks
+    if let Some(current) = things.next() {
+        if things.next().is_some() {
+            return Err(anyhow!("Multiple classes with the same id"))
+        }
+
+        let mut new: Vec<Homework> = current??;
+        new.push(homework);
+        let new = serde_json::to_string(&new)?;
+
+        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new])?;
+        Ok(())
+    } else {
+        Err(anyhow!("No class with this id"))
     }
 }
 
