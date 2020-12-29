@@ -9,7 +9,7 @@ use crate::auth;
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/homework", routes![add_homework])
+    rocket.mount("/api/homework", routes![add_homework, get_homework, remove_homework])
 }
 
 /// Add homework to a class as a teacher
@@ -38,4 +38,15 @@ pub fn remove_homework(conn: DbConn, homework: Json<Homework>, teacher: auth::Te
     models::remove_homework(&*conn, &*homework, class)?;
 
     Ok(())
+}
+
+/// Get all the homework from a class
+#[get("/get?<class>")]
+pub fn get_homework(conn: DbConn, student: auth::Student, class: Id) -> Result<Json<Vec<Homework>>> {
+    // Check if the student is student in that class
+    if !(*student).classes.contains(&class) {
+        return Err(anyhow!("{:?} is not a student in this class", student))
+    }
+
+    Ok(Json(models::get_class(&*conn, class)?.homework))
 }

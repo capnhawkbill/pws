@@ -117,7 +117,7 @@ pub fn add_homework(conn: &Connection, homework: &Homework, class: Id) -> Result
         new.push(homework.clone());
         let new = serde_json::to_string(&new)?;
 
-        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new])?;
+        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new, &class])?;
         Ok(())
     } else {
         Err(anyhow!("No class with this id"))
@@ -142,7 +142,7 @@ pub fn remove_homework(conn: &Connection, homework: &Homework, class: Id) -> Res
         let new: Vec<&Homework> = current.iter().filter(|x| *x != homework).collect();
         let new = serde_json::to_string(&new)?;
 
-        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new])?;
+        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new, &class])?;
         Ok(())
     } else {
         Err(anyhow!("No class with this id"))
@@ -203,6 +203,7 @@ mod tests {
             name: "Coolest".into(),
             teachers: vec!["TeacherA".into(), "TeacherB".into()],
             students: vec!["StudentA".into(), "StudentB".into()],
+            homework: vec![],
         };
 
         // create mock database

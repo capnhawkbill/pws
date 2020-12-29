@@ -33,6 +33,15 @@ pub fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
 }
 
+/// Homework struct for sending
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub struct Homework {
+    pub name: String,
+    pub date: String,
+    pub description: String,
+}
+
+
 /// Student without password for parsing the return
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct SafeStudent {
