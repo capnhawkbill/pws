@@ -129,6 +129,7 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
     }
 }
 
+/// Award a badge to a student
 pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
     let mut student = get_student(&conn, student)?;
     let mut badges = student.badges;
