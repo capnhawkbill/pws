@@ -129,6 +129,18 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
     }
 }
 
+pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
+    let mut student = get_student(&conn, student)?;
+    let mut badges = student.badges;
+    badges.push(badge);
+
+    student.badges = badges;
+
+    insert_student(&conn, &student)
+
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -56,8 +56,11 @@ impl From<Teacher> for SafeTeacher {
 /// A badge to get send and receive
 #[derive(Deserialize, Serialize)]
 pub struct Badge {
+    /// name of the badge
     pub name: String,
+    /// description of the badge
     pub description: String,
+    /// official of the badge
     pub official: bool,
 }
 
