@@ -32,5 +32,6 @@ fn main() {
     let rocket = routes::student::mount(rocket);
     let rocket = routes::teacher::mount(rocket);
     let rocket = routes::class::mount(rocket);
+    let rocket = routes::badge::mount(rocket);
     rocket.launch();
 }
