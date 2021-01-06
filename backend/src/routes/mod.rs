@@ -4,10 +4,11 @@ pub mod student;
 pub mod teacher;
 pub mod class;
 pub mod homework;
+pub mod badge;
 
 use serde::Deserialize;
 
-use crate::database::{Id, Student, Teacher};
+use crate::database::{Id, Student, Teacher, models};
 
 /// The credentials that are received as json
 #[derive(Deserialize)]
@@ -48,6 +49,24 @@ impl From<Teacher> for SafeTeacher {
         SafeTeacher {
             name: teacher.name,
             classes: teacher.classes,
+        }
+    }
+}
+
+/// A badge to get send and receive
+#[derive(Deserialize, Serialize)]
+pub struct Badge {
+    pub name: String,
+    pub description: String,
+    pub official: bool,
+}
+
+impl From<models::Badge> for Badge {
+    fn from(badge: models::Badge) -> Self {
+        Badge {
+            name: badge.name,
+            description: badge.description,
+            official: badge.official,
         }
     }
 }
