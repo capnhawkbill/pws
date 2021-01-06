@@ -21,4 +21,3 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
     class::create_table(&conn)?;
     Ok(())
 }
-

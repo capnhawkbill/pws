@@ -34,7 +34,7 @@ pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
     let official = mkbool(badge.official);
     conn.execute(
         "INSERT INTO badge (id, name, description, official) VALUES (?1, ?2, ?3, ?4)",
-        &[&badge.id, &badge.name, &badge.description, &official]
+        &[&badge.id, &badge.name, &badge.description, &official],
     )?;
     Ok(())
 }

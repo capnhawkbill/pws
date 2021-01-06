@@ -1,25 +1,23 @@
 //! The routes to interact with classes
 
-use rocket::Rocket;
 use anyhow::Result;
+use rocket::Rocket;
 
 use crate::{
-    database::{
-        Class,
-        DbConn,
-        Id,
-        generate_id,
-        models::{
-            insert_class,
-            add_to_class,
-        },
-    },
     auth,
+    database::{
+        generate_id,
+        models::{add_to_class, insert_class},
+        Class, DbConn, Id,
+    },
 };
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/class", routes![create_class, join_class_student, join_class_teacher])
+    rocket.mount(
+        "/api/class",
+        routes![create_class, join_class_student, join_class_teacher],
+    )
 }
 
 /// Create a class

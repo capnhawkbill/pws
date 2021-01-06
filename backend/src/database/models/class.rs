@@ -16,7 +16,7 @@ pub struct Class {
     /// The id's of the students in the class
     pub students: Vec<Id>,
     /// The homework of this class
-    pub homework: Vec<Homework>
+    pub homework: Vec<Homework>,
 }
 
 /// A homework assignment
@@ -29,7 +29,6 @@ pub struct Homework {
     /// Description of the homework
     pub description: String,
 }
-
 
 pub fn create_table(conn: &Connection) -> Result<()> {
     conn.execute(
@@ -73,7 +72,8 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         if let Err(e) = students {
             return Err(e);
         }
-        let homework: std::result::Result<Vec<Homework>, serde_json::Error> = serde_json::from_str(row.get::<_, String>(4).as_str());
+        let homework: std::result::Result<Vec<Homework>, serde_json::Error> =
+            serde_json::from_str(row.get::<_, String>(4).as_str());
         if let Err(e) = homework {
             return Err(e.into());
         }
@@ -110,14 +110,17 @@ pub fn add_homework(conn: &Connection, homework: &Homework, class: Id) -> Result
     // Checks
     if let Some(current) = things.next() {
         if things.next().is_some() {
-            return Err(anyhow!("Multiple classes with the same id"))
+            return Err(anyhow!("Multiple classes with the same id"));
         }
 
         let mut new: Vec<Homework> = current??;
         new.push(homework.clone());
         let new = serde_json::to_string(&new)?;
 
-        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new, &class])?;
+        conn.execute(
+            "UPDATE class SET homework = ?1 WHERE id = ?2",
+            &[&new, &class],
+        )?;
         Ok(())
     } else {
         Err(anyhow!("No class with this id"))
@@ -135,14 +138,17 @@ pub fn remove_homework(conn: &Connection, homework: &Homework, class: Id) -> Res
     // Checks
     if let Some(current) = things.next() {
         if things.next().is_some() {
-            return Err(anyhow!("Multiple classes with the same id"))
+            return Err(anyhow!("Multiple classes with the same id"));
         }
 
         let current: Vec<Homework> = current??;
         let new: Vec<&Homework> = current.iter().filter(|x| *x != homework).collect();
         let new = serde_json::to_string(&new)?;
 
-        conn.execute("UPDATE class SET homework = ?1 WHERE id = ?2", &[&new, &class])?;
+        conn.execute(
+            "UPDATE class SET homework = ?1 WHERE id = ?2",
+            &[&new, &class],
+        )?;
         Ok(())
     } else {
         Err(anyhow!("No class with this id"))
@@ -159,31 +165,42 @@ pub fn add_to_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
         let mut classes = student.classes;
         classes.push(class.clone());
         let classes = mkcsv(&classes)?;
-        conn.execute("UPDATE student SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+        conn.execute(
+            "UPDATE student SET classes = ?1 WHERE id = ?2",
+            &[&classes, &id],
+        )?;
 
         // add the student to the class
         let mut students = dbclass.students;
         students.push(id);
         let students = mkcsv(&students)?;
-        conn.execute("UPDATE class SET students = ?1 WHERE id = ?2", &[&students, &class])?;
+        conn.execute(
+            "UPDATE class SET students = ?1 WHERE id = ?2",
+            &[&students, &class],
+        )?;
         Ok(())
     } else if let Ok(teacher) = get_teacher(&conn, id.clone()) {
         // add the class to the teacher
         let mut classes = teacher.classes;
         classes.push(class.clone());
         let classes = mkcsv(&classes)?;
-        conn.execute("UPDATE teacher SET classes = ?1 WHERE id = ?2", &[&classes, &id])?;
+        conn.execute(
+            "UPDATE teacher SET classes = ?1 WHERE id = ?2",
+            &[&classes, &id],
+        )?;
 
         // add the teacher to the class
         let mut teachers = dbclass.teachers;
         teachers.push(id);
         let teachers = mkcsv(&teachers)?;
-        conn.execute("UPDATE class SET teachers = ?1 WHERE id = ?2", &[&teachers, &class])?;
+        conn.execute(
+            "UPDATE class SET teachers = ?1 WHERE id = ?2",
+            &[&teachers, &class],
+        )?;
         Ok(())
     } else {
         Err(anyhow!("User {:?} doesn't exist", id))
     }
-
 }
 
 #[cfg(test)]

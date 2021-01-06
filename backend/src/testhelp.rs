@@ -1,10 +1,10 @@
 //! Functions to help with integration tests
 use crate::database;
-use rocket_contrib::databases::rusqlite::Connection;
-use std::collections::HashMap;
 use rocket::config::{Config, Environment, Value};
 use rocket::http::{ContentType, Header};
 use rocket::local::Client;
+use rocket_contrib::databases::rusqlite::Connection;
+use std::collections::HashMap;
 
 use database::{Id, Student, Teacher};
 
@@ -45,7 +45,6 @@ pub struct Homework {
     pub description: String,
 }
 
-
 /// Student without password for parsing the return
 #[derive(Debug, Deserialize, PartialEq)]
 pub struct SafeStudent {
@@ -74,6 +73,8 @@ pub struct SafeTeacher {
     pub name: String,
     /// Classes of the teacher
     pub classes: Vec<Id>,
+    /// Badges of the teacher
+    pub badges: Vec<Id>,
 }
 
 impl From<Teacher> for SafeTeacher {
@@ -81,6 +82,7 @@ impl From<Teacher> for SafeTeacher {
         SafeTeacher {
             name: teacher.name,
             classes: teacher.classes,
+            badges: teacher.badges,
         }
     }
 }
@@ -88,9 +90,7 @@ impl From<Teacher> for SafeTeacher {
 /// Get your own info student
 pub fn get_self_info_student(client: &Client, auth: &'static str) -> SafeStudent {
     let auth = Header::new("Authorization", auth);
-    let req = client
-        .get("/api/student/info")
-        .header(auth);
+    let req = client.get("/api/student/info").header(auth);
 
     let body = &req.dispatch().body_string().unwrap();
     trace!("{}", body);
@@ -100,9 +100,7 @@ pub fn get_self_info_student(client: &Client, auth: &'static str) -> SafeStudent
 /// Get your own info teacher
 pub fn get_self_info_teacher(client: &Client, auth: &'static str) -> SafeTeacher {
     let auth = Header::new("Authorization", auth);
-    let req = client
-        .get("/api/teacher/info")
-        .header(auth);
+    let req = client.get("/api/teacher/info").header(auth);
 
     let body = &req.dispatch().body_string().unwrap();
     trace!("{}", body);

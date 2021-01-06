@@ -5,14 +5,17 @@ use anyhow::Result;
 use rocket::Rocket;
 use rocket_contrib::json::Json;
 
-use super::{SafeStudent, Credentials};
+use super::{Credentials, SafeStudent};
 use crate::auth::{self, User};
 use crate::database::DbConn;
 use crate::database::{generate_id, models::get_student, signup, Id, Student};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/student", routes![signup_route, student, id_student, info])
+    rocket.mount(
+        "/api/student",
+        routes![signup_route, student, id_student, info],
+    )
 }
 
 /// Signup

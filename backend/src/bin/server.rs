@@ -5,8 +5,8 @@ extern crate rocket;
 use backend::database::DbConn;
 use backend::routes;
 
-use std::collections::HashMap;
 use rocket::config::{Config, Environment, Value};
+use std::collections::HashMap;
 
 /// Create config for the database
 pub fn init_db() -> Config {

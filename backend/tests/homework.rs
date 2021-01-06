@@ -2,8 +2,8 @@ extern crate backend;
 extern crate rocket;
 
 use backend::database::DbConn;
-use backend::testhelp::*;
 use backend::routes::*;
+use backend::testhelp::*;
 
 use rocket::http::{ContentType, Header};
 use rocket::local::Client;
@@ -65,11 +65,12 @@ fn test_homework() {
     };
     let homework_str = serde_json::to_string(&homework).unwrap();
 
-    client.post(format!("/api/homework/add?class={}", class))
-          .body(&homework_str)
-          .header(authteacher.clone())
-          .header(ContentType::JSON)
-          .dispatch();
+    client
+        .post(format!("/api/homework/add?class={}", class))
+        .body(&homework_str)
+        .header(authteacher.clone())
+        .header(ContentType::JSON)
+        .dispatch();
 
     let homework2 = Homework {
         name: "CoolHomework".into(),
@@ -78,41 +79,46 @@ fn test_homework() {
     };
     let homework2_str = serde_json::to_string(&homework2).unwrap();
 
-    client.post(format!("/api/homework/add?class={}", class2))
-          .body(&homework2_str)
-          .header(authteacher.clone())
-          .header(ContentType::JSON)
-          .dispatch();
+    client
+        .post(format!("/api/homework/add?class={}", class2))
+        .body(&homework2_str)
+        .header(authteacher.clone())
+        .header(ContentType::JSON)
+        .dispatch();
 
     // signup student
     let _student = get_id_student(&client, SIGNUPSTUDENT);
     let authstudent = Header::new("Authorization", AUTHSTUDENT);
 
     // add student to both classes
-    client.get(format!("/api/class/join?id={}", class))
-          .header(authstudent.clone())
-          .dispatch();
-    client.get(format!("/api/class/join?id={}", class2))
-          .header(authstudent.clone())
-          .dispatch();
+    client
+        .get(format!("/api/class/join?id={}", class))
+        .header(authstudent.clone())
+        .dispatch();
+    client
+        .get(format!("/api/class/join?id={}", class2))
+        .header(authstudent.clone())
+        .dispatch();
 
     // get homework student
-    let studenthw = client.get(format!("/api/homework/get?class={}", class))
-                          .header(authstudent.clone())
-                          .dispatch()
-                          .body_string()
-                          .unwrap();
+    let studenthw = client
+        .get(format!("/api/homework/get?class={}", class))
+        .header(authstudent.clone())
+        .dispatch()
+        .body_string()
+        .unwrap();
     let studenthw = serde_json::from_str::<Vec<Homework>>(&studenthw).unwrap();
 
     // check
     assert_eq!(studenthw, vec![homework.clone()]);
 
     // get all the homework
-    let allstudenthw = client.get("/api/homework/get")
-                             .header(authstudent.clone())
-                             .dispatch()
-                             .body_string()
-                             .unwrap();
+    let allstudenthw = client
+        .get("/api/homework/get")
+        .header(authstudent.clone())
+        .dispatch()
+        .body_string()
+        .unwrap();
     let allstudenthw = serde_json::from_str::<Vec<Homework>>(&allstudenthw).unwrap();
 
     // check
@@ -120,18 +126,20 @@ fn test_homework() {
     assert!(allstudenthw.contains(&homework2));
 
     // remove homework
-    client.post(format!("/api/homework/remove?class={}", class))
-          .body(&homework_str)
-          .header(authteacher)
-          .header(ContentType::JSON)
-          .dispatch();
+    client
+        .post(format!("/api/homework/remove?class={}", class))
+        .body(&homework_str)
+        .header(authteacher)
+        .header(ContentType::JSON)
+        .dispatch();
 
     // get homework student
-    let newstudenthw = client.get(format!("/api/homework/get?class={}", class))
-                             .header(authstudent)
-                             .dispatch()
-                             .body_string()
-                             .unwrap();
+    let newstudenthw = client
+        .get(format!("/api/homework/get?class={}", class))
+        .header(authstudent)
+        .dispatch()
+        .body_string()
+        .unwrap();
     // check
     assert_eq!(newstudenthw, "[]");
     // maybe multiple classes for the student

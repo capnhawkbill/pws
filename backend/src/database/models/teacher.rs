@@ -13,6 +13,8 @@ pub struct Teacher {
     pub password: String,
     /// Id's of the classes the teacher is in
     pub classes: Vec<Id>,
+    /// Id's of the badges the teacher has access to
+    pub badges: Vec<Id>,
 }
 
 /// Create a table for the teachers
@@ -22,7 +24,8 @@ pub fn create_table(conn: &Connection) -> Result<()> {
             id          varchar(50),
             name        TEXT NOT NULL,
             password    TEXT NOT NULL,
-            classes     TEXT
+            classes     TEXT,
+            badges      TEXT,
         )",
         &[],
     )?;
@@ -34,10 +37,17 @@ pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
     trace!("Inserting teacher {:?}", teacher);
     // Convert to csv
     let classes = mkcsv(&teacher.classes)?;
+    let badges = mkcsv(&teacher.badges)?;
     // Convert to json
     conn.execute(
-        "INSERT INTO teacher (id, name, password, classes) VALUES (?1, ?2, ?3, ?4)",
-        &[&teacher.id, &teacher.name, &teacher.password, &classes],
+        "INSERT INTO teacher (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
+        &[
+            &teacher.id,
+            &teacher.name,
+            &teacher.password,
+            &classes,
+            &badges,
+        ],
     )?;
     Ok(())
 }
@@ -52,12 +62,17 @@ pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
         if let Err(e) = classes {
             return Err(e);
         }
+        let badges = getcsv(row.get(4));
+        if let Err(e) = badges {
+            return Err(e);
+        }
         // Parse from json
         Ok(Teacher {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
             classes: classes.unwrap(),
+            badges: badges.unwrap(),
         })
     })?;
 
@@ -82,12 +97,17 @@ pub fn get_teacher_by_name(conn: &Connection, name: &str) -> Result<Teacher> {
         if let Err(e) = classes {
             return Err(e);
         }
+        let badges = getcsv(row.get(4));
+        if let Err(e) = badges {
+            return Err(e);
+        }
         // Parse from json
         Ok(Teacher {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
             classes: classes.unwrap(),
+            badges: badges.unwrap(),
         })
     })?;
 
@@ -122,6 +142,7 @@ mod tests {
             name: "Elias".into(),
             password: "very secure".into(),
             classes: vec!["ClassId".into(), "Second ClassId".into()],
+            badges: vec!["BadgeId".into(), "Second BadgeId".into()],
         };
         let conn = &Connection::open_in_memory().unwrap();
         create_table(&conn).unwrap();

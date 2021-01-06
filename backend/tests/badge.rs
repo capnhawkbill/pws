@@ -2,10 +2,10 @@ extern crate backend;
 extern crate rocket;
 
 use backend::database::DbConn;
-use backend::testhelp::*;
 use backend::routes::*;
+use backend::testhelp::*;
 
-use rocket::http::Header;
+use rocket::http::{ContentType, Header};
 use rocket::local::Client;
 
 const SIGNUPTEACHER: &'static str = r#"
@@ -51,7 +51,7 @@ fn test_badge() {
     let authTeacher = Header::new("Authorization", AUTHTEACHER);
     let class = client
         .get("/api/class/create?name=testclass")
-        .header(authTeacher)
+        .header(authTeacher.clone())
         .dispatch()
         .body_string()
         .unwrap();
@@ -59,20 +59,25 @@ fn test_badge() {
     let authStudent = Header::new("Authorization", AUTHSTUDENT);
     client
         .get(format!("/api/class/join?id={}", class))
-        .header(authStudent)
+        .header(authStudent.clone())
         .dispatch();
 
     // create badge
     let badge = client
         .post("/api/badge/create")
         .body(BADGE)
-        .header(authTeacher)
+        .header(authTeacher.clone())
         .header(ContentType::JSON)
-        .dispatch().body_string().unwrap();
+        .dispatch()
+        .body_string()
+        .unwrap();
 
     // award the badge
     client
-        .get(format!("/api/badge/award?student={}&badge={}", student, badge))
+        .get(format!(
+            "/api/badge/award?student={}&badge={}",
+            student, badge
+        ))
         .header(authTeacher)
         .dispatch();
 

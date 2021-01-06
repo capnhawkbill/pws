@@ -1,14 +1,14 @@
 //! All the routes that form the api
 // TODO Make a error handler for the routes returning Result<T>
-pub mod student;
-pub mod teacher;
+pub mod badge;
 pub mod class;
 pub mod homework;
-pub mod badge;
+pub mod student;
+pub mod teacher;
 
 use serde::Deserialize;
 
-use crate::database::{Id, Student, Teacher, models};
+use crate::database::{models, Id, Student, Teacher};
 
 /// The credentials that are received as json
 #[derive(Deserialize)]
@@ -42,6 +42,7 @@ impl From<Student> for SafeStudent {
 pub struct SafeTeacher {
     name: String,
     classes: Vec<Id>,
+    badges: Vec<Id>,
 }
 
 impl From<Teacher> for SafeTeacher {
@@ -49,6 +50,7 @@ impl From<Teacher> for SafeTeacher {
         SafeTeacher {
             name: teacher.name,
             classes: teacher.classes,
+            badges: teacher.badges,
         }
     }
 }

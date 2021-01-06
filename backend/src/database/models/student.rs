@@ -138,9 +138,7 @@ pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
     student.badges = badges;
 
     insert_student(&conn, &student)
-
 }
-
 
 #[cfg(test)]
 mod tests {

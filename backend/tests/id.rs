@@ -5,9 +5,9 @@ extern crate serde;
 #[macro_use]
 extern crate log;
 
-use backend::database::{self, Student, DbConn, Id};
-use backend::testhelp::*;
+use backend::database::{self, DbConn, Id, Student};
 use backend::routes::{class, student, teacher};
+use backend::testhelp::*;
 
 use rocket::local::Client;
 
@@ -28,7 +28,6 @@ const SIGNUPBODY2: &'static str = r#"
 }
 "#;
 const AUTHHEADER2: &'static str = "V2lsbGlhbTpTaGFrZXNwZWFy";
-
 
 #[test]
 fn id_test() {
@@ -60,4 +59,3 @@ fn id_test() {
     assert_eq!(selfinfo, info2);
     assert_eq!(selfinfo2, info);
 }
-

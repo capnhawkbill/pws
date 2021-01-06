@@ -2,8 +2,8 @@ extern crate backend;
 extern crate rocket;
 
 use backend::database::DbConn;
-use backend::testhelp::*;
 use backend::routes::*;
+use backend::testhelp::*;
 
 use rocket::http::Header;
 use rocket::local::Client;

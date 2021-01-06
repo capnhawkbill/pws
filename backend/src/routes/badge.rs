@@ -1,18 +1,14 @@
 //! Routes for getting and creating badges
+//! All prefixed with "/badge"
 
 use super::Badge;
 use crate::{
-    database::{
-        DbConn,
-        Id,
-        generate_id,
-        models::{
-            self,
-            insert_badge,
-            award_badge,
-        },
-    },
     auth,
+    database::{
+        generate_id,
+        models::{self, award_badge, insert_badge},
+        DbConn, Id,
+    },
 };
 
 use anyhow::{anyhow, Result};
@@ -21,7 +17,10 @@ use rocket_contrib::json::Json;
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/badge", routes![award, create_badge, get_badge_student, get_badge_teacher])
+    rocket.mount(
+        "/api/badge",
+        routes![award, create_badge, get_badge_student, get_badge_teacher],
+    )
 }
 
 /// create a badge
@@ -42,9 +41,13 @@ pub fn create_badge(conn: DbConn, teacher: auth::Teacher, badge: Json<Badge>) ->
 
 /// get a badge student
 #[get("/get?<id>")]
-pub fn get_badge_student(conn: DbConn, student: auth::Student, id: Id) -> Result<Json<models::Badge>> {
+pub fn get_badge_student(
+    conn: DbConn,
+    student: auth::Student,
+    id: Id,
+) -> Result<Json<models::Badge>> {
     if !(*student).badges.contains(&id) {
-        return Err(anyhow!("Student {:?} doesn't own badge {}", *student, id))
+        return Err(anyhow!("Student {:?} doesn't own badge {}", *student, id));
     }
     let badge = models::get_badge(&*conn, id)?;
     Ok(Json(badge))
@@ -52,9 +55,13 @@ pub fn get_badge_student(conn: DbConn, student: auth::Student, id: Id) -> Result
 
 /// get a badge teacher
 #[get("/get?<id>", rank = 2)]
-pub fn get_badge_teacher(conn: DbConn, teacher: auth::Teacher, id: Id) -> Result<Json<models::Badge>> {
+pub fn get_badge_teacher(
+    conn: DbConn,
+    teacher: auth::Teacher,
+    id: Id,
+) -> Result<Json<models::Badge>> {
     if !(*teacher).badges.contains(&id) {
-        return Err(anyhow!("Teacher {:?} doesn't own badge {}", *teacher, id))
+        return Err(anyhow!("Teacher {:?} doesn't own badge {}", *teacher, id));
     }
     let badge = models::get_badge(&*conn, id)?;
     Ok(Json(badge))

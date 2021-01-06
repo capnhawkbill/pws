@@ -6,14 +6,17 @@ use anyhow::Result;
 use rocket::Rocket;
 use rocket_contrib::json::Json;
 
-use super::{SafeStudent, SafeTeacher, Credentials};
+use super::{Credentials, SafeStudent, SafeTeacher};
 use crate::auth::{self, User};
 use crate::database::DbConn;
 use crate::database::{generate_id, models::get_student, signup, Id, Teacher};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/teacher", routes![signup_route, teacher, info, id_teacher])
+    rocket.mount(
+        "/api/teacher",
+        routes![signup_route, teacher, info, id_teacher],
+    )
 }
 
 /// Signup
@@ -23,12 +26,15 @@ fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
 
     // type declarations
     let classes: Vec<Id> = Vec::new();
+    // TODO default badges
+    let badges: Vec<Id> = Vec::new();
 
     let teacher = Teacher {
         id: id.clone(),
         name: credentials.username.clone(),
         password: credentials.password.clone(),
         classes,
+        badges,
     };
 
     signup(&*conn, &User::Teacher(teacher))?;
