@@ -32,7 +32,7 @@ pub fn create_badge(conn: DbConn, teacher: auth::Teacher, badge: Json<Badge>) ->
         id,
         name: badge.name.clone(),
         description: badge.description.clone(),
-        official: badge.official,
+        official: false,
     };
 
     insert_badge(&*conn, &badge)?;

@@ -60,8 +60,6 @@ pub struct Badge {
     pub name: String,
     /// description of the badge
     pub description: String,
-    /// official of the badge
-    pub official: bool,
 }
 
 impl From<models::Badge> for Badge {
@@ -69,7 +67,6 @@ impl From<models::Badge> for Badge {
         Badge {
             name: badge.name,
             description: badge.description,
-            official: badge.official,
         }
     }
 }

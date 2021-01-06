@@ -21,7 +21,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 id          TEXT NOT NULL PRIMARY KEY,
                 name        TEXT NOT NULL,
                 description TEXT NOT NULL,
-                official    INTEGER,
+                official    INTEGER
         )",
         &[],
     )?;
@@ -33,7 +33,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
     let official = mkbool(badge.official);
     conn.execute(
-        "INSERT INTO badge (id, name, description, official) VALUES (?1, ?2, ?3, ?4, ?5)",
+        "INSERT INTO badge (id, name, description, official) VALUES (?1, ?2, ?3, ?4)",
         &[&badge.id, &badge.name, &badge.description, &official]
     )?;
     Ok(())
