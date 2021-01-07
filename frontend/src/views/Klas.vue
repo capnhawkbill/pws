@@ -1,5 +1,45 @@
 <template>
-    <div class="klas">
-        <h1>Hier kan je je klas zien</h1>
+  <section v-if="errored">
+    <p>Error with API request.</p>
+  </section>
+
+  <section v-else>
+    <div v-if="loading">Loading...</div>
+  
+    <div id="class">
+      {{ klasinfo }}
+      <li 
+        v-for="currency in klasinfo" 
+        :key="currency"
+      >
+        {{ currency.description }}
+      </li>
     </div>
+  </section>
 </template>
+
+<script>
+import axios from 'axios'
+
+export default {
+  name: 'class',
+  data () {
+    return {
+      klasinfo: null,
+      loading: true,
+      errored: false
+    }
+  },
+  mounted () {
+    axios
+      .get('https://api.coindesk.com/v1/bpi/currentprice.json')
+      .then(response => (this.klasinfo = response.data.bpi))
+      .catch(error => {
+        console.log(error)
+        this.errored = true
+      })
+      .finally(() => this.loading = false)
+  }
+}
+
+</script>
