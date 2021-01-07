@@ -5,7 +5,6 @@ extern crate rocket;
 
 use backend::database::DbConn;
 use backend::routes;
-use backend::routes::frontend::*;
 
 use rocket_contrib::serve::StaticFiles;
 use rocket::config::{Config, Environment, Value};
