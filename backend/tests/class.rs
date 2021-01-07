@@ -37,8 +37,8 @@ fn test_class() {
 
     let client = Client::new(rocket).expect("Failed to initialize client");
 
-    let teacher = get_id_teacher(&client, SIGNUPTEACHER);
-    let student = get_id_student(&client, SIGNUPSTUDENT);
+    let _teacher = get_id_teacher(&client, SIGNUPTEACHER);
+    let _student = get_id_student(&client, SIGNUPSTUDENT);
 
     let auth = Header::new("Authorization", AUTHTEACHER);
     let class = client

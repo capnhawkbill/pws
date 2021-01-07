@@ -45,7 +45,7 @@ fn test_badge() {
 
     let client = Client::new(rocket).expect("Failed to initialize client");
 
-    let teacher = get_id_teacher(&client, SIGNUPTEACHER);
+    let _teacher = get_id_teacher(&client, SIGNUPTEACHER);
     let student = get_id_student(&client, SIGNUPSTUDENT);
 
     let authTeacher = Header::new("Authorization", AUTHTEACHER);
@@ -84,6 +84,6 @@ fn test_badge() {
     let student_info = get_self_info_student(&client, AUTHSTUDENT);
     let teacher_info = get_self_info_teacher(&client, AUTHTEACHER);
 
-    assert_eq!(student_info.badges, vec![badge]);
+    assert_eq!(student_info.badges, vec![badge.clone()]);
     assert_eq!(teacher_info.badges, vec![badge]);
 }

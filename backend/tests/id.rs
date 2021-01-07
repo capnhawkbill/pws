@@ -6,7 +6,7 @@ extern crate serde;
 extern crate log;
 
 use backend::database::{self, DbConn, Id, Student};
-use backend::routes::{class, student, teacher};
+
 use backend::testhelp::*;
 
 use rocket::local::Client;

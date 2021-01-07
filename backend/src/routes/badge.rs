@@ -25,7 +25,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
 
 /// create a badge
 #[post("/create", format = "json", data = "<badge>")]
-pub fn create_badge(conn: DbConn, teacher: auth::Teacher, badge: Json<Badge>) -> Result<Id> {
+pub fn create_badge(conn: DbConn, _teacher: auth::Teacher, badge: Json<Badge>) -> Result<Id> {
     let id = generate_id(&*conn)?;
     let badge = models::Badge {
         id: id.clone(),
@@ -69,7 +69,7 @@ pub fn get_badge_teacher(
 
 /// award a badge
 #[get("/award?<student>&<badge>")]
-pub fn award(conn: DbConn, teacher: auth::Teacher, student: Id, badge: Id) -> Result<()> {
+pub fn award(conn: DbConn, _teacher: auth::Teacher, student: Id, badge: Id) -> Result<()> {
     // check if student is in a class of the teacher
     award_badge(&*conn, student, badge)?;
     Ok(())
