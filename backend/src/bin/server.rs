@@ -1,10 +1,13 @@
 extern crate backend;
 extern crate env_logger;
+#[macro_use]
 extern crate rocket;
 
 use backend::database::DbConn;
 use backend::routes;
+use backend::routes::frontend::*;
 
+use rocket_contrib::serve::StaticFiles;
 use rocket::config::{Config, Environment, Value};
 use std::collections::HashMap;
 
@@ -33,5 +36,7 @@ fn main() {
     let rocket = routes::teacher::mount(rocket);
     let rocket = routes::class::mount(rocket);
     let rocket = routes::badge::mount(rocket);
-    rocket.launch();
+
+    rocket.mount("/", StaticFiles::from("./dist/"))
+        .launch();
 }

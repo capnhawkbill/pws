@@ -25,7 +25,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
             name        TEXT NOT NULL,
             password    TEXT NOT NULL,
             classes     TEXT,
-            badges      TEXT,
+            badges      TEXT
         )",
         &[],
     )?;
