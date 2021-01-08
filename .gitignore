@@ -1,5 +1,7 @@
 backend/target
-databases
+build/
+stats/
+*.sqlite
 *~
 todo.html
 cargo.lock
