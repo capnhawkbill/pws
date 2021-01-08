@@ -40,6 +40,13 @@ pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
     Ok(())
 }
 
+/// Remove a badge from the database
+pub fn remove_badge(conn: &Connection, id: Id) -> Result<()> {
+    trace!("Removing Badge {:?}", id);
+    conn.execute("DELETE FROM badge WHERE id = ?1", &[&id])?;
+    Ok(())
+}
+
 /// Get a badge from the database
 pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
     trace!("Getting badge with id {:?}", id);

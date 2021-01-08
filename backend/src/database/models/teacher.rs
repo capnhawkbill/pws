@@ -60,7 +60,7 @@ pub fn update_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
     let badges = mkcsv(&teacher.badges)?;
     // Convert to json
     conn.execute(
-        "UPDATE teacher name = ?2, password = ?3, classes = ?4, badges = ?5 WHERE id = ?1",
+        "UPDATE teacher SET name = ?2, password = ?3, classes = ?4, badges = ?5 WHERE id = ?1",
         &[
             &teacher.id,
             &teacher.name,

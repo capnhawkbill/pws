@@ -73,6 +73,24 @@ pub fn get_badge_teacher(
     Ok(Json(badge))
 }
 
+/// Remove a badge
+/// This doesn't remove it from the students that where awarded the badge
+#[get("/remove?<id>")]
+pub fn remove_badge(conn: DbConn, mut teacher: auth::Teacher, id: Id) -> Result<()> {
+    if !(*teacher).badges.contains(&id) {
+        return Err(anyhow!("Teacher {:?} doesn't own badge {}", *teacher, id));
+    }
+    // remove badge from teacher
+    let teacher = &mut *teacher;
+    teacher.badges = teacher.badges.iter().filter(|&x| x != &id).cloned().collect();
+
+    update_teacher(&*conn, teacher)?;
+
+    // remove badge from database
+    models::remove_badge(&*conn, id)?;
+    Ok(())
+}
+
 /// award a badge
 #[get("/award?<student>&<badge>")]
 pub fn award(conn: DbConn, _teacher: auth::Teacher, student: Id, badge: Id) -> Result<()> {
