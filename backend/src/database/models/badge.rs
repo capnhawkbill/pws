@@ -31,6 +31,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 
 /// Insert a badge into the database
 pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
+    trace!("Inserting Badge {:?}", badge.name);
     let official = mkbool(badge.official);
     conn.execute(
         "INSERT INTO badge (id, name, description, official) VALUES (?1, ?2, ?3, ?4)",
@@ -41,6 +42,7 @@ pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
 
 /// Get a badge from the database
 pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
+    trace!("Getting badge with id {:?}", id);
     let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let mut badges = stmt.query_map(&[&id], |row| {
         let official = getbool(row.get(3))?;

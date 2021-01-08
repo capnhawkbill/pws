@@ -40,7 +40,7 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
-    // Convert to json
+
     conn.execute(
         "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
         &[
@@ -51,6 +51,28 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
             &badges,
         ],
     )?;
+    Ok(())
+}
+
+/// Update a student in the database
+pub fn update_student(conn: &Connection, student: &Student) -> Result<()> {
+    trace!("Updating {:?}", student.name);
+
+    // Convert to csv
+    let classes = mkcsv(&student.classes)?;
+    let badges = mkcsv(&student.badges)?;
+
+    conn.execute(
+        "UPDATE student SET name = ?2, password = ?3, classes = ?4, badges = ?5 WHERE id = ?1",
+        &[
+            &student.id,
+            &student.name,
+            &student.password,
+            &classes,
+            &badges,
+        ]
+    )?;
+
     Ok(())
 }
 
@@ -131,13 +153,14 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
 
 /// Award a badge to a student
 pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
+    trace!("Awarding badge {:?} to student {:?}", badge, student);
     let mut student = get_student(&conn, student)?;
     let mut badges = student.badges;
     badges.push(badge);
 
     student.badges = badges;
 
-    insert_student(&conn, &student)
+    update_student(&conn, &student)
 }
 
 #[cfg(test)]

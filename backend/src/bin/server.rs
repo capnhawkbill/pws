@@ -1,6 +1,5 @@
 extern crate backend;
 extern crate env_logger;
-#[macro_use]
 extern crate rocket;
 
 use backend::database::DbConn;
@@ -26,6 +25,7 @@ pub fn init_db() -> Config {
         .unwrap()
 }
 fn main() {
+    #[cfg(debug_assertions)]
     env_logger::init();
 
     let config = init_db();
