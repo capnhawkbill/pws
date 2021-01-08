@@ -7,7 +7,7 @@
 use anyhow::Result;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 use crate::database::{login, models, DbConn};
 
@@ -34,6 +34,12 @@ impl Deref for Student {
     }
 }
 
+impl DerefMut for Student {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 /// This is a request guard for logging in as a teacher
 /// It is a wrapper for the struct from the database
 #[derive(Clone, Debug)]
@@ -43,6 +49,12 @@ impl Deref for Teacher {
     type Target = models::Teacher;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl DerefMut for Teacher {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 /// This is a request guard for logging in as a admin

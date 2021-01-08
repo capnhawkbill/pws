@@ -6,7 +6,7 @@ use crate::{
     auth,
     database::{
         generate_id,
-        models::{self, award_badge, insert_badge},
+        models::{self, award_badge, insert_badge, update_teacher},
         DbConn, Id,
     },
 };
@@ -25,7 +25,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
 
 /// create a badge
 #[post("/create", format = "json", data = "<badge>")]
-pub fn create_badge(conn: DbConn, _teacher: auth::Teacher, badge: Json<Badge>) -> Result<Id> {
+pub fn create_badge(conn: DbConn, mut teacher: auth::Teacher, badge: Json<Badge>) -> Result<Id> {
     let id = generate_id(&*conn)?;
     let badge = models::Badge {
         id: id.clone(),
@@ -34,7 +34,13 @@ pub fn create_badge(conn: DbConn, _teacher: auth::Teacher, badge: Json<Badge>) -
         official: false,
     };
 
+    // insert the badge in the database
     insert_badge(&*conn, &badge)?;
+
+    // give teacher ownership of the badge
+    let teacher = &mut *teacher;
+    teacher.badges.push(id.clone());
+    update_teacher(&*conn, &teacher)?;
 
     Ok(id)
 }

@@ -52,6 +52,26 @@ pub fn insert_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
     Ok(())
 }
 
+/// Update a teacher in the database
+pub fn update_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
+    trace!("Inserting teacher {:?}", teacher);
+    // Convert to csv
+    let classes = mkcsv(&teacher.classes)?;
+    let badges = mkcsv(&teacher.badges)?;
+    // Convert to json
+    conn.execute(
+        "UPDATE teacher name = ?2, password = ?3, classes = ?4, badges = ?5 WHERE id = ?1",
+        &[
+            &teacher.id,
+            &teacher.name,
+            &teacher.password,
+            &classes,
+            &badges,
+        ],
+    )?;
+
+    Ok(())
+}
 /// Gets a teacher from the database
 pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
     trace!("Getting teacher with id {}", id);
