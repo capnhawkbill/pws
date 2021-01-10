@@ -19,7 +19,7 @@ use crate::database::{
 pub fn mount(rocket: Rocket) -> Rocket {
     rocket.mount(
         "/api/teacher",
-        routes![signup_route, teacher, info, id_teacher],
+        routes![signup_route, remove, info, id_teacher],
     )
 }
 

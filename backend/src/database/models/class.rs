@@ -209,31 +209,50 @@ pub fn remove_from_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
     trace!("Removing {:?} from class {:?}", id, class);
     let dbclass = get_class(&conn, class.clone())?;
     if let Ok(mut student) = get_student(&conn, id.clone()) {
-
         // remove the class from the student
-        student.classes = student.classes.iter().filter(|x| *x != &class).cloned().collect();
+        student.classes = student
+            .classes
+            .iter()
+            .filter(|x| *x != &class)
+            .cloned()
+            .collect();
         update_student(&conn, &student)?;
 
         // remove the student from the class
-        let students: Vec<_> = dbclass.students.iter().filter(|x| *x != &class).cloned().collect();
+        let students: Vec<_> = dbclass
+            .students
+            .iter()
+            .filter(|x| *x != &class)
+            .cloned()
+            .collect();
         let students = mkcsv(&students)?;
         conn.execute(
             "UPDATE class SET students = ?1 WHERE id = ?2",
-            &[&students, &class]
+            &[&students, &class],
         )?;
 
         Ok(())
     } else if let Ok(mut teacher) = get_teacher(&conn, id.clone()) {
         // remove the class from the teacher
-        teacher.classes = teacher.classes.iter().filter(|x| *x != &class).cloned().collect();
+        teacher.classes = teacher
+            .classes
+            .iter()
+            .filter(|x| *x != &class)
+            .cloned()
+            .collect();
         update_teacher(&conn, &teacher)?;
 
         // remove the teacher from the class
-        let teachers: Vec<_> = dbclass.teachers.iter().filter(|x| *x != &class).cloned().collect();
+        let teachers: Vec<_> = dbclass
+            .teachers
+            .iter()
+            .filter(|x| *x != &class)
+            .cloned()
+            .collect();
         let teachers = mkcsv(&teachers)?;
         conn.execute(
             "UPDATE class SET teachers = ?1 WHERE id = ?2",
-            &[&teachers, &class]
+            &[&teachers, &class],
         )?;
 
         Ok(())
