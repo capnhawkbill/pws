@@ -107,7 +107,7 @@ fn test_homework() {
         .dispatch()
         .body_string()
         .unwrap();
-    let studenthw = serde_json::from_str::<Vec<Homework>>(&studenthw).unwrap();
+    let studenthw = serde_json::from_str::<Vec<String>>(&studenthw).unwrap();
 
     // check
     assert_eq!(studenthw, vec![homework.clone()]);
@@ -119,7 +119,7 @@ fn test_homework() {
         .dispatch()
         .body_string()
         .unwrap();
-    let allstudenthw = serde_json::from_str::<Vec<Homework>>(&allstudenthw).unwrap();
+    let allstudenthw = serde_json::from_str::<Vec<String>>(&allstudenthw).unwrap();
 
     // check
     assert!(allstudenthw.contains(&homework));

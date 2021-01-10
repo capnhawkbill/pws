@@ -39,7 +39,7 @@ pub fn insert_class(conn: &Connection, class: &Class) -> Result<()> {
     trace!("Inserting class {}", class.name);
     let teachers = mkcsv(&class.teachers)?;
     let students = mkcsv(&class.students)?;
-    let homework = serde_json::to_string(&class.homework)?;
+    let homework = mkcsv(&class.homework)?;
     conn.execute(
         "INSERT INTO class (id, name, teachers, students, homework) VALUES (?1, ?2, ?3, ?4, ?5)",
         &[&class.id, &class.name, &teachers, &students, &homework],
@@ -262,7 +262,7 @@ mod tests {
             name: "Coolest".into(),
             teachers: vec!["TeacherA".into(), "TeacherB".into()],
             students: vec!["StudentA".into(), "StudentB".into()],
-            homework: vec![],
+            homework: vec!["".to_string()],
         };
 
         // create mock database
