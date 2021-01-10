@@ -29,11 +29,29 @@ export default {
     }
   },
   watch: {
+    username: function() {
+      if(this.passwords_match() && this.username != '') {
+        this.disable_button = false
+      }
+      else {
+        this.disable_button = true
+      }
+    },
     password: function() {
-      this.passwords_match()
+      if(this.passwords_match() && this.username != '') {
+        this.disable_button = false
+      }
+      else {
+        this.disable_button = true
+      }
     },
     passwordcheck: function() {
-      this.passwords_match()
+      if(this.passwords_match() && this.username != '') {
+        this.disable_button = false
+      }
+      else {
+        this.disable_button = true
+      }
     }
   },
   methods: {
@@ -41,23 +59,22 @@ export default {
       if(this.password.length != 0 && this.passwordcheck.length != 0) {
         if(this.password === this.passwordcheck) {
           this.message=""
-          this.disable_button=false
+          return true
         }
         else {
           this.message="Wachtwoorden komen niet overeen!"
-          this.disable_button=true
         }
       }
       else {
         this.message=""
-        this.disable_button=true
       }
+      return false
     },
     signup() {
       const data = {"username": this.username, "password": this.password}
       const headers = {headers: {}}
       axios
-        .post('http://localhost:8000/api/student/signup', data, { headers })
+        .post('http://localhost:8000/api/teacher/signup', data, { headers })
         .then(response => (this.apikey = response.apikey))
         .catch(error => {
           console.log(error)

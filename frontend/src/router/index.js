@@ -1,45 +1,82 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from '../views/Home.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    component: () => import('../views/home.vue')
   },
   {
-    path: '/rang',
-    name: 'Rang',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Rang.vue')
+    path: '/leerling',
+    component: () => import('@/components/leerlingmenu.vue'),
+    children: [
+      {
+        path: '',
+        name: 'leerling.home',
+        component: () => import('../views/leerling/home.vue'),
+      },
+      {
+        path: 'rang',
+        name: 'leerling.rang',
+        component: () => import('../views/leerling/rang.vue'),
+      },
+      {
+        path: 'klas',
+        name: 'leerling.klas',
+        component: () => import('../views/leerling/klas.vue')
+      },
+      {
+        path: 'winkel',
+        name: 'leerling.winkel',
+        component: () => import('../views/leerling/winkel.vue')
+      },
+      {
+        path: 'profiel',
+        name: 'leerling.profiel',
+        component: () => import('../views/leerling/profiel.vue')
+      },
+      {
+        path: 'login',
+        name: 'leerling.login',
+        component: () => import('../views/leerling/login.vue')
+      },
+      {
+        path: 'aanmelden',
+        name: 'leerling.aanmelden',
+        component: () => import('../views/leerling/aanmelden.vue')
+      }
+    ],
   },
   {
-    path: '/klas',
-    name: 'Klas',
-    component: () => import('../views/Klas.vue')
+    path: '/leraar',
+    component: () => import('@/components/leraarmenu.vue'),
+    children: [
+      {
+        path: '',
+        name: 'leraar.home',
+        component: () => import('../views/leraar/home.vue'),
+      },
+      {
+        path: 'klassen',
+        name: 'leraar.klassen',
+        component: () => import('../views/leraar/klassen.vue')
+      },
+      {
+        path: 'profiel',
+        name: 'leraar.profiel',
+        component: () => import('../views/leraar/profiel.vue')
+      },
+      {
+        path: 'login',
+        name: 'leraar.login',
+        component: () => import('../views/leraar/login.vue')
+      },
+      {
+        path: 'aanmelden',
+        name: 'leraar.aanmelden',
+        component: () => import('../views/leraar/aanmelden.vue')
+      }
+    ],
   },
-  {
-    path: '/winkel',
-    name: 'Winkel',
-    component: () => import('../views/Winkel.vue')
-  },
-  {
-    path: '/profiel',
-    name: 'Profiel',
-    component: () => import('../views/Profiel.vue')
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../views/Login.vue')
-  },
-  {
-    path: '/aanmelden',
-    name: 'Aanmelden',
-    component: () => import('../views/Aanmelden.vue')
-  }
 ]
 
 const router = createRouter({

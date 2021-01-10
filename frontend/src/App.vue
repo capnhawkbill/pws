@@ -1,19 +1,5 @@
 <template>
-  <header>
-    <nav>
-      <ol>
-        <router-link tag="li" id="button" to="/">Home</router-link>
-        <router-link tag="li" id="button" to="/rang">Rang</router-link> 
-        <router-link tag="li" id="button" to="/klas">Klas</router-link> 
-        <router-link tag="li" id="button" to="/winkel">Winkel</router-link> 
-        <router-link tag="li" id="button" to="/profiel">Profiel</router-link> 
-        <router-link tag="li" id="button" to="/login">Login</router-link> 
-      </ol>
-    </nav>
-  </header>
-  <main>
-    <router-view/>
-  </main>
+  <router-view />
 </template>
 
 <style>
@@ -46,6 +32,10 @@
   text-decoration: none;
   cursor: pointer;
   transition: 0.3s;
+}
+
+.center {
+  padding-top: 20%;
 }
 
 nav {

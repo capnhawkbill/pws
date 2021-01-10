@@ -7,7 +7,7 @@
     <label for="password">Wachtwoord</label><br>
     <input type="password" v-model="password" id="password"/><br>
     <br>
-    <router-link tag="a" to="/aanmelden">Nog geen account?</router-link>
+    <router-link tag="a" to="/leraar/aanmelden">Nog geen account?</router-link>
   </div>
 </template>
 
@@ -28,8 +28,6 @@ export default {
   display: inline-block;
   padding: 30px 30px 30px 30px;
   text-align: left;
-  background: var(--lightgrey);
-  box-shadow: 1px 1px 2px grey;
   transition: 0.3s;
 }
 </style>
