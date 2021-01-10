@@ -19,17 +19,6 @@ pub struct Class {
     pub homework: Vec<Homework>,
 }
 
-/// A homework assignment
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Homework {
-    /// Name/Title of the homework
-    pub name: String,
-    /// Due date of the homework
-    pub date: NaiveDate,
-    /// Description of the homework
-    pub description: String,
-}
-
 pub fn create_table(conn: &Connection) -> Result<()> {
     conn.execute(
         "CREATE TABLE class (

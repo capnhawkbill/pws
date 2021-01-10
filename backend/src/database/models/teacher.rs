@@ -1,4 +1,7 @@
-use super::super::{getcsv, mkcsv, Id};
+use super::{
+    super::{getcsv, mkcsv, Id},
+    remove_from_class,
+};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -72,6 +75,7 @@ pub fn update_teacher(conn: &Connection, teacher: &Teacher) -> Result<()> {
 
     Ok(())
 }
+
 /// Gets a teacher from the database
 pub fn get_teacher(conn: &Connection, id: Id) -> Result<Teacher> {
     trace!("Getting teacher with id {}", id);

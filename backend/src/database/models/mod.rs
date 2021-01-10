@@ -2,11 +2,13 @@
 //! Lots of the models use lists of id's, to resolve them use the get functions
 mod badge;
 mod class;
+mod homework;
 mod student;
 mod teacher;
 
 pub use badge::*;
 pub use class::*;
+pub use homework::*;
 pub use student::*;
 pub use teacher::*;
 
