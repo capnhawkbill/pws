@@ -7,7 +7,7 @@ mod student;
 mod teacher;
 
 pub use badge::*;
-pub use class::*;
+pub use class::{add_to_class, create_table, get_class, insert_class, remove_from_class, Class};
 pub use homework::*;
 pub use student::*;
 pub use teacher::*;
@@ -21,5 +21,6 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
     teacher::create_table(&conn)?;
     badge::create_table(&conn)?;
     class::create_table(&conn)?;
+    homework::create_table(&conn)?;
     Ok(())
 }

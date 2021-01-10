@@ -10,7 +10,6 @@ pub use models::create_tables;
 
 use crate::auth::User;
 use models::{get_student_by_name, get_teacher_by_name, insert_student, insert_teacher};
-pub use models::{Badge, Class, Homework, Student, Teacher};
 
 #[database("sqlite_database")]
 pub struct DbConn(rusqlite::Connection);
@@ -18,6 +17,7 @@ pub struct DbConn(rusqlite::Connection);
 /// Id for types in the database
 /// `TEXT NOT NULL PRIMARY KEY`
 pub type Id = String;
+pub use models::{Badge, Class, Homework, Student, Teacher};
 
 /// Get a user from the database using username and password
 // TODO make this work with a single query

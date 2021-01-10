@@ -1,7 +1,6 @@
 use super::super::{getcsv, mkcsv, Id};
 use super::{get_student, get_teacher, update_student, update_teacher};
 use anyhow::{anyhow, Result};
-use chrono::naive::NaiveDate;
 use rocket_contrib::databases::rusqlite::Connection;
 
 /// A Class
@@ -16,9 +15,10 @@ pub struct Class {
     /// The id's of the students in the class
     pub students: Vec<Id>,
     /// The homework of this class
-    pub homework: Vec<Homework>,
+    pub homework: Vec<Id>,
 }
 
+/// Create a table for the classes
 pub fn create_table(conn: &Connection) -> Result<()> {
     conn.execute(
         "CREATE TABLE class (
@@ -61,10 +61,9 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
         if let Err(e) = students {
             return Err(e);
         }
-        let homework: std::result::Result<Vec<Homework>, serde_json::Error> =
-            serde_json::from_str(row.get::<_, String>(4).as_str());
+        let homework = getcsv(row.get(4));
         if let Err(e) = homework {
-            return Err(e.into());
+            return Err(e);
         }
 
         Ok(Class {
@@ -89,22 +88,20 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
 }
 
 /// Add homework to a class
-pub fn add_homework(conn: &Connection, homework: &Homework, class: Id) -> Result<()> {
+pub fn add_homework(conn: &Connection, homework: Id, class: Id) -> Result<()> {
     trace!("Adding homework {:?} to class {:?}", homework, class);
     // Get the current homework
     let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
-    let mut things = stmt.query_map(&[&class], |row| {
-        serde_json::from_str(&row.get::<_, String>(0))
-    })?;
+    let mut things = stmt.query_map(&[&class], |row| getcsv(row.get(0)))?;
     // Checks
     if let Some(current) = things.next() {
         if things.next().is_some() {
             return Err(anyhow!("Multiple classes with the same id"));
         }
 
-        let mut new: Vec<Homework> = current??;
+        let mut new: Vec<Id> = current??;
         new.push(homework.clone());
-        let new = serde_json::to_string(&new)?;
+        let new = mkcsv(&new)?;
 
         conn.execute(
             "UPDATE class SET homework = ?1 WHERE id = ?2",
@@ -117,22 +114,20 @@ pub fn add_homework(conn: &Connection, homework: &Homework, class: Id) -> Result
 }
 
 /// Remove homework from a class
-pub fn remove_homework(conn: &Connection, homework: &Homework, class: Id) -> Result<()> {
+pub fn remove_homework(conn: &Connection, homework: Id, class: Id) -> Result<()> {
     trace!("Removing homework {:?} from class {:?}", homework, class);
     // Get the current homework
     let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
-    let mut things = stmt.query_map(&[&class], |row| {
-        serde_json::from_str(&row.get::<_, String>(0))
-    })?;
+    let mut things = stmt.query_map(&[&class], |row| getcsv(row.get(0)))?;
     // Checks
     if let Some(current) = things.next() {
         if things.next().is_some() {
             return Err(anyhow!("Multiple classes with the same id"));
         }
 
-        let current: Vec<Homework> = current??;
-        let new: Vec<&Homework> = current.iter().filter(|x| *x != homework).collect();
-        let new = serde_json::to_string(&new)?;
+        let mut new: Vec<Id> = current??;
+        new.push(homework.clone());
+        let new = mkcsv(&new)?;
 
         conn.execute(
             "UPDATE class SET homework = ?1 WHERE id = ?2",

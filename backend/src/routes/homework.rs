@@ -40,10 +40,10 @@ pub fn add_homework(
 }
 
 /// Remove homework from a class as a teacher
-#[post("/remove?<class>", format = "json", data = "<homework>")]
+#[get("/remove?<class>&<homework>")]
 pub fn remove_homework(
     conn: DbConn,
-    homework: Json<Homework>,
+    homework: Id,
     teacher: auth::Teacher,
     class: Id,
 ) -> Result<()> {
@@ -51,16 +51,18 @@ pub fn remove_homework(
     if !(*teacher).classes.contains(&class) {
         return Err(anyhow!("{:?} is not a teacher of this class", teacher));
     }
+    // TODO check homework ownership
 
     // Remove the homework from a class
-    models::remove_homework(&*conn, &*homework, class)?;
+    models::remove_homework(&*conn, homework, class)?;
 
     Ok(())
 }
 
 /// Get all the homework from a student unsorted
+/// TODO make this give actual homework
 #[get("/get", rank = 2)]
-pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Homework>>> {
+pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
     let mut homework = Vec::new();
     for class in student.classes.iter() {
@@ -75,16 +77,28 @@ pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Hom
 }
 
 /// Get all the homework from a class
+/// TODO make this give actual homework
 #[get("/get?<class>")]
 pub fn get_homework_class(
     conn: DbConn,
     student: auth::Student,
     class: Id,
-) -> Result<Json<Vec<Homework>>> {
+) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
     if !(*student).classes.contains(&class) {
         return Err(anyhow!("{:?} is not a student in this class", student));
     }
 
     Ok(Json(models::get_class(&*conn, class)?.homework))
+}
+
+/// Mark homework as finished
+#[get("/done?<class>&<homework>")]
+pub fn finished_homework(
+    conn: DbConn,
+    student: auth::Student,
+    class: Id,
+    homework: Id,
+) -> Result<()> {
+    todo!()
 }

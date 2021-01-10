@@ -1,5 +1,5 @@
 use super::super::{getcsv, mkcsv, Id};
-use super::{remove_from_class, HomeworkId};
+use super::remove_from_class;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -19,7 +19,7 @@ pub struct Student {
     /// Stored as csv
     pub badges: Vec<Id>,
     /// Finished homework
-    pub homework: Vec<HomeworkId>,
+    pub homework: Vec<Id>,
 }
 
 /// Create a table for the students
