@@ -145,6 +145,20 @@ pub fn get_teacher_by_name(conn: &Connection, name: &str) -> Result<Teacher> {
     }
 }
 
+/// Remove a teacher from the database
+pub fn remove_teacher(conn: &Connection, id: Id) -> Result<()> {
+    trace!("Removing teacher {:?}", id);
+    let teacher = get_teacher(&conn, id.clone())?;
+
+    // Remove teacher from all classes
+    for class in teacher.classes {
+        remove_from_class(&conn, id.clone(), class)?;
+    }
+
+    conn.execute("DELETE FROM teacher WHERE id = ?1", &[&id])?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

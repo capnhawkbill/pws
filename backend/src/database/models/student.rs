@@ -1,5 +1,5 @@
 use super::super::{getcsv, mkcsv, Id};
-use super::{remove_from_class};
+use super::remove_from_class;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -71,7 +71,7 @@ pub fn update_student(conn: &Connection, student: &Student) -> Result<()> {
             &student.password,
             &classes,
             &badges,
-        ]
+        ],
     )?;
 
     Ok(())
@@ -123,7 +123,7 @@ pub fn remove_student(conn: &Connection, id: Id) -> Result<()> {
         remove_from_class(&conn, id.clone(), class)?;
     }
 
-    conn.execute("DELETE FROM student WHERE name = ?1", &[&id])?;
+    conn.execute("DELETE FROM student WHERE id = ?1", &[&id])?;
     Ok(())
 }
 
@@ -165,7 +165,6 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
         Err(anyhow!("No students found with this username: {}", name))
     }
 }
-
 
 /// Award a badge to a student
 pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {

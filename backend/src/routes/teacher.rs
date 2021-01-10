@@ -9,7 +9,11 @@ use rocket_contrib::json::Json;
 use super::{Credentials, SafeStudent, SafeTeacher};
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{generate_id, models::get_student, signup, Id, Teacher};
+use crate::database::{
+    generate_id,
+    models::{get_student, remove_teacher},
+    signup, Id, Teacher,
+};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
@@ -42,6 +46,12 @@ fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
     Ok(id)
 }
 
+#[get("/remove")]
+fn remove(conn: DbConn, teacher: auth::Teacher) -> Result<()> {
+    remove_teacher(&*conn, (*teacher).id.clone())?;
+    Ok(())
+}
+
 #[get("/info")]
 fn info(teacher: auth::Teacher) -> Json<SafeTeacher> {
     Json((*teacher).clone().into())
@@ -52,11 +62,4 @@ fn info(teacher: auth::Teacher) -> Json<SafeTeacher> {
 #[get("/id?<id>", rank = 2)]
 fn id_teacher(id: Id, conn: DbConn, _teacher: auth::Teacher) -> Result<Json<SafeStudent>> {
     Ok(Json(get_student(&*conn, id)?.into()))
-}
-
-/// A test route
-#[get("/teacher")]
-fn teacher(teacher: auth::Teacher) -> String {
-    let name = &(*teacher).name;
-    format!("Hello teacher {}", name)
 }
