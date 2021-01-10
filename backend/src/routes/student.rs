@@ -8,7 +8,7 @@ use rocket_contrib::json::Json;
 use super::{Credentials, SafeStudent};
 use crate::auth::{self, User};
 use crate::database::DbConn;
-use crate::database::{generate_id, models::get_student, signup, Id, Student};
+use crate::database::{generate_id, models::{get_student, remove_student}, signup, Id, Student};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
@@ -38,6 +38,12 @@ fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
     signup(&*conn, &User::Student(student))?;
 
     Ok(id)
+}
+
+#[get("/remove")]
+fn remove(conn: DbConn, student: auth::Student) -> Result<()> {
+    remove_student(&*conn, (*student).id.clone())?;
+    Ok(())
 }
 
 #[get("/info")]

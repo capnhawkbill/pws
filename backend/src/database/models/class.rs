@@ -1,5 +1,5 @@
 use super::super::{getcsv, mkcsv, Id};
-use super::{get_student, get_teacher};
+use super::{get_student, get_teacher, update_student, update_teacher};
 use anyhow::{anyhow, Result};
 use chrono::naive::NaiveDate;
 use rocket_contrib::databases::rusqlite::Connection;
@@ -203,6 +203,45 @@ pub fn add_to_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
     }
 }
 
+/// Remove a student or a teacher from a class
+/// This also removes the class from the student or teachers list
+pub fn remove_from_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
+    trace!("Removing {:?} from class {:?}", id, class);
+    let dbclass = get_class(&conn, class.clone())?;
+    if let Ok(mut student) = get_student(&conn, id.clone()) {
+
+        // remove the class from the student
+        student.classes = student.classes.iter().filter(|x| *x != &class).cloned().collect();
+        update_student(&conn, &student)?;
+
+        // remove the student from the class
+        let students: Vec<_> = dbclass.students.iter().filter(|x| *x != &class).cloned().collect();
+        let students = mkcsv(&students)?;
+        conn.execute(
+            "UPDATE class SET students = ?1 WHERE id = ?2",
+            &[&students, &class]
+        )?;
+
+        Ok(())
+    } else if let Ok(mut teacher) = get_teacher(&conn, id.clone()) {
+        // remove the class from the teacher
+        teacher.classes = teacher.classes.iter().filter(|x| *x != &class).cloned().collect();
+        update_teacher(&conn, &teacher)?;
+
+        // remove the teacher from the class
+        let teachers: Vec<_> = dbclass.teachers.iter().filter(|x| *x != &class).cloned().collect();
+        let teachers = mkcsv(&teachers)?;
+        conn.execute(
+            "UPDATE class SET teachers = ?1 WHERE id = ?2",
+            &[&teachers, &class]
+        )?;
+
+        Ok(())
+    } else {
+        Err(anyhow!("User {:?} doesn't exist"))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -228,7 +267,7 @@ mod tests {
         create_table(&conn).unwrap();
 
         // test if the inserted class can be retrieved
-        insert_class(conn, &class).unwrap();
+        insert_class(&conn, &class).unwrap();
         let gotten = get_class(conn, "ID".into()).unwrap();
         assert_eq!(class, gotten);
     }
