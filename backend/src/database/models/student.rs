@@ -1,5 +1,5 @@
 use super::super::{getcsv, mkcsv, Id};
-use super::remove_from_class;
+use super::{remove_from_class, HomeworkId};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -18,6 +18,8 @@ pub struct Student {
     /// Id's of the badges the student has
     /// Stored as csv
     pub badges: Vec<Id>,
+    /// Finished homework
+    pub homework: Vec<HomeworkId>,
 }
 
 /// Create a table for the students
@@ -28,7 +30,8 @@ pub fn create_table(conn: &Connection) -> Result<()> {
             name        TEXT NOT NULL,
             password    TEXT NOT NULL,
             classes     TEXT,
-            badges      TEXT
+            badges      TEXT,
+            homework    TEXT
         )",
         &[],
     )?;
@@ -41,15 +44,17 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
+    let homework = mkcsv(&student.homework)?;
 
     conn.execute(
-        "INSERT INTO student (id, name, password, classes, badges) VALUES (?1, ?2, ?3, ?4, ?5)",
+        "INSERT INTO student (id, name, password, classes, badges, homework) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         &[
             &student.id,
             &student.name,
             &student.password,
             &classes,
             &badges,
+            &homework,
         ],
     )?;
     Ok(())
@@ -62,15 +67,17 @@ pub fn update_student(conn: &Connection, student: &Student) -> Result<()> {
     // Convert to csv
     let classes = mkcsv(&student.classes)?;
     let badges = mkcsv(&student.badges)?;
+    let homework = mkcsv(&student.homework)?;
 
     conn.execute(
-        "UPDATE student SET name = ?2, password = ?3, classes = ?4, badges = ?5 WHERE id = ?1",
+        "UPDATE student SET name = ?2, password = ?3, classes = ?4, badges = ?5, homework = ?6 WHERE id = ?1",
         &[
             &student.id,
             &student.name,
             &student.password,
             &classes,
             &badges,
+            &homework,
         ],
     )?;
 
@@ -91,6 +98,10 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
         if let Err(e) = badges {
             return Err(e);
         }
+        let homework = getcsv(row.get(5));
+        if let Err(e) = homework {
+            return Err(e);
+        }
 
         Ok(Student {
             id: row.get(0),
@@ -98,6 +109,7 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
             password: row.get(2),
             classes: classes.unwrap(),
             badges: badges.unwrap(),
+            homework: homework.unwrap(),
         })
     })?;
 
@@ -141,6 +153,10 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
         if let Err(e) = badges {
             return Err(e);
         }
+        let homework = getcsv(row.get(5));
+        if let Err(e) = homework {
+            return Err(e);
+        }
         // Parse from json
         Ok(Student {
             id: row.get(0),
@@ -148,6 +164,7 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
             password: row.get(2),
             classes: classes.unwrap(),
             badges: badges.unwrap(),
+            homework: homework.unwrap(),
         })
     })?;
 
@@ -196,6 +213,7 @@ mod tests {
             password: "very secure".into(),
             classes: vec!["ClassId".into(), "Second ClassId".into()],
             badges: vec!["BadgeId".into(), "Second BadgeId".into()],
+            homework: vec!["HomeworkId".into()],
         };
 
         // create mock database
