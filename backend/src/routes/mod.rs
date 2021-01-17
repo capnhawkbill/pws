@@ -25,6 +25,8 @@ pub struct SafeStudent {
     name: String,
     classes: Vec<Id>,
     badges: Vec<Id>,
+    homework: Vec<Id>,
+    points: i32,
 }
 
 impl From<Student> for SafeStudent {
@@ -33,6 +35,8 @@ impl From<Student> for SafeStudent {
             name: student.name,
             classes: student.classes,
             badges: student.badges,
+            homework: student.homework,
+            points: student.points,
         }
     }
 }
