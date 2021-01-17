@@ -1,10 +1,15 @@
 extern crate backend;
+#[macro_use]
+extern crate log;
 extern crate rocket;
 
-use backend::database::DbConn;
-use backend::routes::*;
-use backend::testhelp::*;
+use backend::{
+    database::{self, DbConn},
+    routes::{self, class, homework, student, teacher},
+    testhelp::{get_id_student, get_id_teacher, init_logger, init_test_db},
+};
 
+use chrono::NaiveDate;
 use rocket::http::{ContentType, Header};
 use rocket::local::Client;
 
@@ -58,10 +63,11 @@ fn test_homework() {
         .unwrap();
 
     // add homework
-    let homework = Homework {
+    let homework = routes::Homework {
         name: "TestHomework".into(),
-        date: "2020-12-12".into(),
+        date: NaiveDate::parse_from_str("2020-12-12", "%Y-%m-%d").unwrap(),
         description: "Very Hard Homework".into(),
+        points: 2,
     };
     let homework_str = serde_json::to_string(&homework).unwrap();
 
@@ -72,10 +78,11 @@ fn test_homework() {
         .header(ContentType::JSON)
         .dispatch();
 
-    let homework2 = Homework {
+    let homework2 = routes::Homework {
         name: "CoolHomework".into(),
-        date: "2021-10-10".into(),
+        date: NaiveDate::parse_from_str("2021-10-10", "%Y-%m-%d").unwrap(),
         description: "Very Cool Homework".into(),
+        points: 2,
     };
     let homework2_str = serde_json::to_string(&homework2).unwrap();
 
@@ -101,34 +108,99 @@ fn test_homework() {
         .dispatch();
 
     // get homework student
-    let studenthw = client
+    let studenthwids = client
         .get(format!("/api/homework/get?class={}", class))
         .header(authstudent.clone())
         .dispatch()
         .body_string()
         .unwrap();
-    let studenthw = serde_json::from_str::<Vec<String>>(&studenthw).unwrap();
+    trace!("{:?}", studenthwids);
+    let studenthwids: Vec<String> = serde_json::from_str(&studenthwids).unwrap();
+    // For removing later
+    let homeworkid = studenthwids[1].clone();
+
+    let mut studenthw = Vec::new();
+    // resolve id's
+    for id in studenthwids {
+        if id.is_empty() {
+            continue;
+        }
+        let hw = client
+            .get(format!("/api/homework/get?id={}", id))
+            .header(authstudent.clone())
+            .dispatch()
+            .body_string()
+            .unwrap();
+
+        trace!("{}", hw);
+        let hw: database::models::Homework = serde_json::from_str(&hw).unwrap();
+        studenthw.push(hw);
+    }
+    let studenthw = 
 
     // check
-    assert_eq!(studenthw, vec![homework.clone()]);
+    assert_eq!(
+        studenthw
+            .iter_mut()
+            .map(|x| -> routes::Homework { x.to_owned().into() })
+            .next()
+            .unwrap(),
+        homework.clone()
+    );
 
     // get all the homework
-    let allstudenthw = client
+    let allstudenthwids = client
         .get("/api/homework/get")
         .header(authstudent.clone())
         .dispatch()
         .body_string()
         .unwrap();
-    let allstudenthw = serde_json::from_str::<Vec<String>>(&allstudenthw).unwrap();
+    let allstudenthwids: Vec<String> = serde_json::from_str(&allstudenthwids).unwrap();
+
+    let mut allstudenthw = Vec::new();
+    // resolve id's
+    for id in allstudenthwids {
+        if id.is_empty() {
+            continue;
+        }
+        let hw = client
+            .get(format!("/api/homework/get?id={}", id))
+            .header(authstudent.clone())
+            .dispatch()
+            .body_string()
+            .unwrap();
+
+        trace!("{}", hw);
+        let hw: database::models::Homework = serde_json::from_str(&hw).unwrap();
+        allstudenthw.push(hw);
+    }
+
+    let comparer = |acc, x: &database::Homework| -> bool {
+        x.name == homework.name
+            && x.description == homework.description
+            && x.points == homework.points
+            && x.date == homework.date
+            || acc
+    };
+
+    let comparer2 = |acc, x: &database::Homework| -> bool {
+        x.name == homework2.name
+            && x.description == homework2.description
+            && x.points == homework2.points
+            && x.date == homework2.date
+            || acc
+    };
 
     // check
-    assert!(allstudenthw.contains(&homework));
-    assert!(allstudenthw.contains(&homework2));
+    assert!(allstudenthw.iter().fold(false, comparer));
+    assert!(allstudenthw.iter().fold(false, comparer2));
 
     // remove homework
     client
-        .post(format!("/api/homework/remove?class={}", class))
-        .body(&homework_str)
+        .get(format!(
+            "/api/homework/remove?class={}&homework={}",
+            class, homeworkid
+        ))
         .header(authteacher)
         .header(ContentType::JSON)
         .dispatch();
@@ -141,6 +213,6 @@ fn test_homework() {
         .body_string()
         .unwrap();
     // check
-    assert_eq!(newstudenthw, "[]");
+    assert_eq!(newstudenthw, "[\"\"]");
     // maybe multiple classes for the student
 }

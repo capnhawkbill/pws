@@ -1,3 +1,4 @@
 #!/bin/sh
 
-(bash build.sh && bash run.sh)
+./build.sh
+./run.sh

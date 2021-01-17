@@ -54,6 +54,10 @@ pub struct SafeStudent {
     pub classes: Vec<Id>,
     /// Badges of the student
     pub badges: Vec<Id>,
+    /// Finished homework of the student
+    pub homework: Vec<Id>,
+    /// Points of the student
+    pub points: i32,
 }
 
 impl From<Student> for SafeStudent {
@@ -62,6 +66,8 @@ impl From<Student> for SafeStudent {
             name: student.name,
             classes: student.classes,
             badges: student.badges,
+            homework: student.homework,
+            points: student.points,
         }
     }
 }

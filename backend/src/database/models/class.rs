@@ -114,7 +114,7 @@ pub fn add_homework(conn: &Connection, homework: Id, class: Id) -> Result<()> {
 }
 
 /// Remove homework from a class
-pub fn remove_homework(conn: &Connection, homework: Id, class: Id) -> Result<()> {
+pub fn remove_homework(conn: &Connection, mut homework: Id, class: Id) -> Result<()> {
     trace!("Removing homework {:?} from class {:?}", homework, class);
     // Get the current homework
     let mut stmt = conn.prepare("SELECT homework FROM class WHERE id = ?1")?;
@@ -126,7 +126,11 @@ pub fn remove_homework(conn: &Connection, homework: Id, class: Id) -> Result<()>
         }
 
         let mut new: Vec<Id> = current??;
-        new.push(homework.clone());
+        let new: Vec<String> = new
+            .iter_mut()
+            .filter(|x| x.to_owned() != &&mut homework)
+            .map(|x| x.to_owned())
+            .collect();
         let new = mkcsv(&new)?;
 
         conn.execute(

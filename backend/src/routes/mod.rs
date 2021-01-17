@@ -6,6 +6,7 @@ pub mod homework;
 pub mod student;
 pub mod teacher;
 
+use chrono::NaiveDate;
 use serde::Deserialize;
 
 use crate::database::{models, Id, Student, Teacher};
@@ -24,6 +25,8 @@ pub struct SafeStudent {
     name: String,
     classes: Vec<Id>,
     badges: Vec<Id>,
+    homework: Vec<Id>,
+    points: i32,
 }
 
 impl From<Student> for SafeStudent {
@@ -32,6 +35,8 @@ impl From<Student> for SafeStudent {
             name: student.name,
             classes: student.classes,
             badges: student.badges,
+            homework: student.homework,
+            points: student.points,
         }
     }
 }
@@ -51,6 +56,30 @@ impl From<Teacher> for SafeTeacher {
             name: teacher.name,
             classes: teacher.classes,
             badges: teacher.badges,
+        }
+    }
+}
+
+/// Homework to receive
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct Homework {
+    /// Name of the homework
+    pub name: String,
+    /// Description of the homework
+    pub description: String,
+    /// Date of the homework
+    pub date: NaiveDate,
+    /// Points of the homework
+    pub points: i32,
+}
+
+impl From<crate::database::Homework> for Homework {
+    fn from(f: crate::database::Homework) -> Homework {
+        Homework {
+            name: f.name,
+            description: f.description,
+            date: f.date,
+            points: f.points,
         }
     }
 }

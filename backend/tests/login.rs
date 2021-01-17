@@ -36,10 +36,11 @@ fn login_test() {
 
     // Access protected path
     let auth = Header::new("Authorization", AUTHHEADER);
-    let check = client.get("/api/student/student").header(auth);
+    let check = client.get("/api/student/info").header(auth);
     let mut result = check.dispatch();
     assert_eq!(
-        "Hello student Capnhawkbill".to_string(),
+        r#"{"name":"Capnhawkbill","classes":[""],"badges":[""],"homework":[""],"points":0}"#
+            .to_string(),
         result.body_string().unwrap()
     );
 }
