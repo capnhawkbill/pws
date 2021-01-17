@@ -108,7 +108,7 @@ pub fn get_homework_class(
 #[get("/get?<id>", rank = 2)]
 pub fn get_homework_id(
     conn: DbConn,
-    student: auth::Student,
+    _student: auth::Student,
     id: Id,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
