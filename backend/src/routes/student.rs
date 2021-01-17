@@ -16,10 +16,7 @@ use crate::database::{
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount(
-        "/api/student",
-        routes![signup_route, student, id_student, info],
-    )
+    rocket.mount("/api/student", routes![signup_route, id_student, info])
 }
 
 /// Signup
@@ -39,6 +36,7 @@ fn signup_route(conn: DbConn, credentials: Json<Credentials>) -> Result<Id> {
         classes,
         badges,
         homework,
+        points: 0,
     };
 
     signup(&*conn, &User::Student(student))?;

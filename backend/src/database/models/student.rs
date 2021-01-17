@@ -20,6 +20,8 @@ pub struct Student {
     pub badges: Vec<Id>,
     /// Finished homework
     pub homework: Vec<Id>,
+    /// Total amount of points
+    pub points: i32,
 }
 
 /// Create a table for the students
@@ -31,7 +33,8 @@ pub fn create_table(conn: &Connection) -> Result<()> {
             password    TEXT NOT NULL,
             classes     TEXT,
             badges      TEXT,
-            homework    TEXT
+            homework    TEXT,
+            points      INTEGER
         )",
         &[],
     )?;
@@ -47,7 +50,7 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
     let homework = mkcsv(&student.homework)?;
 
     conn.execute(
-        "INSERT INTO student (id, name, password, classes, badges, homework) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "INSERT INTO student (id, name, password, classes, badges, homework, points) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
         &[
             &student.id,
             &student.name,
@@ -55,6 +58,7 @@ pub fn insert_student(conn: &Connection, student: &Student) -> Result<()> {
             &classes,
             &badges,
             &homework,
+            &student.points,
         ],
     )?;
     Ok(())
@@ -70,7 +74,7 @@ pub fn update_student(conn: &Connection, student: &Student) -> Result<()> {
     let homework = mkcsv(&student.homework)?;
 
     conn.execute(
-        "UPDATE student SET name = ?2, password = ?3, classes = ?4, badges = ?5, homework = ?6 WHERE id = ?1",
+        "UPDATE student SET name = ?2, password = ?3, classes = ?4, badges = ?5, homework = ?6, points = ?7 WHERE id = ?1",
         &[
             &student.id,
             &student.name,
@@ -78,6 +82,7 @@ pub fn update_student(conn: &Connection, student: &Student) -> Result<()> {
             &classes,
             &badges,
             &homework,
+            &student.points,
         ],
     )?;
 
@@ -110,6 +115,7 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
             classes: classes.unwrap(),
             badges: badges.unwrap(),
             homework: homework.unwrap(),
+            points: row.get(6),
         })
     })?;
 
@@ -165,6 +171,7 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
             classes: classes.unwrap(),
             badges: badges.unwrap(),
             homework: homework.unwrap(),
+            points: row.get(6),
         })
     })?;
 
@@ -214,6 +221,7 @@ mod tests {
             classes: vec!["ClassId".into(), "Second ClassId".into()],
             badges: vec!["BadgeId".into(), "Second BadgeId".into()],
             homework: vec!["HomeworkId".into()],
+            points: 4,
         };
 
         // create mock database
@@ -223,6 +231,7 @@ mod tests {
         // test if the inserted student can be retrieved
         insert_student(conn, &student).unwrap();
         let gotten = get_student(conn, "ID".into()).unwrap();
+        trace!("gotten: {:?}", gotten);
         assert_eq!(student, gotten);
     }
 }

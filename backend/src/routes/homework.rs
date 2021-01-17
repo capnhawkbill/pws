@@ -4,8 +4,9 @@ use anyhow::{anyhow, Result};
 use rocket::Rocket;
 use rocket_contrib::json::Json;
 
+use super::Homework;
 use crate::auth;
-use crate::database::{models, DbConn, Homework, Id};
+use crate::database::{generate_id, models, DbConn, Id};
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
@@ -15,6 +16,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
             add_homework,
             get_homework,
             get_homework_class,
+            get_homework_id,
             remove_homework
         ],
     )
@@ -33,8 +35,18 @@ pub fn add_homework(
         return Err(anyhow!("{:?} is not a teacher of this class", teacher));
     }
 
+    let id = generate_id(&*conn)?;
+
+    let new_homework = models::Homework {
+        id,
+        name: homework.name.clone(),
+        date: homework.date,
+        description: homework.description.clone(),
+        points: homework.points,
+    };
+
     // Add the homework to a class
-    models::add_homework(&*conn, &*homework, class)?;
+    models::add_homework(&*conn, &new_homework.into(), class)?;
 
     Ok(())
 }
@@ -60,8 +72,7 @@ pub fn remove_homework(
 }
 
 /// Get all the homework from a student unsorted
-/// TODO make this give actual homework
-#[get("/get", rank = 2)]
+#[get("/get", rank = 3)]
 pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
     let mut homework = Vec::new();
@@ -77,7 +88,6 @@ pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>
 }
 
 /// Get all the homework from a class
-/// TODO make this give actual homework
 #[get("/get?<class>")]
 pub fn get_homework_class(
     conn: DbConn,
@@ -90,6 +100,17 @@ pub fn get_homework_class(
     }
 
     Ok(Json(models::get_class(&*conn, class)?.homework))
+}
+
+/// Get the homework with this id
+#[get("/get?<id>", rank = 2)]
+pub fn get_homework_id(
+    conn: DbConn,
+    student: auth::Student,
+    id: Id,
+) -> Result<Json<models::Homework>> {
+    let hw = models::get_homework(&*conn, id)?;
+    Ok(Json(hw))
 }
 
 /// Mark homework as finished
