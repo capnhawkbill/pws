@@ -214,6 +214,20 @@ pub fn finish_homework(conn: &Connection, student: Id, homework: &Homework) -> R
     update_student(&conn, &student)
 }
 
+/// Unmark homework as finished and calculate points
+pub fn unfinish_homework(conn: &Connection, student: Id, homework: &Homework) -> Result<()> {
+    let mut student = get_student(&conn, student)?;
+    student.homework = student
+        .homework
+        .iter_mut()
+        .filter(|x| x != &&mut homework.id.clone())
+        .map(|x| x.to_owned())
+        .collect();
+    student.points -= homework.points;
+
+    update_student(&conn, &student)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
