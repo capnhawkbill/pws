@@ -14,6 +14,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
         "/api/homework",
         routes![
             add_homework,
+            finish_homework,
             get_homework,
             get_homework_class,
             get_homework_id,
@@ -121,5 +122,12 @@ pub fn finished_homework(
     class: Id,
     homework: Id,
 ) -> Result<()> {
-    todo!()
+    if !(*student).classes.contains(&class) {
+        return Err(anyhow!("{:?} is not a student in this class", student));
+    }
+    let hw = models::get_homework(&*conn, homework)?;
+
+    models::finish_homework(&*conn, (*student).id.clone(), &hw)?;
+
+    Ok(())
 }

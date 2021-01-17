@@ -1,5 +1,8 @@
-use super::super::{getcsv, mkcsv, Id};
 use super::remove_from_class;
+use super::{
+    super::{getcsv, mkcsv, Id},
+    Homework,
+};
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::Connection;
 
@@ -198,6 +201,15 @@ pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
     badges.push(badge);
 
     student.badges = badges;
+
+    update_student(&conn, &student)
+}
+
+/// Mark homework as finished and calculate points
+pub fn finish_homework(conn: &Connection, student: Id, homework: &Homework) -> Result<()> {
+    let mut student = get_student(&conn, student)?;
+    student.homework.push(homework.id.clone());
+    student.points += homework.points;
 
     update_student(&conn, &student)
 }
