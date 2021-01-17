@@ -11,6 +11,34 @@ use serde::Deserialize;
 
 use crate::database::{models, Id, Student, Teacher};
 
+/// Leaderboard for a group of students
+#[derive(Deserialize, Serialize)]
+pub struct LeaderBoard(Vec<LeaderStudent>);
+impl From<Vec<Student>> for LeaderBoard {
+    fn from(f: Vec<Student>) -> Self {
+        let mut board: Vec<LeaderStudent> = f.iter().map(|x| x.into()).collect();
+        board.sort_unstable_by(|a, b| a.points.partial_cmp(&b.points).unwrap());
+        LeaderBoard(board)
+    }
+}
+
+/// Student struct for in the leaderboard
+#[derive(Deserialize, Serialize)]
+pub struct LeaderStudent {
+    name: String,
+    points: i32,
+}
+
+impl From<&Student> for LeaderStudent {
+    fn from(f: &Student) -> Self {
+        // TODO Clones
+        LeaderStudent {
+            name: f.name.clone(),
+            points: f.points.clone(),
+        }
+    }
+}
+
 /// The credentials that are received as json
 #[derive(Deserialize)]
 pub struct Credentials {
