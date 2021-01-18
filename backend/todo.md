@@ -4,7 +4,6 @@
 + Milestones
 + Avatars
 + Shop
-+ Leaderboard
 + Class join link generator
 
 # Neatness
