@@ -15,6 +15,8 @@ pub use teacher::*;
 use anyhow::{anyhow, Result};
 use rocket_contrib::databases::rusqlite::{types::ToSql, Connection, Row};
 
+use super::Id;
+
 /// Create the tables in the database
 pub fn create_tables(conn: &Connection) -> Result<()> {
     student::create_table(&conn)?;
@@ -28,17 +30,17 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
 /// A type that is in the database
 pub trait DatabaseModel {
     /// Define the get query together with the values in here
-    fn get_query() -> (&'static str, &'static [&'static dyn ToSql]);
+    fn get_query() -> &'static str;
     /// Construct Self using a database row
     fn construct<T>(row: &Row<'_, '_>) -> Result<T>;
     /// Get the struct from a database using the get query
-    fn get(conn: &Connection) -> Result<Self>
+    fn get(conn: &Connection, id: Id) -> Result<Self>
     where
         Self: Sized,
     {
-        let (query, values) = Self::get_query();
+        let query = Self::get_query();
         let mut stmt = conn.prepare(query)?;
-        let mut models = stmt.query_map(values, Self::construct)?;
+        let mut models = stmt.query_map(&[&id], Self::construct)?;
 
         // Check that there is only one
         if let Some(model) = models.next() {
@@ -62,20 +64,16 @@ pub trait DatabaseModel {
     }
 
     /// Define the insert query together with the values in here
-    fn insert_query() -> (&'static str, &'static [&'static dyn ToSql]);
+    fn insert_query() -> &'static str;
     /// Insert the struct into the database using the insert query and the values
-    fn insert(&self, conn: &Connection) -> Result<()> {
-        let (query, values) = Self::insert_query();
-        conn.execute(query, values)?;
-        Ok(())
-    }
+    fn insert(&self, conn: &Connection) -> Result<()>;
 
     /// Define the remove query together with the values in here
-    fn remove_query() -> (&'static str, &'static [&'static dyn ToSql]);
+    fn remove_query() -> &'static str;
     /// Remove the struct from the database using the insert query and the values
-    fn remove(&self, conn: &Connection) -> Result<()> {
-        let (query, values) = Self::remove_query();
-        conn.execute(query, values)?;
+    fn remove(&self, conn: &Connection, id: Id) -> Result<()> {
+        let query = Self::remove_query();
+        conn.execute(query, &[&id])?;
         Ok(())
     }
 }
