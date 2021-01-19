@@ -1,25 +1,30 @@
 <template>
-  <div id="login">
+  <form>
     <h1>Inloggen</h1>
-    <label for="username">Gebruikersnaam</label><br>
-    <input type="text" v-model="username" id="username"/><br>
-    <br>
-    <label for="password">Wachtwoord</label><br>
-    <input type="password" v-model="password" id="password"/><br>
-    <button class="login" type="login" :disabled="disable_button" v-on:click="login">Aanmelden</button>
-    <router-link tag="a" to="/leerling/aanmelden">Nog geen account?</router-link>
-  </div>
+    <div class=form-group>
+      <label for="username">Gebruikersnaam</label><br>
+      <input type="text" v-model="username" id="username"/><br>
+    </div>
+    <div class=from-group>
+      <label for="password">Wachtwoord</label><br>
+      <input type="password" v-model="password" id="password"/><br>
+      <span class=error>{{ errormsg }}</span><br>
+    </div>
+    <div class=form-group> 
+      <button class="confirm" type="login" :disabled="disable_button" v-on:click="login">Login</button><br><br>
+      <router-link tag="a" to="/leerling/aanmelden">Nog geen account?</router-link>
+    </div>
+  </form>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
-  name: "login",
   data() {
     return {
-      username: null,
-      password: null
+      username: '',
+      password: '',
+      disable_button: true,
+      errormsg: ''
     }
   },
   watch: {
@@ -42,25 +47,27 @@ export default {
   },
   methods: {
     login() {
-      const data = {"username": this.username, "password": this.password}
-      axios
-        .post('http://localhost:8000/api/student/login', data)
-        .then(response => (this.apikey = response.apikey))
+      const auth = btoa(this.username + ":" + this.password)
+      const headers = {
+        "headers": {
+        "Authorization": auth
+        }
+      }
+      this.axios
+        .get('/api/student/info', headers)
+        .then(() => {
+          document.cookie = auth
+          this.$router.push('/leerling/profiel')
+        })
         .catch(error => {
           console.log(error)
-          this.errored = true
+          this.wrong_info()
       })
-    }  
+    },  
+    wrong_info() {
+      this.password = ''
+      this.errormsg = 'Inloggegevens verkeerd'
+    }
   }
-
 }
 </script>
-
-<style>
-#login {
-  display: inline-block;
-  padding: 30px 30px 30px 30px;
-  text-align: left;
-  transition: 0.3s;
-}
-</style>

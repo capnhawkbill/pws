@@ -1,5 +1,48 @@
 <template>
+  <section v-if="errored">
+    <p>Error met API request</p>
+  </section>
+
+  <section v-else>
+    <div v-if="loading">Laden...</div>
     <div class="profiel">
-        <h1>Hier kan je je profiel zien</h1>
+      <h1>Profiel van {{ naam }}</h1>
+      {{huiswerk}}
     </div>
+  </section>
 </template>
+
+<script>
+export default {
+  name: 'profiel',
+  data () {
+    return {
+      naam: null,
+      klassen: null,
+      huiswerk: null,
+      badges: null,
+      punten: null,
+      loading: true,
+      errored: false
+    }
+  },
+  mounted () {
+    console.log(document.cookie)
+    this.axios
+      .get('/api/student/info', {"headers": {"Authorization": document.cookie}})
+      .then(response => {
+        this.naam = response.data.name
+        this.klassen = response.data.classes
+        this.huiswerk = response.data.homework
+        this.badges = response.data.badges
+        this.punten = response.data.points
+      })
+      .catch(error => {
+        console.log(error)
+        this.errored = true
+        this.$router.push('/leerling/login')
+      })
+      .finally(() => this.loading = false)
+    }
+  }
+</script>

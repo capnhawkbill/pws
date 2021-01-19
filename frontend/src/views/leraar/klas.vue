@@ -1,7 +1,6 @@
 <template>
-  <button class='left' v-on:click="this.$router.push('/leraar/klassen/aanmaken')">+ Maak klas aan</button>
   <section v-if="errored">
-    <p>Error with API request.</p>
+    <p>Error met API request. Weet je zeker dat deze klas bestaat?</p>
   </section>
 
   <section v-else>
@@ -9,12 +8,6 @@
   
     <div id="class">
       {{ klasinfo }}
-      <li 
-        v-for="currency in klasinfo" 
-        :key="currency"
-      >
-        {{ currency.description }}
-      </li>
     </div>
   </section>
 </template>
@@ -30,8 +23,8 @@ export default {
   },
   mounted () {
     this.axios
-      .get('https://api.coindesk.com/v1/bpi/currentprice.json')
-      .then(response => (this.klasinfo = response.data.bpi))
+      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': document.cookie}})
+      .then(response => (this.klasinfo = response.data))
       .catch(error => {
         console.log(error)
         this.errored = true

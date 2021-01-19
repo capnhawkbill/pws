@@ -61,6 +61,11 @@ const routes = [
         component: () => import('../views/leraar/klassen.vue')
       },
       {
+        path: 'klassen/aanmaken',
+        name: 'leraar.klassen.aanmaken',
+        component: () => import('../views/leraar/aanmaken.vue')
+      },
+      {
         path: 'profiel',
         name: 'leraar.profiel',
         component: () => import('../views/leraar/profiel.vue')
@@ -74,6 +79,11 @@ const routes = [
         path: 'aanmelden',
         name: 'leraar.aanmelden',
         component: () => import('../views/leraar/aanmelden.vue')
+      },
+      {
+        path: 'klas/:id',
+        name: 'leraar.klas',
+        component: () => import('../views/leraar/klas.vue')
       }
     ],
   },

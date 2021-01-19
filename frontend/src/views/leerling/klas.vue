@@ -1,10 +1,10 @@
 <template>
   <section v-if="errored">
-    <p>Error with API request.</p>
+    <p>Error met API request.</p>
   </section>
 
   <section v-else>
-    <div v-if="loading">Loading...</div>
+    <div v-if="loading">Laden...</div>
   
     <div id="class">
       {{ klasinfo }}
@@ -19,8 +19,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   name: 'class',
   data () {
@@ -31,8 +29,8 @@ export default {
     }
   },
   mounted () {
-    axios
-      .get('https://api.coindesk.com/v1/bpi/currentprice.json')
+    this.axios
+      .get('/api/student/info')
       .then(response => (this.klasinfo = response.data.bpi))
       .catch(error => {
         console.log(error)

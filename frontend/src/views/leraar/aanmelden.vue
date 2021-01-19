@@ -1,22 +1,24 @@
 <template>
-  <div class=wrapper>
-    <div id="aanmelden">
-      <h1>Aanmelden</h1>
+  <form>
+    <h1>Aanmelden</h1>
+    <div class=form-group>
       <label for="username">Gebruikersnaam</label><br>
       <input type="text" v-model="username" id="username"/><br>
+    </div>
+    <div class=form-group>
       <label for="password">Wachtwoord</label><br>
       <input type="password" v-model="password" id="password"/><br>
+    </div>
+    <div class=form-group>
       <label for="passwordcheck">Wachtwoord herhalen</label><br>
       <input type="password" v-model="passwordcheck" id="passwordcheck"/><br>
-      <span class="error">{{ message }}</span>   
-      <button class="signup" type="signup" :disabled="disable_button" v-on:click="signup">Aanmelden</button>
+    <span class="error">{{ message }}</span>   
     </div>
-  </div>
+    <button class="confirm" type="signup" :disabled="disable_button" v-on:click="signup">Aanmelden</button>
+  </form>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
   name: "aanmelden",
   data() {
@@ -29,29 +31,11 @@ export default {
     }
   },
   watch: {
-    username: function() {
-      if(this.passwords_match() && this.username != '') {
-        this.disable_button = false
-      }
-      else {
-        this.disable_button = true
-      }
-    },
     password: function() {
-      if(this.passwords_match() && this.username != '') {
-        this.disable_button = false
-      }
-      else {
-        this.disable_button = true
-      }
+      this.passwords_match()
     },
     passwordcheck: function() {
-      if(this.passwords_match() && this.username != '') {
-        this.disable_button = false
-      }
-      else {
-        this.disable_button = true
-      }
+      this.passwords_match()
     }
   },
   methods: {
@@ -59,23 +43,27 @@ export default {
       if(this.password.length != 0 && this.passwordcheck.length != 0) {
         if(this.password === this.passwordcheck) {
           this.message=""
-          return true
+          this.disable_button=false
         }
         else {
           this.message="Wachtwoorden komen niet overeen!"
+          this.disable_button=true
         }
       }
       else {
         this.message=""
+        this.disable_button=true
       }
-      return false
     },
     signup() {
       const data = {"username": this.username, "password": this.password}
-      const headers = {headers: {}}
-      axios
-        .post('http://localhost:8000/api/teacher/signup', data, { headers })
-        .then(response => (this.apikey = response.apikey))
+      this.axios
+        .post('/api/teacher/signup', data)
+        .then(() => {
+          const auth = btoa(this.username + ":" + this.password)
+          document.cookie = auth
+          this.$router.push('/leraar/profiel')
+        })
         .catch(error => {
           console.log(error)
           this.errored = true
@@ -84,50 +72,3 @@ export default {
   }
 }
 </script>
-
-<style>
-#aanmelden {
-  display: inline-block;
-  text-align: left;
-}
-
-.wrapper {
-  text-align: center;
-  width: 90%;
-  display: inline-block;
-  padding: 30px 30px 30px 30px;
-  transition: 0.3s;
-}
-
-button {
-  color: var(--white);
-  font-weight: bold;
-  background: var(--darkgreen);
-  text-align: center;
-  width: 100%;
-  padding: 10px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;  
-  transition: 0.3s;
-}
-
-button:hover {
-  background: var(--brown);
-}
-
-button:disabled {
-  background: var(--lightgreen);
-  cursor: default; 
-}
-
-input {
-  margin-bottom: 20px;
-}
-
-.error {
-  font-size: 0.7em;
-  font-weight: bold;
-  color: var(--darkgreen);
-}
-</style>
