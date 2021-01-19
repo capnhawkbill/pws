@@ -51,11 +51,16 @@ fn test_class() {
     let auth = Header::new("Authorization", AUTHSTUDENT);
     let _ = client
         .get(format!("/api/class/join?id={}", class))
-        .header(auth)
+        .header(auth.clone())
         .dispatch();
 
     let student_info = get_self_info_student(&client, AUTHSTUDENT);
     let teacher_info = get_self_info_teacher(&client, AUTHTEACHER);
+
+    client
+        .get(format!("/api/class/leaderboard?class={}", class))
+        .header(auth)
+        .dispatch();
 
     assert!(!student_info.classes.is_empty() && !teacher_info.classes.is_empty());
     assert_eq!(teacher_info.classes, student_info.classes);
