@@ -22,7 +22,29 @@
     background-color: var(--darkgreen);
 }
 
-#button {
+button {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  color: var(--white);
+  font-weight: bold;
+  background: var(--darkgreen);
+  text-align: center;
+  padding: 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;  
+  transition: 0.3s;
+}
+
+button:hover {
+  background: var(--brown);
+}
+
+button:disabled {
+  background: var(--lightgreen);
+  cursor: default; 
+}
+
+#menu-item {
   display: inline-block;
   padding: 1em 1em;
   font-size: 1em;
@@ -63,5 +85,34 @@ a {
 }
 a:hover {
   color: var(--lightgreen);
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+form {
+  display: inline-block;
+  padding: 30px 30px 30px 30px;
+  text-align: left;
+  transition: 0.3s;
+}
+
+form .form-group {
+  margin-bottom: 20px;
+}
+
+span.error {
+  font-size: 0.7em;
+  font-weight: bold;
+  color: var(--darkgreen);
+}
+
+button.confirm {
+  width: 100%;
 }
 </style>
