@@ -85,6 +85,9 @@ pub fn get_leaderboard(
     // get all the students
     let mut students = Vec::new();
     for student in class.students {
+        if student.is_empty() {
+            continue;
+        }
         let student = models::get_student(&*conn, student)?;
         students.push(student);
     }
