@@ -21,6 +21,7 @@ pub fn mount(rocket: Rocket) -> Rocket {
         routes![
             create_class,
             get_leaderboard,
+            get_students,
             join_class_student,
             join_class_teacher
         ],
@@ -57,6 +58,31 @@ pub fn join_class_student(id: Id, student: auth::Student, conn: DbConn) -> Resul
 pub fn join_class_teacher(id: Id, teacher: auth::Teacher, conn: DbConn) -> Result<()> {
     add_to_class(&*conn, teacher.id.clone(), id)?;
     Ok(())
+}
+
+/// Get all the students of a class
+#[get("/students?<id>")]
+pub fn get_students(
+    conn: DbConn,
+    student: Option<auth::Student>,
+    teacher: Option<auth::Teacher>,
+    id: Id,
+) -> Result<Json<Vec<Id>>> {
+    if let Some(student) = student {
+        if !(*student).classes.contains(&id) {
+            return Err(anyhow!("{:?} is not a student in this class", student));
+        }
+    } else if let Some(teacher) = teacher {
+        if !(*teacher).classes.contains(&id) {
+            return Err(anyhow!("{:?} is not a teacher of this class", teacher));
+        }
+    } else {
+        return Err(anyhow!("No login provided"));
+    }
+
+    let class = models::get_class(&*conn, id)?;
+
+    Ok(Json(class.students))
 }
 
 /// Get the leaderboard from a class
