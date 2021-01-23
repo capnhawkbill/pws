@@ -164,7 +164,7 @@ fn get_user(req: &'_ Request<'_>) -> Result<User> {
 fn check_value(value: &[u8], conn: DbConn) -> Result<User> {
     trace!("Checking value");
     // Decode base64
-    let decoded = base64::decode(value)?.trim();
+    let decoded = base64::decode(value)?;
     let mut value = decoded.split(|x| *x == ":".as_bytes()[0]);
 
     if value.clone().count() != 2 {
