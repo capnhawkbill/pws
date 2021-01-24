@@ -148,6 +148,10 @@ pub fn add_to_class(conn: &Connection, id: Id, class: Id) -> Result<()> {
     trace!("Adding {:?} to class {:?}", id, class);
     // make sure the class exists
     let dbclass = get_class(&conn, class.clone())?;
+    if dbclass.students.contains(&id) || dbclass.teachers.contains(&id) {
+        return Err(anyhow!("Student or teacher is already in the class"));
+    }
+
     if let Ok(student) = get_student(&conn, id.clone()) {
         // add the class to the student
         let mut classes = student.classes;
