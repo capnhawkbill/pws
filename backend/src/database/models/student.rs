@@ -98,26 +98,63 @@ pub fn get_student(conn: &Connection, id: Id) -> Result<Student> {
     let mut stmt = conn.prepare("SELECT * FROM student where id = ?1")?;
     let mut students = stmt.query_map(&[&id], |row| {
         // Parse from csv
-        let classes = getcsv(row.get(3));
-        if let Err(e) = classes {
+        let csvclasses = getcsv(row.get(3));
+        if let Err(e) = csvclasses {
             return Err(e);
         }
-        let badges = getcsv(row.get(4));
-        if let Err(e) = badges {
-            return Err(e);
-        }
-        let homework = getcsv(row.get(5));
-        if let Err(e) = homework {
-            return Err(e);
+        let csvclasses = csvclasses.unwrap();
+
+        let mut classes: Vec<_>;
+        // remove empty entry
+        if csvclasses.len() == 1 && csvclasses[0].is_empty() {
+            classes = Vec::new();
+        } else {
+            classes = csvclasses;
+            if classes[0].is_empty() {
+                classes.remove(0);
+            }
         }
 
+        let csvbadges = getcsv(row.get(4));
+        if let Err(e) = csvbadges {
+            return Err(e);
+        }
+        let csvbadges = csvbadges.unwrap();
+
+        let mut badges: Vec<_>;
+        // remove empty entry
+        if csvbadges.len() == 1 && csvbadges[0].is_empty() {
+            badges = Vec::new();
+        } else {
+            badges = csvbadges;
+            if badges[0].is_empty() {
+                badges.remove(0);
+            }
+        }
+
+        let csvhomework = getcsv(row.get(5));
+        if let Err(e) = csvhomework {
+            return Err(e);
+        }
+        let csvhomework = csvhomework.unwrap();
+
+        let mut homework: Vec<_>;
+        // remove empty entry
+        if csvhomework.len() == 1 && csvhomework[0].is_empty() {
+            homework = Vec::new();
+        } else {
+            homework = csvhomework;
+            if homework[0].is_empty() {
+                homework.remove(0);
+            }
+        }
         Ok(Student {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
-            classes: classes.unwrap(),
-            badges: badges.unwrap(),
-            homework: homework.unwrap(),
+            classes,
+            badges,
+            homework,
             points: row.get(6),
         })
     })?;
@@ -154,26 +191,64 @@ pub fn get_student_by_name(conn: &Connection, name: &str) -> Result<Student> {
     let mut stmt = conn.prepare("SELECT * FROM student where name = ?1")?;
     let mut students = stmt.query_map(&[&name], |row| {
         // Parse from csv
-        let classes = getcsv(row.get(3));
-        if let Err(e) = classes {
+        let csvclasses = getcsv(row.get(3));
+        if let Err(e) = csvclasses {
             return Err(e);
         }
-        let badges = getcsv(row.get(4));
-        if let Err(e) = badges {
+        let csvclasses = csvclasses.unwrap();
+
+        let mut classes: Vec<_>;
+        // remove empty entry
+        if csvclasses.len() == 1 && csvclasses[0].is_empty() {
+            classes = Vec::new();
+        } else {
+            classes = csvclasses;
+            if classes[0].is_empty() {
+                classes.remove(0);
+            }
+        }
+
+        let csvbadges = getcsv(row.get(4));
+        if let Err(e) = csvbadges {
             return Err(e);
         }
-        let homework = getcsv(row.get(5));
-        if let Err(e) = homework {
+        let csvbadges = csvbadges.unwrap();
+
+        let mut badges: Vec<_>;
+        // remove empty entry
+        if csvbadges.len() == 1 && csvbadges[0].is_empty() {
+            badges = Vec::new();
+        } else {
+            badges = csvbadges;
+            if badges[0].is_empty() {
+                badges.remove(0);
+            }
+        }
+
+        let csvhomework = getcsv(row.get(5));
+        if let Err(e) = csvhomework {
             return Err(e);
+        }
+        let csvhomework = csvhomework.unwrap();
+
+        let mut homework: Vec<_>;
+        // remove empty entry
+        if csvhomework.len() == 1 && csvhomework[0].is_empty() {
+            homework = Vec::new();
+        } else {
+            homework = csvhomework;
+            if homework[0].is_empty() {
+                homework.remove(0);
+            }
         }
         // Parse from json
         Ok(Student {
             id: row.get(0),
             name: row.get(1),
             password: row.get(2),
-            classes: classes.unwrap(),
-            badges: badges.unwrap(),
-            homework: homework.unwrap(),
+            classes,
+            badges,
+            homework,
             points: row.get(6),
         })
     })?;

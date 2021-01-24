@@ -54,8 +54,20 @@ pub fn login(conn: &rusqlite::Connection, name: &str, password: &str) -> Result<
 pub fn signup(conn: &rusqlite::Connection, user: &User) -> Result<()> {
     trace!("Signing up {:?}", user);
     let _r = match user {
-        User::Student(student) => insert_student(&conn, &student)?,
-        User::Teacher(teacher) => insert_teacher(&conn, &teacher)?,
+        User::Student(student) => {
+            if get_student_by_name(&conn, &student.name).is_ok() {
+                return Err(anyhow!("Student already exists"));
+            }
+
+            insert_student(&conn, &student)?;
+        }
+        User::Teacher(teacher) => {
+            if get_teacher_by_name(&conn, &teacher.name).is_ok() {
+                return Err(anyhow!("Teacher already exists"));
+            }
+
+            insert_teacher(&conn, &teacher)?;
+        }
     };
 
     Ok(())
