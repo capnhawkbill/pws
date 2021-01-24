@@ -39,8 +39,7 @@ fn login_test() {
     let check = client.get("/api/student/info").header(auth);
     let mut result = check.dispatch();
     assert_eq!(
-        r#"{"name":"Capnhawkbill","classes":[""],"badges":[""],"homework":[""],"points":0}"#
-            .to_string(),
+        r#"{"name":"Capnhawkbill","classes":[],"badges":[],"homework":[],"points":0}"#.to_string(),
         result.body_string().unwrap()
     );
 }

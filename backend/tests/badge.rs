@@ -1,5 +1,7 @@
 extern crate backend;
 extern crate rocket;
+#[macro_use]
+extern crate log;
 
 use backend::database::DbConn;
 use backend::routes::*;
@@ -48,25 +50,25 @@ fn test_badge() {
     let _teacher = get_id_teacher(&client, SIGNUPTEACHER);
     let student = get_id_student(&client, SIGNUPSTUDENT);
 
-    let authTeacher = Header::new("Authorization", AUTHTEACHER);
+    let auth_teacher = Header::new("Authorization", AUTHTEACHER);
     let class = client
         .get("/api/class/create?name=testclass")
-        .header(authTeacher.clone())
+        .header(auth_teacher.clone())
         .dispatch()
         .body_string()
         .unwrap();
 
-    let authStudent = Header::new("Authorization", AUTHSTUDENT);
+    let auth_student = Header::new("Authorization", AUTHSTUDENT);
     client
         .get(format!("/api/class/join?id={}", class))
-        .header(authStudent.clone())
+        .header(auth_student.clone())
         .dispatch();
 
     // create badge
     let badge = client
         .post("/api/badge/create")
         .body(BADGE)
-        .header(authTeacher.clone())
+        .header(auth_teacher.clone())
         .header(ContentType::JSON)
         .dispatch()
         .body_string()
@@ -78,12 +80,12 @@ fn test_badge() {
             "/api/badge/award?student={}&badge={}",
             student, badge
         ))
-        .header(authTeacher)
+        .header(auth_teacher)
         .dispatch();
 
     let student_info = get_self_info_student(&client, AUTHSTUDENT);
     let teacher_info = get_self_info_teacher(&client, AUTHTEACHER);
 
-    assert_eq!(student_info.badges, vec!["".to_string(), badge.clone()]);
-    assert_eq!(teacher_info.badges, vec!["".to_string(), badge]);
+    assert_eq!(student_info.badges, vec![badge.clone()]);
+    assert_eq!(teacher_info.badges, vec![badge]);
 }
