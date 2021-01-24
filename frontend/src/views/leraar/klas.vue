@@ -47,8 +47,9 @@ export default {
 }
   },
   mounted () {
+    const auth = this.$cookie.getCookie('teacher_auth')
     this.axios
-      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': document.cookie}})
+      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': auth}})
       .then(response => (this.klasinfo = response.data))
       .catch(error => {
         console.log(error)

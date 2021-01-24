@@ -24,8 +24,9 @@ export default {
     }
   },
   mounted () {
+    const auth = this.$cookie.getCookie('teacher_auth')
     this.axios
-      .get('/api/teacher/info', {"headers": {"Authorization": document.cookie}})
+      .get('/api/teacher/info', {"headers": {"Authorization": auth}})
       .then(response => (this.klassen = response.data.classes))
       .catch(error => {
         console.log(error)

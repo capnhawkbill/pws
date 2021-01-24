@@ -61,13 +61,20 @@ export default {
         .post('/api/teacher/signup', data)
         .then(() => {
           const auth = btoa(this.username + ":" + this.password)
-          document.cookie = auth
+          this.$cookie.setCookie('teacher_auth', auth)
           this.$router.push('/leraar/profiel')
         })
         .catch(error => {
+          this.used_username()
           console.log(error)
           this.errored = true
       })
+    },
+    used_username() {
+      this.password = ''
+      this.passwordcheck = ''
+      this.username = ''
+      this.message = 'Gebruikersnaam is al in gebruik!'
     }
   }
 }

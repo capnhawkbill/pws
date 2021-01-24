@@ -56,7 +56,7 @@ export default {
       this.axios
         .get('/api/teacher/info', headers)
         .then(() => {
-          document.cookie = auth
+          this.$cookie.setCookie('teacher_auth', auth)
           this.$router.push('/leraar/profiel')
         })
         .catch(error => {

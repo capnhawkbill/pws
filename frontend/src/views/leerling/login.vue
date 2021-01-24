@@ -51,7 +51,8 @@ export default {
       this.axios
         .get('/api/student/info', {'headers': {'Authorization': auth}})
         .then(() => {
-          document.cookie = auth
+          this.$cookie.setCookie('student_auth', auth)
+          console.log(this.$cookie.getCookie('student_auth'))
           console.log(this.$route.query.redirect)
           if (this.$route.query.redirect === undefined) {
           this.$router.push('/leerling/profiel')
