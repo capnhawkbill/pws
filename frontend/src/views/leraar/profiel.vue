@@ -27,10 +27,14 @@ export default {
     }
   },
   mounted () {
-    const auth = this.$cookie.getCookie('teacher_auth')
+    if (!this.$cookie.isCookieAvailable('teacher_auth')) {
+      this.$router.push({ name: 'leraar.login', query: { redirect: this.$route.fullPath}})
+    }
+    else {
     this.axios
-      .get('/api/teacher/info', {"headers": {"Authorization": auth}})
+      .get('/api/teacher/info', {"headers": {"Authorization": this.$cookie.getCookie('teacher_auth')}})
       .then(response => {
+        this.$cookie.setCookie('teacher', response.data)
         this.naam = response.data.name
         this.klassen = response.data.classes
         this.huiswerk = response.data.homework
@@ -40,9 +44,9 @@ export default {
       .catch(error => {
         console.log(error)
         this.errored = true
-        this.$router.push('/leraar/login')
       })
       .finally(() => this.loading = false)
     }
   }
+}
 </script>

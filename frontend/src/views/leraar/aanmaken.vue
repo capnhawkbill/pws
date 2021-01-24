@@ -21,9 +21,12 @@ export default {
   },
   methods: {
     create () {
-      const auth = this.$cookie.getCookie('teacher_auth')
+      if (!this.$cookie.isCookieAvailable('teacher_auth')) {
+        this.$router.push({ name: 'leerling.login', query: { redirect: this.$route.fullPath}})
+      }
+      else {
       this.axios
-        .get('/api/class/create?name=' + this.name, {'headers': {'Authorization': auth}})
+        .get('/api/class/create?name=' + this.name, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
         .then(response => {
           const id = response.data
           this.$router.push('/leraar/klassen/' + id)
@@ -31,7 +34,8 @@ export default {
         .catch(error => {
           console.log(error)
           this.errored = true
-      })
+        })
+      }
     }
   }
 }

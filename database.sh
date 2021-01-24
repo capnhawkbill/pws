@@ -1,7 +1,7 @@
 #!/bin/sh
 
-rm -r build
-mkdir build
+rm -r build/dist
+rm -r build/server
 
 # Compile backend
 cd backend || exit

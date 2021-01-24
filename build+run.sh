@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./build.sh
+./database.sh
 ./run.sh $1
