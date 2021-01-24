@@ -15,19 +15,9 @@ const routes = [
         component: () => import('../views/leerling/home.vue'),
       },
       {
-        path: 'rang',
-        name: 'leerling.rang',
-        component: () => import('../views/leerling/rang.vue'),
-      },
-      {
-        path: 'klas',
-        name: 'leerling.klas',
-        component: () => import('../views/leerling/klas.vue')
-      },
-      {
-        path: 'winkel',
-        name: 'leerling.winkel',
-        component: () => import('../views/leerling/winkel.vue')
+        path: 'klassen',
+        name: 'leerling.klassen',
+        component: () => import('../views/leerling/klassen.vue')
       },
       {
         path: 'profiel',
@@ -43,6 +33,14 @@ const routes = [
         path: 'aanmelden',
         name: 'leerling.aanmelden',
         component: () => import('../views/leerling/aanmelden.vue')
+      },
+      {
+        path: 'klassen/:id',
+        component: () => import('../views/leerling/klas.vue')
+      },
+      {
+        path: 'klassen/join/:id',
+        component: () => import('../views/leerling/joinklas.vue')
       }
     ],
   },
@@ -81,9 +79,12 @@ const routes = [
         component: () => import('../views/leraar/aanmelden.vue')
       },
       {
-        path: 'klas/:id',
-        name: 'leraar.klas',
+        path: 'klassen/:id',
         component: () => import('../views/leraar/klas.vue')
+      },
+      {
+        path: 'klassen/join/:id',
+        component: () => import('../views/leraar/joinklas.vue')
       }
     ],
   },

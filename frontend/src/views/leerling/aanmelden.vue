@@ -62,7 +62,13 @@ export default {
         .then(() => {
           const auth = btoa(this.username + ":" + this.password)
           document.cookie = auth
+          console.log(this.$route.query.redirect)
+          if (this.$route.query.redirect === undefined) {
           this.$router.push('/leerling/profiel')
+          }
+          else {
+          this.$router.push(this.$route.query.redirect)
+          }
         })
         .catch(error => {
           console.log(error)

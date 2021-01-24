@@ -71,26 +71,3 @@ export default {
   }
 }
 </script>
-
-<style>
-form {
-  display: inline-block;
-  padding: 30px 30px 30px 30px;
-  text-align: left;
-  transition: 0.3s;
-}
-
-form .form-group {
-  margin-bottom: 20px;
-}
-
-span.error {
-  font-size: 0.7em;
-  font-weight: bold;
-  color: var(--darkgreen);
-}
-
-button.login {
-  width: 100%;
-}
-</style>

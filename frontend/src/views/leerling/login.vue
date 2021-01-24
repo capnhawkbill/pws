@@ -12,7 +12,7 @@
     </div>
     <div class=form-group> 
       <button class="confirm" type="login" :disabled="disable_button" v-on:click="login">Login</button><br><br>
-      <router-link tag="a" to="/leerling/aanmelden">Nog geen account?</router-link>
+      <a v-on:click='toAanmelden'>Nog geen account?</a>
     </div>
   </form>
 </template>
@@ -48,25 +48,29 @@ export default {
   methods: {
     login() {
       const auth = btoa(this.username + ":" + this.password)
-      const headers = {
-        "headers": {
-        "Authorization": auth
-        }
-      }
       this.axios
-        .get('/api/student/info', headers)
+        .get('/api/student/info', {'headers': {'Authorization': auth}})
         .then(() => {
           document.cookie = auth
+          console.log(this.$route.query.redirect)
+          if (this.$route.query.redirect === undefined) {
           this.$router.push('/leerling/profiel')
+          }
+          else {
+          this.$router.push(this.$route.query.redirect)
+          }
         })
         .catch(error => {
           console.log(error)
-          this.wrong_info()
+          this.wrongInfo()
       })
     },  
-    wrong_info() {
+    wrongInfo() {
       this.password = ''
       this.errormsg = 'Inloggegevens verkeerd'
+    },
+    toAanmelden() {
+        this.$router.push({ name: 'leerling.aanmelden', query: { redirect: this.$route.query.redirect}})
     }
   }
 }

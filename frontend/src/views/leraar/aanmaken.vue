@@ -25,8 +25,7 @@ export default {
         .get('/api/class/create?name=' + this.name, {'headers': {'Authorization': document.cookie}})
         .then(response => {
           const id = response.data
-          console.log(id)
-          this.$router.push('/leraar/klas/' + id)
+          this.$router.push('/leraar/klassen/' + id)
         })
         .catch(error => {
           console.log(error)

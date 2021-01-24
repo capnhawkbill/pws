@@ -3,9 +3,7 @@
     <nav>
       <ol>
         <router-link tag="li" id="menu-item" to="/leerling">Home</router-link>
-        <router-link tag="li" id="menu-item" to="/leerling/rang">Rang</router-link> 
-        <router-link tag="li" id="menu-item" to="/leerling/klas">Klas</router-link> 
-        <router-link tag="li" id="menu-item" to="/leerling/winkel">Winkel</router-link> 
+        <router-link tag="li" id="menu-item" to="/leerling/klassen">Klassen</router-link> 
         <router-link tag="li" id="menu-item" to="/leerling/profiel">Profiel</router-link> 
         <router-link tag="li" id="menu-item" to="/leerling/login">Login</router-link> 
       </ol>
