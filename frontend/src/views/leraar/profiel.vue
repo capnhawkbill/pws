@@ -27,9 +27,9 @@ export default {
     }
   },
   mounted () {
-    console.log(document.cookie)
+    const auth = this.$cookie.getCookie('teacher_auth')
     this.axios
-      .get('/api/teacher/info', {"headers": {"Authorization": document.cookie}})
+      .get('/api/teacher/info', {"headers": {"Authorization": auth}})
       .then(response => {
         this.naam = response.data.name
         this.klassen = response.data.classes

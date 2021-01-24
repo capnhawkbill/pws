@@ -21,8 +21,9 @@ export default {
   },
   methods: {
     create () {
+      const auth = this.$cookie.getCookie('teacher_auth')
       this.axios
-        .get('/api/class/create?name=' + this.name, {'headers': {'Authorization': document.cookie}})
+        .get('/api/class/create?name=' + this.name, {'headers': {'Authorization': auth}})
         .then(response => {
           const id = response.data
           this.$router.push('/leraar/klassen/' + id)

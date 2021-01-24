@@ -61,7 +61,7 @@ export default {
         .post('/api/student/signup', data)
         .then(() => {
           const auth = btoa(this.username + ":" + this.password)
-          document.cookie = auth
+          this.$cookie.setCookie('student_auth', auth)
           console.log(this.$route.query.redirect)
           if (this.$route.query.redirect === undefined) {
           this.$router.push('/leerling/profiel')
