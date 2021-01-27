@@ -9,5 +9,5 @@ app.use(VueCookieNext)
 app.use(router)
 app.mount('#app')
 
-
 app.config.globalProperties.axios=axios
+VueCookieNext.config({ expire: 0 })

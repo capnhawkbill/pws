@@ -8,6 +8,7 @@
   --darkgrey: #32382E;
   --darkgreen: #129490; 
   --lightgreen: #8DD9D9;
+  --faintgreen: #D1F0F0;
   --white: #FFFFFF;
   --brown: #B9440E;
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -69,7 +70,7 @@ nav {
 }
 
 nav a.router-link-exact-active {
-  color: var(--lightgreen);
+  color: var(--brown);
   cursor: default;
 }
 
@@ -84,7 +85,7 @@ a {
   transition: 0.3s;
 }
 a:hover {
-  color: var(--lightgreen);
+  color: var(--brown);
 }
 
 .left {

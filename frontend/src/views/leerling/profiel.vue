@@ -27,10 +27,12 @@ export default {
     }
   },
   mounted () {
-    const auth = this.$cookie.getCookie('student_auth')
-    console.log(auth)
+    if (!this.$cookie.isCookieAvailable('student_auth')) {
+      this.$router.push({ name: 'leerling.login', query: { redirect: this.$route.fullPath}})
+    }
+    else {
     this.axios
-      .get('/api/student/info', {"headers": {"Authorization": auth}})
+      .get('/api/student/info', {"headers": {"Authorization": this.$cookie.getCookie('student_auth')}})
       .then(response => {
         this.naam = response.data.name
         this.klassen = response.data.classes
@@ -41,9 +43,9 @@ export default {
       .catch(error => {
         console.log(error)
         this.errored = true
-        this.$router.push('/leerling/login')
       })
       .finally(() => this.loading = false)
     }
   }
+}
 </script>

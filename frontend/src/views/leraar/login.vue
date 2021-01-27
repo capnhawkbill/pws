@@ -48,16 +48,17 @@ export default {
   methods: {
     login() {
       const auth = btoa(this.username + ":" + this.password)
-      const headers = {
-        "headers": {
-        "Authorization": auth
-        }
-      }
       this.axios
-        .get('/api/teacher/info', headers)
-        .then(() => {
+        .get('/api/teacher/info', {'headers': {'Authorization': auth}})
+        .then(response => {
           this.$cookie.setCookie('teacher_auth', auth)
-          this.$router.push('/leraar/profiel')
+          this.$cookie.setCookie('teacher', response.data)
+          if (this.$route.query.redirect === undefined) {
+          this.$router.push('/leerling/profiel')
+          }
+          else {
+          this.$router.push(this.$route.query.redirect)
+          }
         })
         .catch(error => {
           console.log(error)
