@@ -5,8 +5,8 @@ extern crate rocket;
 use backend::database::DbConn;
 use backend::routes;
 
-use rocket_contrib::serve::StaticFiles;
 use rocket::config::{Config, Environment, Value};
+use rocket_contrib::serve::StaticFiles;
 use std::collections::HashMap;
 
 /// Create config for the database
@@ -35,7 +35,7 @@ fn main() {
     let rocket = routes::teacher::mount(rocket);
     let rocket = routes::class::mount(rocket);
     let rocket = routes::badge::mount(rocket);
+    let rocket = routes::homework::mount(rocket);
 
-    rocket.mount("/", StaticFiles::from("./dist/"))
-        .launch();
+    rocket.mount("/", StaticFiles::from("./dist/")).launch();
 }
