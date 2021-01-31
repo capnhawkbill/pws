@@ -19,6 +19,8 @@ pub fn mount(rocket: Rocket) -> Rocket {
             get_homework,
             get_homework_class,
             get_homework_id,
+            get_homework_class_teacher,
+            get_homework_id_teacher,
             remove_homework
         ],
     )
@@ -104,11 +106,37 @@ pub fn get_homework_class(
     Ok(Json(models::get_class(&*conn, class)?.homework))
 }
 
+/// Get all the homework from a class as a teacher
+#[get("/get?<class>", rank = 2)]
+pub fn get_homework_class_teacher(
+    conn: DbConn,
+    teacher: auth::Teacher,
+    class: Id,
+) -> Result<Json<Vec<Id>>> {
+    // Check if the teacher is teacher in that class
+    if !(*teacher).classes.contains(&class) {
+        return Err(anyhow!("{:?} is not a teacher of this class", teacher));
+    }
+
+    Ok(Json(models::get_class(&*conn, class)?.homework))
+}
+
 /// Get the homework with this id
 #[get("/get?<id>", rank = 2)]
 pub fn get_homework_id(
     conn: DbConn,
-    _student: auth::Student,
+    student: auth::Student,
+    id: Id,
+) -> Result<Json<models::Homework>> {
+    let hw = models::get_homework(&*conn, id)?;
+    Ok(Json(hw))
+}
+
+/// Get the homework with this id as a teacher
+#[get("/get?<id>", rank = 2)]
+pub fn get_homework_id_teacher(
+    conn: DbConn,
+    teacher: auth::Teacher,
     id: Id,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
