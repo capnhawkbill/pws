@@ -53,25 +53,60 @@ pub fn get_class(conn: &Connection, id: Id) -> Result<Class> {
     let mut stmt = conn.prepare("SELECT * FROM class where id = ?1")?;
     let mut classes = stmt.query_map(&[&id], |row| {
         // Parse from csv
-        let teachers = getcsv(row.get(2));
-        if let Err(e) = teachers {
+        let csvteachers = getcsv(row.get(2));
+        if let Err(e) = csvteachers {
             return Err(e);
         }
-        let students = getcsv(row.get(3));
-        if let Err(e) = students {
+        let csvteachers = csvteachers.unwrap();
+        let mut teachers: Vec<_>;
+        // remove empty entry
+        if csvteachers.len() == 1 && csvteachers[0].is_empty() {
+            teachers = Vec::new();
+        } else {
+            teachers = csvteachers;
+            if teachers[0].is_empty() {
+                teachers.remove(0);
+            }
+        }
+
+        let csvstudents = getcsv(row.get(3));
+        if let Err(e) = csvstudents {
             return Err(e);
         }
-        let homework = getcsv(row.get(4));
-        if let Err(e) = homework {
+        let csvstudents = csvstudents.unwrap();
+        let mut students: Vec<_>;
+        // remove empty entry
+        if csvstudents.len() == 1 && csvstudents[0].is_empty() {
+            students = Vec::new();
+        } else {
+            students = csvstudents;
+            if students[0].is_empty() {
+                students.remove(0);
+            }
+        }
+
+        let csvhomework = getcsv(row.get(4));
+        if let Err(e) = csvhomework {
             return Err(e);
+        }
+        let csvhomework = csvhomework.unwrap();
+        let mut homework: Vec<_>;
+        // remove empty entry
+        if csvhomework.len() == 1 && csvhomework[0].is_empty() {
+            homework = Vec::new();
+        } else {
+            homework = csvhomework;
+            if homework[0].is_empty() {
+                homework.remove(0);
+            }
         }
 
         Ok(Class {
             id: row.get(0),
             name: row.get(1),
-            teachers: teachers.unwrap(),
-            students: students.unwrap(),
-            homework: homework.unwrap(),
+            teachers,
+            students,
+            homework,
         })
     })?;
 
