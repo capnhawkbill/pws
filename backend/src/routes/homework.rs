@@ -118,7 +118,7 @@ pub fn get_homework_class_teacher(
 }
 
 /// Get the homework with this id
-#[get("/get?<id>", rank = 2)]
+#[get("/get?<id>")]
 pub fn get_homework_id(
     conn: DbConn,
     id: Id,
@@ -129,7 +129,7 @@ pub fn get_homework_id(
 }
 
 /// Get the homework with this id as a teacher
-#[get("/get?<id>", rank = 3)]
+#[get("/get?<id>")]
 pub fn get_homework_id_teacher(
     conn: DbConn,
     id: Id,
