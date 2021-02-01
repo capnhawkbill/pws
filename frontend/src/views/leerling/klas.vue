@@ -3,16 +3,15 @@
   
   <h1>{{ klasnaam }}</h1>
   <div class="container">
-    {{ leerling }}
     <h4>Huiswerk</h4>
-    <table class="homework">
+    <table class="homework" v-if="this.load">
       <thead>
         <tr>
           <th v-for="(column, index) in this.homeworkvcolumns" :key="index">{{column}}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="homework in this.sortedhomework" v-bind:key="homework.date">
+        <tr v-for="homework in this.sortedhomework" :key="homework.date">
           <td v-for="(column, indexColumn) in this.homeworkcolumns" :key="indexColumn">{{homework[column]}}</td>
           <td v-if="this.isDone(homework['id'])"><a @click="toggleHomework(homework['id'])">Niet klaar?</a></td>
           <td v-else><a @click="toggleHomework(homework['id'])">Klaar?</a></td>
@@ -48,14 +47,17 @@ export default {
       homework: [],
       leerling: null,
       loading: true,
+      load: true,
     }
   },
   methods: {
     isDone (homeworkid) {
       if (this.leerling['homework'].indexOf(homeworkid) >= 0) {
+        console.log('true')
         return true
       }
       else {
+        console.log('false')
         return false
       }
     },
@@ -65,6 +67,7 @@ export default {
         .get('/api/homework/undone?class=' + this.$route.params.id + '&homework=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
         .then(() => {
           console.log('Ok')
+          this.reload()
         })
         .catch(error => (console.log(error)))
       }
@@ -73,6 +76,7 @@ export default {
         .get('/api/homework/done?class=' + this.$route.params.id + '&homework=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
         .then(() => {
           console.log('Ok')
+          this.reload()
         })
         .catch(error => (console.log(error)))
       }
@@ -82,6 +86,9 @@ export default {
         this.$router.push({ name: 'leerling.login', query: { redirect: this.$route.fullPath}})
       }
       else {
+        this.homework = []
+        this.load = false
+        this.load = true
         const getHomework = (homeworkid) => {
           this.axios
           .get('/api/homework/get?id=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})

@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         <tr v-for="homework in this.homework" :key="homework.date">
-          <td v-for="(column, indexColumn) in this.homeworkcolumns" :key="indexColumn">{{homework[homework][column]}}</td>
+          <td v-for="(column, indexColumn) in this.homeworkcolumns" :key="indexColumn">{{homework[column]}}</td>
           <td><a @click="removeHomework(homework['id'])">X</a></td>
         </tr>
       </tbody>
@@ -51,7 +51,7 @@ export default {
   methods: {
     removeHomework (huiswerkid) {
       this.axios
-      .get('/api/homework/remove?class=' + this.$route.params.id + '&' + huiswerkid, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+      .get('/api/homework/remove?class=' + this.$route.params.id + '&homework=' + huiswerkid, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
       .then(() => {
         for (let i = 0; i < this.homework.length; i++) {
           if (this.homework['id'] === huiswerkid) {
@@ -85,7 +85,7 @@ export default {
         .get('/api/homework/get?id=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
         .then(response => {
         const homework = response.data
-        this.homework.push({'homework': homework, 'id': homeworkid})
+        this.homework.push(homework)
         })
         .catch(error => {
           console.log(error)

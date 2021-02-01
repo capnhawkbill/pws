@@ -108,8 +108,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(User::Teacher(t)) => Outcome::Success(Teacher(t)),
-            Ok(_) => Outcome::Forward((Status::BadRequest, LoginError::Permission.into())),
-            Err(e) => Outcome::Forward((Status::BadRequest, e)),
+            Ok(_) => Outcome::Forward(()),
+            Err(e) => Outcome::Forward(()),
         }
     }
 }
@@ -120,8 +120,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(User::Student(s)) => Outcome::Success(Student(s)),
-            Ok(_) => Outcome::Forward((Status::BadRequest, LoginError::Permission.into())),
-            Err(e) => Outcome::Forward((Status::BadRequest, e)),
+            Ok(_) => Outcome::Forward(()),
+            Err(e) => Outcome::Forward(()),
         }
     }
 }
@@ -132,7 +132,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(r) => Outcome::Success(r),
-            Err(err) => Outcome::Forward((Status::BadRequest, err)),
+            Err(err) => Outcome::Forward(()),
         }
     }
 }
