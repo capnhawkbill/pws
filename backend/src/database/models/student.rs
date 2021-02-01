@@ -283,6 +283,9 @@ pub fn award_badge(conn: &Connection, student: Id, badge: Id) -> Result<()> {
 /// Mark homework as finished and calculate points
 pub fn finish_homework(conn: &Connection, student: Id, homework: &Homework) -> Result<()> {
     let mut student = get_student(&conn, student)?;
+    if student.homework.contains(&homework.id) {
+        return Err(anyhow!("Homework already finished"));
+    }
     student.homework.push(homework.id.clone());
     student.points += homework.points;
 
