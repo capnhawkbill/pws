@@ -3,8 +3,8 @@
   
   <h1>{{ klasnaam }}</h1>
   <div class="container">
-    <h4>Huiswerk</h4>
-    <table class="homework" v-if="this.load">
+    <h4 v-if="this.homework.length > 0">Huiswerk</h4>
+    <table class="homework" v-if="this.homework.length > 0">
       <thead>
         <tr>
           <th v-for="(column, index) in this.homeworkvcolumns" :key="index">{{column}}</th>
@@ -27,6 +27,7 @@
       </thead>
       <tbody>
           <tr v-for="(item, index) in this.klasleaderboard" :key="index">
+              <td>{{index+1}}</td>
               <td v-for="(column, indexColumn) in this.klascolumns" :key="indexColumn">{{item[column]}}</td>
           </tr>
       </tbody>
@@ -39,7 +40,7 @@ export default {
   data () {
     return {
       klasnaam : '',
-      klasvcolumns: ['Naam', 'Punten'],
+      klasvcolumns: ['Rang', 'Naam', 'Punten'],
       klascolumns: ['name', 'points'],
       klasleaderboard: null,
       homeworkvcolumns: ['Titel', 'Datum', 'Beschrijving', 'Punten', 'Acties'],
@@ -47,7 +48,6 @@ export default {
       homework: [],
       leerling: null,
       loading: true,
-      load: true,
     }
   },
   methods: {
@@ -87,8 +87,6 @@ export default {
       }
       else {
         this.homework = []
-        this.load = false
-        this.load = true
         const getHomework = (homeworkid) => {
           this.axios
           .get('/api/homework/get?id=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})

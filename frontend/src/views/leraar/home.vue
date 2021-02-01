@@ -1,5 +1,4 @@
 <template>
-  <button class='left' v-on:click="create_class">+ Maak klas aan</button>
     <div v-if="loading">Loading...</div>
   
     <div id="class">

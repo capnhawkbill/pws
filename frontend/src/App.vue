@@ -45,6 +45,12 @@ button:disabled {
   cursor: default; 
 }
 
+button.copy {
+  padding: 3px 5px 3px 5px;
+  border-radius: 0px;
+  font-weight: normal;
+}
+
 #menu-item {
   display: inline-block;
   padding: 1em 1em;
