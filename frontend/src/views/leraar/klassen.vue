@@ -1,12 +1,8 @@
 <template>
-  <section v-if="errored">
-    <p>Error with API request.</p>
-  </section>
-
-  <section v-else>
     <div v-if="loading">Loading...</div>
   
-      <h1>Jouw klassen</h1>
+    <h1>Jouw klassen</h1>
+    <div class="container">
       <table class="class">
         <thead>
           <tr>
@@ -14,13 +10,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in this.klasinfo" :key="index">
-            <router-link tag='td' to='/leerling/klas/123'>{{item}}</router-link>
+          <tr v-for="(klas, index) in this.klasinfo" :key="index">
+            <td><router-link :to="{ name: 'leraar.klas', params: { id: klas.code }}">{{klas.name}}</router-link></td>
           </tr>
         </tbody>
       </table>
       <button v-on:click="this.$router.push('/leraar/klassen/aanmaken')">+ Maak klas aan</button>
-  </section>
+    </div>
 </template>
 
 <script>
@@ -28,9 +24,8 @@ export default {
   data () {
     return {
       columns: ['Naam'],
-      klasinfo: ['V5a', 'H1b', 'V4c', 'V3a'],
+      klasinfo: [],
       loading: false,
-      errored: false
     }
   },
   mounted () {
@@ -38,27 +33,27 @@ export default {
       this.$router.push({ name: 'leraar.login', query: { redirect: this.$route.fullPath}})
     }
     else {
+      const getName = (klascode) => {
+        this.axios
+        .get('/api/class/name?id=' + klascode, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+        .then(response => {
+        const klas = {'name': response.data, 'code': klascode}
+        this.klasinfo.push(klas)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
+
       this.axios
       .get('/api/teacher/info', {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
       .then(response => {
-        const teacher = response.data 
-        console.log(teacher)
-        for (var i = 0; i < teacher.classes.length; i++) {
-          console.log(teacher.classes[i])
-          this.axios
-          .get('/api/class/name?id=' + teacher.classes[i], {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
-          .then(response => {
-            console.log(response.data)
-          })
-          .catch(error => {
-            console.log(error)
-            //this.errored = true
-          })
+        for (var i = 0; i < response.data.classes.length; i++) {
+          getName(response.data.classes[i])
         }
       })
       .catch(error => {
         console.log(error)
-        this.errored = true
       })
       .finally(() => this.loading = false)
     }
@@ -66,30 +61,3 @@ export default {
 }
 
 </script>
-
-<style>
-table {
-  border: 1px solid #cccccc;
-  border-collapse: collapse;
-  margin: 0 auto 20px auto;
-  width: 80%;
-  background: var(--lightgrey);
-}
-
-tr th {
-  border: 1px solid #cccccc;
-  background: var(--faintgreen)
-}
-
-tr {
-  border: 1px solid #cccccc;
-}
-
-tr:nth-child(odd) {
-  background: var(--lightgrey)
-}
-
-tr:nth-child(even) {
-  background: var(--faintgreen)
-}
-</style>

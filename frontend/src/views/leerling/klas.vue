@@ -1,42 +1,118 @@
 <template>
-  <section v-if="errored">
-    <p>Error met API request.</p>
-  </section>
-
-  <section v-else>
-    <div v-if="loading">Laden...</div>
+  <div v-if="loading">Loading...</div>
   
-    <div id="class">
-      {{ klasinfo }}
-      <li 
-        v-for="currency in klasinfo" 
-        :key="currency"
-      >
-        {{ currency.description }}
-      </li>
-    </div>
-  </section>
+  <h1>{{ klasnaam }}</h1>
+  <div class="container">
+    {{ leerling }}
+    <h4>Huiswerk</h4>
+    <table class="homework">
+      <thead>
+        <tr>
+          <th v-for="(column, index) in this.homeworkvcolumns" :key="index">{{column}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="homework in this.sortedhomework" v-bind:key="homework.date">
+          <td v-for="(column, indexColumn) in this.homeworkcolumns" :key="indexColumn">{{homework[column]}}</td>
+          <td><a @click="toggleHomework(homework['id'])">Klaar?</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <h4>Leaderboard</h4>
+    <table class="class">
+      <thead>
+          <tr>
+              <th v-for="(column, index) in this.klasvcolumns" :key="index"> {{column}}</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr v-for="(item, index) in this.klasleaderboard" :key="index">
+              <td v-for="(column, indexColumn) in this.klascolumns" :key="indexColumn">{{item[column]}}</td>
+          </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'class',
   data () {
     return {
-      klasinfo: null,
+      klasnaam : '',
+      klasvcolumns: ['Naam', 'Punten'],
+      klascolumns: ['name', 'points'],
+      klasleaderboard: null,
+      homeworkvcolumns: ['Titel', 'Datum', 'Beschrijving', 'Punten'],
+      homeworkcolumns: ['name', 'date', 'description', 'points'],
+      homework: [],
+      leerling: null,
       loading: true,
-      errored: false
     }
   },
-  mounted () {
-    this.axios
-      .get('/api/student/info')
-      .then(response => (this.klasinfo = response.data.bpi))
+  methods: {
+    toggleHomework (homeworkid) {
+      this.axios
+      .get('/api/homework/done?class=' + this.$route.params.id + '&homework=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+      .then(() => {
+        console.log('Ok')
+      })
+      .catch(error => (console.log(error)))
+    }
+  },
+  mounted () { 
+    if (!this.$cookie.isCookieAvailable('student_auth')) {
+      this.$router.push({ name: 'leerling.login', query: { redirect: this.$route.fullPath}})
+    }
+    else {
+      const getHomework = (homeworkid) => {
+        this.axios
+        .get('/api/homework/get?id=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+        .then(response => {
+        const homework = response.data
+        this.homework.push(homework)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
+
+      this.axios
+      .get('/api/class/name?id=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+      .then(response => (this.klasnaam = response.data))
       .catch(error => {
         console.log(error)
-        this.errored = true
       })
-      .finally(() => this.loading = false)
+      this.axios
+      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+      .then(response => (this.klasleaderboard = response.data))
+      .catch(error => {
+        console.log(error)
+      })
+      this.axios
+      .get('/api/student/info', {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+      .then(response => (this.leerling = response.data))
+      .catch(error => {
+        console.log(error)
+      })
+      this.axios
+      .get('/api/homework/get/class?id=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('student_auth')}})
+      .then(response => {
+        for (let i = 0; i < response.data.length; i++) {
+          getHomework(response.data[i])
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+      this.loading = false
+      })
+    }
+  },
+  computed: {
+    sortedhomework: function() {
+      return this.homework.slice().sort((a, b) => (a.date > b.date) ? 1 : -1)
+    }
   }
 }
 

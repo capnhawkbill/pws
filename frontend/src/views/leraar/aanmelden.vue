@@ -1,4 +1,5 @@
 <template>
+  <h1 class='left'>Leraar</h1>
   <form>
     <h1>Aanmelden</h1>
     <div class=form-group>
@@ -14,7 +15,7 @@
       <input type="password" v-model="passwordcheck" id="passwordcheck"/><br>
     <span class="error">{{ message }}</span>   
     </div>
-    <button class="confirm" type="signup" :disabled="disable_button" v-on:click="signup">Aanmelden</button>
+    <button class="confirm" type="submit" :disabled="disable_button" v-on:click="signup">Aanmelden</button>
   </form>
 </template>
 
@@ -62,17 +63,11 @@ export default {
         .then(() => {
           const auth = btoa(this.username + ":" + this.password)
           this.$cookie.setCookie('teacher_auth', auth)
-          if (this.$route.query.redirect === undefined) {
-          this.$router.push('/leerling/profiel')
-          }
-          else {
-          this.$router.push(this.$route.query.redirect)
-          }
+          this.redirect()
         })
         .catch(error => {
           this.used_username()
           console.log(error)
-          this.errored = true
       })
     },
     used_username() {
@@ -80,6 +75,19 @@ export default {
       this.passwordcheck = ''
       this.username = ''
       this.message = 'Gebruikersnaam is al in gebruik!'
+    },
+    redirect() {
+      if (this.$route.query.redirect === undefined) {
+        this.$router.push('/leraar/profiel')
+      }
+      else {
+        this.$router.push(this.$route.query.redirect)
+      }
+    }
+  },
+  mounted() {
+    if (this.$cookie.isCookieAvailable('teacher_auth')) {
+      this.redirect()
     }
   }
 }

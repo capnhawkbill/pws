@@ -1,61 +1,121 @@
 <template>
-  <section v-if="errored">
-    <p>Error met API request. Weet je zeker dat deze klas bestaat?</p>
-  </section>
-
-  <section v-else>
-    <div v-if="loading">Loading...</div>
+  <div v-if="loading">Loading...</div>
   
-    <div> 
-      {{ klasinfo }}
-      <table class="class">
-        <thead>
-            <tr>
-                <th v-for="(column, index) in this.columns" :key="index"> {{column}}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(item, index) in this.klasinfo" :key="index">
-                <td v-for="(column, indexColumn) in this.columns" :key="indexColumn">{{item[column]}}</td>
-            </tr>
-        </tbody>
-      </table>
-      Nodig leerlingen uit met deze link:
-      <button class='left' v-on:click="copyShareLink">Kopieer link</button>
-    </div>
-  </section>
+  <h1>{{ klasnaam }}</h1>
+  <div class="container">
+    <table class="homework">
+      <thead>
+        <tr>
+          <th v-for="(column, index) in this.homeworkvcolumns" :key="index">{{column}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="homework in this.homework" :key="homework.date">
+          <td v-for="(column, indexColumn) in this.homeworkcolumns" :key="indexColumn">{{homework[homework][column]}}</td>
+          <td><a @click="removeHomework(homework['id'])">X</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="class">
+      <thead>
+          <tr>
+              <th v-for="(column, index) in this.klasvcolumns" :key="index">{{column}}</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr v-for="(item, index) in this.klasleaderboard" :key="index">
+              <td v-for="(column, indexColumn) in this.klascolumns" :key="indexColumn">{{item[column]}}</td>
+          </tr>
+      </tbody>
+    </table>
+    Nodig leerlingen uit met deze link:
+    <button v-on:click="copyShareLink">Kopieer link</button>
+    <button v-on:click="addHomework">+ Voeg huiswerk toe</button>
+  </div>
 </template>
 
 <script>
 export default {
   data () {
     return {
-      klasinfo: null,
-      columns: ['Naam', 'Punten'],
+      klasnaam : '',
+      klasvcolumns: ['Naam', 'Punten'],
+      klascolumns: ['name', 'points'],
+      klasleaderboard: null,
+      homeworkvcolumns: ['Titel', 'Datum', 'Beschrijving', 'Punten', 'Acties'],
+      homeworkcolumns: ['name', 'date', 'description', 'points'],
+      homework: [],
       loading: true,
-      errored: false
     }
   },
   methods: {
-    copyShareLink() {
+    removeHomework (huiswerkid) {
+      this.axios
+      .get('/api/homework/remove?class=' + this.$route.params.id + '&' + huiswerkid, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+      .then(() => {
+        for (let i = 0; i < this.homework.length; i++) {
+          if (this.homework['id'] === huiswerkid) {
+            this.homework = this.homework.splice(i, 1) //remove homework
+          }
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    },
+    copyShareLink () {
       var dummy = document.createElement("textarea");
       document.body.appendChild(dummy);
       dummy.value = window.location.origin + '/#/leerling/klassen/join/' + this.$route.params.id;
       dummy.select();
       document.execCommand("copy");
       document.body.removeChild(dummy);
-}
+    },
+    addHomework() {
+      this.$router.push({ name: 'leraar.huiswerk.aanmaken'})
+    }
   },
   mounted () {
-    const auth = this.$cookie.getCookie('teacher_auth')
-    this.axios
-      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': auth}})
-      .then(response => (this.klasinfo = response.data))
+    if (!this.$cookie.isCookieAvailable('teacher_auth')) {
+      this.$router.push({ name: 'leraar.login', query: { redirect: this.$route.fullPath}})
+    }
+    else {
+      const getHomework = (homeworkid) => {
+        this.axios
+        .get('/api/homework/get?id=' + homeworkid, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+        .then(response => {
+        const homework = response.data
+        this.homework.push({'homework': homework, 'id': homeworkid})
+        })
+        .catch(error => {
+          console.log(error)
+        })
+      }
+
+      this.axios
+      .get('/api/class/name?id=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+      .then(response => (this.klasnaam = response.data))
       .catch(error => {
         console.log(error)
-        this.errored = true
+      })
+      this.axios
+      .get('/api/class/leaderboard?class=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+      .then(response => (this.klasleaderboard = response.data))
+      .catch(error => {
+        console.log(error)
+      })
+      this.axios
+      .get('/api/homework/get/class?id=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie('teacher_auth')}})
+      .then(response => {
+        for (let i = 0; i < response.data.length; i++) {
+          getHomework(response.data[i])
+        }
+      })
+      .catch(error => {
+        console.log(error)
       })
       .finally(() => this.loading = false)
+    }
   }
 }
 

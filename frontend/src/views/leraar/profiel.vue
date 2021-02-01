@@ -1,15 +1,9 @@
 <template>
-  <section v-if="errored">
-    <p>Error met API request</p>
-  </section>
-
-  <section v-else>
     <div v-if="loading">Laden...</div>
     <div class="profiel">
       <h1>Profiel van {{ naam }}</h1>
       {{huiswerk}}
     </div>
-  </section>
 </template>
 
 <script>
@@ -23,7 +17,6 @@ export default {
       badges: null,
       punten: null,
       loading: true,
-      errored: false
     }
   },
   mounted () {
@@ -43,7 +36,6 @@ export default {
       })
       .catch(error => {
         console.log(error)
-        this.errored = true
       })
       .finally(() => this.loading = false)
     }

@@ -76,7 +76,7 @@ pub fn remove_homework(
 }
 
 /// Get all the homework from a student unsorted
-#[get("/get", rank = 3)]
+#[get("/get/student", rank = 3)]
 pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
     let mut homework = Vec::new();

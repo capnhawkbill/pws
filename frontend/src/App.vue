@@ -89,10 +89,14 @@ a:hover {
 }
 
 .left {
+  margin-left: 20px;
+  position: fixed;
   float: left;
 }
 
 .right {
+  margin-right: 20px;
+  position: fixed;
   float: right;
 }
 
@@ -115,5 +119,47 @@ span.error {
 
 button.confirm {
   width: 100%;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto 0 auto;
+}
+
+table {
+  text-align: left;
+  border: 1px solid #cccccc;
+  border-collapse: collapse;
+  margin: 0 auto 20px auto;
+  width: 100%;
+  background: var(--lightgrey);
+}
+
+th {
+  border: 1px solid #cccccc;
+  background: var(--faintgreen);
+  padding-left: 5px; 
+}
+
+td {
+  border: 1px solid #cccccc;
+  padding-left: 5px; 
+}
+
+tr {
+  border: 1px solid #cccccc;
+}
+
+tr:nth-child(odd) {
+  background: var(--lightgrey)
+}
+
+tr:nth-child(even) {
+  background: var(--faintgreen)
+}
+
+h4 {
+  text-align: left;
+  margin-block-end: 0.5em;
 }
 </style>
