@@ -60,8 +60,8 @@ pub fn add_homework(
 pub fn remove_homework(
     conn: DbConn,
     homework: Id,
-    teacher: auth::Teacher,
     class: Id,
+    teacher: auth::Teacher,
 ) -> Result<()> {
     // Check if the theacher is theacher from that class
     if !(*teacher).classes.contains(&class) {
@@ -76,7 +76,7 @@ pub fn remove_homework(
 }
 
 /// Get all the homework from a student unsorted
-#[get("/get", rank = 5)]
+#[get("/get", rank = 3)]
 pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
     let mut homework = Vec::new();
@@ -92,52 +92,48 @@ pub fn get_homework(conn: DbConn, student: auth::Student) -> Result<Json<Vec<Id>
 }
 
 /// Get all the homework from a class
-#[get("/get?<class>")]
-pub fn get_homework_class(
-    conn: DbConn,
-    student: auth::Student,
-    class: Id,
-) -> Result<Json<Vec<Id>>> {
+#[get("/get/class?<id>")]
+pub fn get_homework_class(conn: DbConn, id: Id, student: auth::Student) -> Result<Json<Vec<Id>>> {
     // Check if the student is student in that class
-    if !(*student).classes.contains(&class) {
+    if !(*student).classes.contains(&id) {
         return Err(anyhow!("{:?} is not a student in this class", student));
     }
 
-    Ok(Json(models::get_class(&*conn, class)?.homework))
+    Ok(Json(models::get_class(&*conn, id)?.homework))
 }
 
 /// Get all the homework from a class as a teacher
-#[get("/get?<class>", rank = 2)]
+#[get("/get/class?<id>", rank = 2)]
 pub fn get_homework_class_teacher(
     conn: DbConn,
+    id: Id,
     teacher: auth::Teacher,
-    class: Id,
 ) -> Result<Json<Vec<Id>>> {
     // Check if the teacher is teacher in that class
-    if !(*teacher).classes.contains(&class) {
+    if !(*teacher).classes.contains(&id) {
         return Err(anyhow!("{:?} is not a teacher of this class", teacher));
     }
 
-    Ok(Json(models::get_class(&*conn, class)?.homework))
+    Ok(Json(models::get_class(&*conn, id)?.homework))
 }
 
 /// Get the homework with this id
-#[get("/get?<id>", rank = 3)]
+#[get("/get?<id>")]
 pub fn get_homework_id(
     conn: DbConn,
-    student: auth::Student,
     id: Id,
+    student: auth::Student,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
     Ok(Json(hw))
 }
 
 /// Get the homework with this id as a teacher
-#[get("/get?<id>", rank = 4)]
+#[get("/get?<id>", rank = 2)]
 pub fn get_homework_id_teacher(
     conn: DbConn,
-    teacher: auth::Teacher,
     id: Id,
+    teacher: auth::Teacher,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
     Ok(Json(hw))
@@ -147,9 +143,9 @@ pub fn get_homework_id_teacher(
 #[get("/done?<class>&<homework>")]
 pub fn finished_homework(
     conn: DbConn,
-    student: auth::Student,
     class: Id,
     homework: Id,
+    student: auth::Student,
 ) -> Result<()> {
     if !(*student).classes.contains(&class) {
         return Err(anyhow!("{:?} is not a student in this class", student));
@@ -165,9 +161,9 @@ pub fn finished_homework(
 #[get("/undone?<class>&<homework>")]
 pub fn unfinish_homework(
     conn: DbConn,
-    student: auth::Student,
     class: Id,
     homework: Id,
+    student: auth::Student,
 ) -> Result<()> {
     if !(*student).classes.contains(&class) {
         return Err(anyhow!("{:?} is not a student in this class", student));
