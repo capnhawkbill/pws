@@ -16,7 +16,10 @@ use crate::database::{
 
 /// Mount all the routes
 pub fn mount(rocket: Rocket) -> Rocket {
-    rocket.mount("/api/student", routes![signup_route, id_student, info])
+    rocket.mount(
+        "/api/student",
+        routes![signup_route, id_student, id_student_teacher, info],
+    )
 }
 
 /// Signup
@@ -58,6 +61,12 @@ fn info(student: auth::Student) -> Json<SafeStudent> {
 /// Look up a student with the id
 #[get("/id?<id>")]
 fn id_student(id: Id, conn: DbConn, _student: auth::Student) -> Result<Json<SafeStudent>> {
+    Ok(Json(get_student(&*conn, id)?.into()))
+}
+
+/// Look up a student with the id
+#[get("/id?<id>", rank = 2)]
+fn id_student_teacher(id: Id, conn: DbConn, _teacher: auth::Teacher) -> Result<Json<SafeStudent>> {
     Ok(Json(get_student(&*conn, id)?.into()))
 }
 
