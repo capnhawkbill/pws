@@ -27,11 +27,17 @@ pub fn mount(rocket: Rocket) -> Rocket {
 #[post("/create", format = "json", data = "<badge>")]
 pub fn create_badge(conn: DbConn, mut teacher: auth::Teacher, badge: Json<Badge>) -> Result<Id> {
     let id = generate_id(&*conn)?;
+    let icon = if badge.icon.is_empty() {
+        None
+    } else {
+        Some(badge.icon.clone())
+    };
     let badge = models::Badge {
         id: id.clone(),
         name: badge.name.clone(),
         description: badge.description.clone(),
         official: false,
+        icon,
     };
 
     // insert the badge in the database
@@ -82,7 +88,12 @@ pub fn remove_badge(conn: DbConn, mut teacher: auth::Teacher, id: Id) -> Result<
     }
     // remove badge from teacher
     let teacher = &mut *teacher;
-    teacher.badges = teacher.badges.iter().filter(|&x| x != &id).cloned().collect();
+    teacher.badges = teacher
+        .badges
+        .iter()
+        .filter(|&x| x != &id)
+        .cloned()
+        .collect();
 
     update_teacher(&*conn, teacher)?;
 

@@ -13,6 +13,8 @@ pub struct Badge {
     pub description: String,
     /// Whether the badge is official or user created
     pub official: bool,
+    /// Base64 encoded png icon
+    pub icon: Option<String>,
 }
 
 pub fn create_table(conn: &Connection) -> Result<()> {
@@ -22,6 +24,7 @@ pub fn create_table(conn: &Connection) -> Result<()> {
                 name        TEXT NOT NULL,
                 description TEXT NOT NULL,
                 official    INTEGER
+                icon        TEXT NOT NULL,
         )",
         &[],
     )?;
@@ -33,9 +36,10 @@ pub fn create_table(conn: &Connection) -> Result<()> {
 pub fn insert_badge(conn: &Connection, badge: &Badge) -> Result<()> {
     trace!("Inserting Badge {:?}", badge.name);
     let official = mkbool(badge.official);
+    let icon = badge.icon.clone().unwrap_or(String::new());
     conn.execute(
-        "INSERT INTO badge (id, name, description, official) VALUES (?1, ?2, ?3, ?4)",
-        &[&badge.id, &badge.name, &badge.description, &official],
+        "INSERT INTO badge (id, name, description, official, icon) VALUES (?1, ?2, ?3, ?4, ?5)",
+        &[&badge.id, &badge.name, &badge.description, &official, &icon],
     )?;
     Ok(())
 }
@@ -53,11 +57,14 @@ pub fn get_badge(conn: &Connection, id: Id) -> Result<Badge> {
     let mut stmt = conn.prepare("SELECT * FROM badge where id = ?1")?;
     let mut badges = stmt.query_map(&[&id], |row| {
         let official = getbool(row.get(3))?;
+        let icon: String = row.get(4);
+        let icon = if icon.is_empty() { None } else { Some(icon) };
         Ok(Badge {
             id: row.get(0),
             name: row.get(1),
             description: row.get(2),
             official,
+            icon,
         })
     })?;
 
