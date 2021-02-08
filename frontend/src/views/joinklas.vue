@@ -1,19 +1,13 @@
 <template>
-    <div v-if="loading">Loading...</div>
-  
-    <div id="class">
-      {{ klasinfo }}
-    </div>
+  <div v-if="loading">Laden...</div>
+  <div v-else>Je bent toegevoegd aan de klas!</div>
 </template>
 
 <script>
 export default {
-  name: 'classes',
   data () {
     return {
-      user: null,
-      klasinfo: null,
-      loading: true,
+      loading: true
     }
   },
   mounted () {
@@ -23,10 +17,7 @@ export default {
     }
     else {
     this.axios
-      .get('/api/' + this.user + '/info', {"headers": {"Authorization": this.$cookie.getCookie(this.user)}})
-      .then(response => {
-        this.klasinfo = response.data.classes
-      })
+      .get('/api/class/join?id=' + this.$route.params.id, {'headers': {'Authorization': this.$cookie.getCookie(this.user)}})
       .catch(error => {
         console.log(error)
       })

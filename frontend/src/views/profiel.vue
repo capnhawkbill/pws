@@ -7,7 +7,7 @@
       <klastabel />
 
       
-      <button v-on:click="this.uitloggen()" v-if="this.$cookie.isCookieAvailable('teacher_auth')">Uitloggen</button> 
+      <button v-on:click="this.uitloggen()">Uitloggen</button> 
     </div>
 </template>
 
@@ -21,6 +21,7 @@ export default {
   },
   data () {
     return {
+      user: null,
       naam: null,
       klassen: null,
       huiswerk: null,
@@ -30,18 +31,19 @@ export default {
     }
   },
   methods: {
-    uitloggen () {
-      this.$cookie.removeCookie('teacher_auth')
-      this.$router.push('/')
+    uitloggen() {
+      this.$cookie.removeCookie(this.user)
+      this.$router.push({ name: 'start'})
     }
   },
   mounted () {
-    if (!this.$cookie.isCookieAvailable('teacher_auth')) {
-      this.$router.push({ name: 'leraar.login', query: { redirect: this.$route.fullPath}})
+    this.user = this.$route.params.user
+    if (!this.$cookie.isCookieAvailable(this.user)) {
+      this.$router.push({ name: 'login', query: { redirect: this.$route.fullPath}})
     }
     else {
     this.axios
-      .get('/api/teacher/info', {"headers": {"Authorization": this.$cookie.getCookie('teacher_auth')}})
+      .get('/api/' + this.user + '/info', {"headers": {"Authorization": this.$cookie.getCookie(this.user)}})
       .then(response => {
         this.naam = response.data.name
         this.klassen = response.data.classes

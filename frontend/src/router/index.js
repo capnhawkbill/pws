@@ -3,98 +3,63 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    component: () => import('../views/home.vue')
+    name: 'start',
+    component: () => import('@/views/start.vue')
   },
   {
-    path: '/leerling/login',
-    name: 'leerling.login',
-    component: () => import('../views/leerling/login.vue')
+    path: '/:user/login',
+    name: 'login',
+    component: () => import('@/views/login.vue')
   },
   {
-    path: '/leerling/aanmelden',
-    name: 'leerling.aanmelden',
-    component: () => import('../views/leerling/aanmelden.vue')
+    path: '/:user/aanmelden',
+    name: 'aanmelden',
+    component: () => import('@/views/aanmelden.vue')
   },
   {
-    path: '/leerling',
-    component: () => import('@/components/leerlingmenu.vue'),
+    path: '/:user',
+    component: () => import('@/components/menu.vue'),
     children: [
       {
-        path: '',
-        name: 'leerling.home',
-        component: () => import('../views/leerling/home.vue'),
+        path: 'home',
+        name: 'home',
+        component: () => import('@/views/home.vue'),
       },
       {
         path: 'klassen',
-        name: 'leerling.klassen',
-        component: () => import('../views/leerling/klassen.vue')
+        name: 'klassen',
+        component: () => import('@/views/klassen.vue')
       },
       {
         path: 'profiel',
-        name: 'leerling.profiel',
-        component: () => import('../views/leerling/profiel.vue')
+        name: 'profiel',
+        component: () => import('@/views/profiel.vue')
       },
       {
         path: 'klassen/:id',
-        name: 'leerling.klas',
-        component: () => import('../views/leerling/klas.vue')
+        name: 'klas',
+        component: () => import('@/views/klas.vue')
       },
       {
         path: 'klassen/join/:id',
-        name: 'leerling.klas.join',
-        component: () => import('../views/leerling/joinklas.vue')
-      }
-    ],
-  },
-  {
-    path: '/leraar/login',
-    name: 'leraar.login',
-    component: () => import('../views/leraar/login.vue')
-  },
-  {
-    path: '/leraar/aanmelden',
-    name: 'leraar.aanmelden',
-    component: () => import('../views/leraar/aanmelden.vue')
-  },
-  {
-    path: '/leraar',
-    component: () => import('@/components/leraarmenu.vue'),
-    children: [
-      {
-        path: '',
-        name: 'leraar.home',
-        component: () => import('../views/leraar/home.vue'),
-      },
-      {
-        path: 'klassen',
-        name: 'leraar.klassen',
-        component: () => import('../views/leraar/klassen.vue')
+        name: 'join',
+        component: () => import('@/views/joinklas.vue')
       },
       {
         path: 'klassen/aanmaken',
-        name: 'leraar.klassen.aanmaken',
-        component: () => import('../views/leraar/aanmaken.vue')
+        name: 'klas.aanmaken',
+        component: () => import('@/views/aanmaken.vue')
+      },
+      {
+        path: 'klassen/:id/:hw',
+        name: 'huiswerk',
+        component: () => import('@/views/huiswerk.vue')
       },
       {
         path: 'klassen/:id/huiswerk',
-        name: 'leraar.huiswerk.aanmaken',
-        component: () => import('../views/leraar/addhuiswerk.vue')
+        name: 'huiswerk.aanmaken',
+        component: () => import('@/views/addhuiswerk.vue')
       },
-      {
-        path: 'profiel',
-        name: 'leraar.profiel',
-        component: () => import('../views/leraar/profiel.vue')
-      },
-      {
-        path: 'klassen/:id',
-        name: 'leraar.klas',
-        component: () => import('../views/leraar/klas.vue')
-      },
-      {
-        path: 'klassen/join/:id',
-        name: 'leraar.klas.join',
-        component: () => import('../views/leraar/joinklas.vue')
-      }
     ],
   },
 ]

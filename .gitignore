@@ -5,3 +5,4 @@ stats/
 *~
 todo.html
 cargo.lock
+build.sh

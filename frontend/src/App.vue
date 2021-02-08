@@ -19,8 +19,8 @@
 }
 
 ::selection {
-    color: var(--white);
-    background-color: var(--darkgreen);
+  color: var(--white);
+  background-color: var(--darkgreen);
 }
 
 button {

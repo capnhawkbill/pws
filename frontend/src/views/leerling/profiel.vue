@@ -1,8 +1,9 @@
 <template>
     <div v-if="loading">Laden...</div>
+
     <div class="profiel">
       <h1>Profiel van {{ naam }}</h1>
-      {{huiswerk}}
+      <button v-on:click="this.uitloggen()">Uitloggen</button> 
     </div>
 </template>
 
@@ -17,6 +18,12 @@ export default {
       badges: null,
       punten: null,
       loading: true,
+    }
+  },
+  methods: {
+    uitloggen () {
+      this.$cookie.removeCookie('student_auth')
+      this.$router.push('/')
     }
   },
   mounted () {
