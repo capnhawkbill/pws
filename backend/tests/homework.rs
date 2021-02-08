@@ -136,7 +136,7 @@ fn test_homework() {
         let hw: database::models::Homework = serde_json::from_str(&hw).unwrap();
         studenthw.push(hw);
     }
-    let studenthw = 
+    let _studenthw = 
 
     // check
     assert_eq!(

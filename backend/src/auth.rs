@@ -5,7 +5,7 @@
 //! + Student, Teacher or Admin if you do
 
 use anyhow::Result;
-use rocket::http::Status;
+
 use rocket::request::{FromRequest, Outcome, Request};
 use std::ops::{Deref, DerefMut};
 
@@ -109,7 +109,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Teacher {
         match get_user(req) {
             Ok(User::Teacher(t)) => Outcome::Success(Teacher(t)),
             Ok(_) => Outcome::Forward(()),
-            Err(e) => Outcome::Forward(()),
+            Err(_e) => Outcome::Forward(()),
         }
     }
 }
@@ -121,7 +121,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Student {
         match get_user(req) {
             Ok(User::Student(s)) => Outcome::Success(Student(s)),
             Ok(_) => Outcome::Forward(()),
-            Err(e) => Outcome::Forward(()),
+            Err(_e) => Outcome::Forward(()),
         }
     }
 }
@@ -132,7 +132,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     fn from_request(req: &'a Request<'r>) -> Outcome<Self, Self::Error> {
         match get_user(req) {
             Ok(r) => Outcome::Success(r),
-            Err(err) => Outcome::Forward(()),
+            Err(_err) => Outcome::Forward(()),
         }
     }
 }

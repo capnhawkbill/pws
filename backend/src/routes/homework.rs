@@ -122,7 +122,7 @@ pub fn get_homework_class_teacher(
 pub fn get_homework_id(
     conn: DbConn,
     id: Id,
-    student: auth::Student,
+    _student: auth::Student,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
     Ok(Json(hw))
@@ -133,7 +133,7 @@ pub fn get_homework_id(
 pub fn get_homework_id_teacher(
     conn: DbConn,
     id: Id,
-    teacher: auth::Teacher,
+    _teacher: auth::Teacher,
 ) -> Result<Json<models::Homework>> {
     let hw = models::get_homework(&*conn, id)?;
     Ok(Json(hw))
