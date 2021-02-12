@@ -11,7 +11,6 @@
 
 <script>
 export default {
-  name: "aanmelden",
   data() {
     return {
       name: '',

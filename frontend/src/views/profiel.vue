@@ -1,10 +1,17 @@
 <template>
     <div v-if="loading">Laden...</div>
 
-    <h1>Profiel van {{ naam }}</h1>
-    <div class="profiel">
-      <h4>Klassen</h4>
-      <klastabel />
+    <div v-else id="profiel">
+      <h1>Profiel van {{ naam }}</h1>
+      <div class="container">
+        <div>
+          <h4>Aantal klassen: {{ klassen.length }}</h4>
+          <h4 v-if="user==='student'">Totaal aantal punten: {{ punten }}</h4>
+        </div>
+
+        <h4>Klassen</h4>
+        <klastabel />
+      </div>
 
       
       <button v-on:click="this.uitloggen()">Uitloggen</button> 
@@ -48,6 +55,9 @@ export default {
         this.naam = response.data.name
         this.klassen = response.data.classes
         this.badges = response.data.badges
+        if (this.user === 'student') {
+          this.punten = response.data.points
+        }
       })
       .catch(error => {
         console.log(error)

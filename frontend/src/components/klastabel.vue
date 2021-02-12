@@ -8,6 +8,7 @@
     <tbody>
       <tr v-for="(klas, index) in this.klasinfo" :key="index">
         <td><router-link :to="{ name: 'klas', params: { id: klas.code }}">{{klas.name}}</router-link></td>
+        <td>{{ klas.students.length }}</td>
       </tr>
     </tbody>
   </table>
@@ -19,7 +20,7 @@ export default {
   data () {
     return {
       user: null,
-      columns: ['Naam'],
+      columns: ['Naam', 'Leerlingen'],
       klasinfo: [],
       loading: false,
     }
@@ -35,8 +36,12 @@ export default {
         this.axios
         .get('/api/class/name?id=' + klascode, headers)
         .then(response => {
-        const klas = {'name': response.data, 'code': klascode}
-        this.klasinfo.push(klas)
+          this.axios
+          .get('/api/class/students?id=' + klascode, headers)
+          .then(students => {
+          const klas = {'name': response.data, 'code': klascode, 'students': students.data}
+          this.klasinfo.push(klas)
+          })
         })
         .catch(error => {
           console.log(error)

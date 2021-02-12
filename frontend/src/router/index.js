@@ -21,9 +21,9 @@ const routes = [
     component: () => import('@/components/menu.vue'),
     children: [
       {
-        path: 'home',
-        name: 'home',
-        component: () => import('@/views/home.vue'),
+        path: 'huiswerk',
+        name: 'weekhuiswerk',
+        component: () => import('@/views/weekhuiswerk.vue'),
       },
       {
         path: 'klassen',
