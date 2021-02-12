@@ -121,6 +121,9 @@ export default {
           for (let i = 0; i < this.leerling.classes.length; i++) {
             this.getAllHomework(this.leerling.classes[i])
           }
+          if (this.leerling.classes.length === 0) {
+            this.loading = false
+          }
         })
         .catch(error => {
           console.log(error)
